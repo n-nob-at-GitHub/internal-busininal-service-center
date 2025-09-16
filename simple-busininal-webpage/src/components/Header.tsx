@@ -6,7 +6,7 @@ import logo from '@/images/logo.webp'
 const Header = () => {
   return (
     <a
-      href='https://www.bijininal.com/'
+      href='https://arte-info.com/'
       target="_blank"
       rel="noopener noreferrer"
     >

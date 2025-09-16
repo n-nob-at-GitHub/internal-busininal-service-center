@@ -5,7 +5,12 @@ import {
   Tab,
   Tabs,
 } from '@mui/material'
-import WebBasedEmploymentRules from '@/components/EmploymentRules'
+import BuddhistAltars from '@/components/BuddhistAltars'
+import Bells from '@/components/Bells'
+import MemorialFlowers from '@/components/MemorialFlowers'
+import Rosaries from '@/components/Rosaries'
+import PhotoFrames from '@/components/PhotoFrames'
+import OtherBuddhistAltarImplements from '@/components/OtherBuddhistAltarImplements'
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -44,11 +49,31 @@ const Contents = () => {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' aria-label='basic tabs example'>
-          <Tab label='就業規則一覧' { ...a11yProps(0) } />
+          <Tab label='念珠' { ...a11yProps(0) } />
+          <Tab label='仏壇' { ...a11yProps(1) } />
+          <Tab label='御鈴' { ...a11yProps(2) } />
+          <Tab label='メモリアルフラワー' { ...a11yProps(3) } />
+          <Tab label='フォトフレーム' { ...a11yProps(4) } />
+          <Tab label='その他の仏具' { ...a11yProps(5) } />
         </Tabs>
       </Box>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
-        <WebBasedEmploymentRules />
+        <Rosaries />
+      </CustomTabPanel>
+      <CustomTabPanel value={ tabIndex } index={ 1 }>
+        <BuddhistAltars />
+      </CustomTabPanel>
+      <CustomTabPanel value={ tabIndex } index={ 2 }>
+        <Bells />
+      </CustomTabPanel>
+      <CustomTabPanel value={ tabIndex } index={ 3 }>
+        <MemorialFlowers />
+      </CustomTabPanel>
+      <CustomTabPanel value={ tabIndex } index={ 4 }>
+        <PhotoFrames />
+      </CustomTabPanel>
+      <CustomTabPanel value={ tabIndex } index={ 5 }>
+        <OtherBuddhistAltarImplements />
       </CustomTabPanel>
     </Box>
   )
