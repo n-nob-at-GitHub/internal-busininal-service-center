@@ -215,13 +215,13 @@ const Users = () => {
           onClose={ closeDialog }
           judge={ judge }
           title='削除確認'
-          message={ `ユーザー一覧から ${row.original.mail} を削除しますか？` }
+          message={ `ユーザー ${row.original.mail} を削除しますか？` }
         />
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-        <Typography variant='h4'>ユーザー一覧</Typography>
+        <Typography variant='h4'>ユーザー</Typography>
         <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
           <AddCircleOutline />
         </IconButton>
@@ -330,8 +330,8 @@ const validateRequired = (value: string | number) => value !== undefined && valu
 
 function validateUser(user: User) {
   return {
-    name: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
-    role: !validateRequired(user.roleId) ? 'ロールは必須です。' : '',
+    mail: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
+    roleId: !validateRequired(user.roleId) ? 'ロールは必須です。' : '',
   }
 }
 

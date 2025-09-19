@@ -17,10 +17,9 @@ export type Material = {
   code: string;
   category: string;
   price: number;
-  amount: number;
+  quantity: number;
   unit: string;
   name: string;
-  amount: number;
   filePath: string?;
 };
 
@@ -29,16 +28,6 @@ export type ManufacturerIds = number[];
 export type Manufacturer = { 
   id: number;
   name: string;
-};
-
-export type Religion = { 
-  id: number;
-  name: string;
-  note: string?;
-  createdBy: string;
-  createdAt: string;
-  updatedBy: string;
-  updatedAt: string;
 };
 
 export type StockIds = number[];

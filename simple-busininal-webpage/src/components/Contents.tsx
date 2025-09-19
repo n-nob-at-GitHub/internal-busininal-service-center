@@ -9,7 +9,7 @@ import Licenses from '@/components/Licenses'
 import Bells from '@/components/Bells'
 import MemorialFlowers from '@/components/MemorialFlowers'
 import Users from '@/components/Users'
-import OtherBuddhistAltarImplements from '@/components/OtherBuddhistAltarImplements'
+import Materials from '@/components/Materials'
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -49,17 +49,17 @@ const Contents = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' aria-label='basic tabs example'>
           <Tab label='ユーザー' { ...a11yProps(0) } />
-          <Tab label='ライセンス' { ...a11yProps(1) } />
+          <Tab label='品目' { ...a11yProps(1) } />
           <Tab label='御鈴' { ...a11yProps(2) } />
           <Tab label='メモリアルフラワー' { ...a11yProps(3) } />
-          <Tab label='その他の仏具' { ...a11yProps(4) } />
+          <Tab label='ライセンス' { ...a11yProps(4) } />
         </Tabs>
       </Box>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
         <Users />
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 1 }>
-        <Licenses />
+        <Materials />
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 2 }>
         <Bells />
@@ -68,7 +68,7 @@ const Contents = () => {
         <MemorialFlowers />
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 4 }>
-        <OtherBuddhistAltarImplements />
+        <Licenses />
       </CustomTabPanel>
     </Box>
   )
