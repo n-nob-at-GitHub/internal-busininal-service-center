@@ -32,7 +32,7 @@ model Material {
   code            String
   category        String
   price           Int              @default(0)
-  quantity        Int            @default(0)
+  quantity        Int              @default(0)
   unit            String
   name            String
   filePath        String?
