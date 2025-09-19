@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  users           User[]
+}
+
+model User {
+  id              Int              @id @default(autoincrement())
+  roleId          Int              @map("role_id")
+  mail            String           @unique
+  role            Role             @relation(fields: [roleId], references: [id])
+}
+
+model Material {
+  id              Int              @id @default(autoincrement())
+  manufacturerId  Int              @map("manufacturer_id")
+  code            String
+  category        String
+  price           Int              @default(0)
+  amount          Int              @default(0)
+  unit            String
+  name            String
+  filePath        String?
+  manufacturer    Manufacturer     @relation(fields: [manufacturerId], references: [id])
+  stocks          Stock[]
+}
+
+model Manufacturer {
+  id              Int              @id @default(autoincrement())
+  name            String
+  materials       Material[]
+}
+
+model Stock {
+  id              Int              @id @default(autoincrement())
+  materialId      Int              @map("material_id")
+  totalQuantity   Int              @default(0)
+  totalAmount     Int              @default(0)
+  unit            String
+  note            String?
+  createdBy       String           @map("created_by")
+  createdAt       DateTime         @map("created_at") @default(now())
+  updatedBy       String           @map("updated_by")
+  updatedAt       DateTime         @map("updated_at") @default(now())
+  material        Material         @relation(fields: [materialId], references: [id])
+  inbounds        Inbound[]
+  outbounds       Outbound[]
+}
+
+model DeliverySite {
+  id              Int              @id @default(autoincrement())
+  name            String
+  contact         String
+  outbounds       Outbound[]
+}
+
+model Inbound {
+  id              Int              @id @default(autoincrement())
+  stockId         Int              @map("stock_id")
+  quantity        Int              @default(0)
+  amount          Int              @default(0)
+  unitPrice       Int              @default(0)
+  unit            String
+  createdBy       String           @map("created_by")
+  createdAt       DateTime         @map("created_at") @default(now())
+  stock           Stock            @relation(fields: [stockId], references: [id])
+}
+
+model Outbound {
+  id              Int              @id @default(autoincrement())
+  stockId         Int              @map("stock_id")
+  deliverySiteId  Int              @map("delivery_site_id")
+  quantity        Int              @default(0)
+  amount          Int              @default(0)
+  unitPrice       Int              @default(0)
+  unit            String
+  createdBy       String           @map("created_by")
+  createdAt       DateTime         @map("created_at") @default(now())
+  stock           Stock            @relation(fields: [stockId], references: [id])
+  deliverySite    DeliverySite     @relation(fields: [deliverySiteId], references: [id])
+}

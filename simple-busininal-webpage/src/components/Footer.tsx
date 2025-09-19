@@ -11,7 +11,7 @@ const Footer = () => {
   return(
     <Box position='sticky' sx={{ textAlign: 'center', mt: 1 }}>
       <Typography variant='caption'>
-        Copyright © { currentYear } <Link href={ 'https://arte-info.com/' } target='_blank'>アルテホール光祥院</Link> All rights reserved.
+        Copyright © { currentYear } <Link href={ 'https://www.bijininal.com/' } target='_blank'>ビジニナルグループ</Link> All rights reserved.
       </Typography>
     </Box>
   )

@@ -1,9 +1,9 @@
-import BuddhistAltars from '@/components/BuddhistAltars'
+import Licenses from '@/components/Licenses'
 
 export default async function Page() {
 	return (
 		<main>
-			<BuddhistAltars />
+			<Licenses />
 		</main>
 	)
 }

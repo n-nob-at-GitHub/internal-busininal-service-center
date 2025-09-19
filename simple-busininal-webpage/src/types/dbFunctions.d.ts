@@ -1,0 +1,90 @@
+export type Role = { 
+  id: number;
+  role: string;
+};
+
+export type User = { 
+  id: number;
+  roleId: number;
+  mail: string;
+};
+
+export type MaterialIds = number[];
+
+export type Material = { 
+  id: number;
+  manufacturerId: number;
+  code: string;
+  category: string;
+  price: number;
+  amount: number;
+  unit: string;
+  name: string;
+  amount: number;
+  filePath: string?;
+};
+
+export type ManufacturerIds = number[];
+
+export type Manufacturer = { 
+  id: number;
+  name: string;
+};
+
+export type Religion = { 
+  id: number;
+  name: string;
+  note: string?;
+  createdBy: string;
+  createdAt: string;
+  updatedBy: string;
+  updatedAt: string;
+};
+
+export type StockIds = number[];
+
+export type Stock = { 
+  id: number;
+  materialId: number;
+  totalQuantity: number;
+  totalAmount: number;
+  unit: string;
+  note: string?;
+  createdBy: string;
+  createdAt: string;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+export type DeliverySiteIds = number[];
+
+export type DeliverySite = {
+  id: number;
+  name: string;
+  contact: string;
+}
+
+export type Inbound = {
+  id: number;
+  stockId: number;
+  quantity: number;
+  amount: number;
+  unitPrice: number;
+  unit: string;
+  createdBy: string;
+  createdAt: DateTime;
+}
+
+export type Outbound = {
+  id: number;
+  stockId: number;
+  deliverySiteId: number;
+  quantity: number;
+  amount: number;
+  unitPrice: number;
+  unit: string;
+  createdBy: string;
+  createdAt: DateTime;
+}
+
+export type CondolenceTypeIds = number[];
