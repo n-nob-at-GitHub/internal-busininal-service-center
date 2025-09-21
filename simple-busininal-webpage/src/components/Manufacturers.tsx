@@ -26,13 +26,13 @@ import {
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import { type Role } from '@/types/dbFunctions'
+import { type Manufacturer } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
-const Roles = () => {
+const Manufacturers = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
 
-  const columns = useMemo<MRT_ColumnDef<Role>[]>(
+  const columns = useMemo<MRT_ColumnDef<Manufacturer>[]>(
     () => [
         {
           accessorKey: 'id',
@@ -52,7 +52,7 @@ const Roles = () => {
         },
         {
           accessorKey: 'name',
-          header: 'ロール名',
+          header: '製造メーカー名',
           muiEditTextFieldProps: {
             required: true,
             error: !!validationErrors?.name,
@@ -70,48 +70,48 @@ const Roles = () => {
   
   // call READ hook
   const {
-    data: fetchedRoles = [],
-    isError: isLoadingRolesError,
-    isFetching: isFetchingRoles,
-    isLoading: isLoadingRoles,
-  } = useGetRoles()
+    data: fetchedManufacturers = [],
+    isError: isLoadingManufacturersError,
+    isFetching: isFetchingManufacturers,
+    isLoading: isLoadingManufacturers,
+  } = useGetManufacturers()
 
   // call CREATE hook
-  const { mutateAsync: createRole, isPending: isCreatingRole } = useCreateRole()
+  const { mutateAsync: createManufacturer, isPending: isCreatingManufacturer } = useCreateManufacturer()
 
   // call UPDATE hook
-  const { mutateAsync: updateRole, isPending: isUpdatingRole } = useUpdateRole()
+  const { mutateAsync: updateManufacturer, isPending: isUpdatingManufacturer } = useUpdateManufacturer()
 
   // call DELETE hook
-  const { mutateAsync: deleteRole, isPending: isDeletingRole } = useDeleteRole()
+  const { mutateAsync: deleteManufacturer, isPending: isDeletingManufacturer } = useDeleteManufacturer()
 
   // CREATE action
-  const handleCreateRole: MRT_TableOptions<Role>['onCreatingRowSave'] = async ({
+  const handleCreateManufacturer: MRT_TableOptions<Manufacturer>['onCreatingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateRole(values)
+    const newValidationErrors = validateManufacturer(values)
     if (Object.values(newValidationErrors).some(error => error)) {
       setValidationErrors(newValidationErrors)
       return
     }
     setValidationErrors({})
-    await createRole(values)
+    await createManufacturer(values)
     table.setCreatingRow(null) // exit creating mode
   }
   
   // UPDATE action
-  const handleEditRole: MRT_TableOptions<Role>['onEditingRowSave'] = async ({
+  const handleEditManufacturer: MRT_TableOptions<Manufacturer>['onEditingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateRole(values)
+    const newValidationErrors = validateManufacturer(values)
     if (Object.values(newValidationErrors).some(error => error)) {
       setValidationErrors(newValidationErrors)
       return
     }
     setValidationErrors({})
-    await updateRole(values)
+    await updateManufacturer(values)
     table.setEditingRow(null) // exit editing mode
   }
 
@@ -120,23 +120,23 @@ const Roles = () => {
   // https://codesandbox.io/p/devbox/my-project-7xy36j
   const { isOpen, openDialog, closeDialog, judge, ConfirmDialog } = useConfirmDialog()
   const [ targetRowId, setTargetRowId ] = useState('')
-  const openDeleteConfirmModal = async (row: MRT_Row<Role>) => {
+  const openDeleteConfirmModal = async (row: MRT_Row<Manufacturer>) => {
     /*
     if (window.confirm('削除しますか?')) {
-      deleteRole(row.original)
+      deleteManufacturer(row.original)
     }
     */
     setTargetRowId(row.original.id.toString())
     const result = await openDialog()
     if (result === 'Yes') {
-      deleteRole(row.original)
+      deleteManufacturer(row.original)
     }
   }
 
   const table = useMaterialReactTable({
     columns,
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-    data: fetchedRoles,
+    data: fetchedManufacturers,
     positionToolbarDropZone: 'none',
     createDisplayMode: 'row',
     editDisplayMode: 'row',
@@ -169,16 +169,16 @@ const Roles = () => {
       rowsPerPageOptions: [5, 10, 20],
     },
     getRowId: (row) => row.id?.toString(),
-    muiToolbarAlertBannerProps: isLoadingRolesError
+    muiToolbarAlertBannerProps: isLoadingManufacturersError
       ? {
           color: 'error',
           children: 'Error loading data',
         }
       : undefined,
     onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateRole,
+    onCreatingRowSave: handleCreateManufacturer,
     onEditingRowCancel: () => setValidationErrors({}),
-    onEditingRowSave: handleEditRole,
+    onEditingRowSave: handleEditManufacturer,
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
         <IconButton onClick={ () => {
@@ -194,13 +194,13 @@ const Roles = () => {
           onClose={ closeDialog }
           judge={ judge }
           title='削除確認'
-          message={ `ロール ${row.original.name} を削除しますか？` }
+          message={ `製造メーカー ${row.original.name} を削除しますか？` }
         />
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-        <Typography variant='h4'>ロール</Typography>
+        <Typography variant='h4'>製造メーカー</Typography>
         <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
           <AddCircleOutline />
         </IconButton>
@@ -212,10 +212,10 @@ const Roles = () => {
       </Box>
     ),
     state: {
-      isLoading: isLoadingRoles,
-      isSaving: isCreatingRole || isUpdatingRole || isDeletingRole,
-      showAlertBanner: isLoadingRolesError,
-      showProgressBars: isFetchingRoles,
+      isLoading: isLoadingManufacturers,
+      isSaving: isCreatingManufacturer || isUpdatingManufacturer || isDeletingManufacturer,
+      showAlertBanner: isLoadingManufacturersError,
+      showProgressBars: isFetchingManufacturers,
       density: 'compact',
     },
   })
@@ -224,93 +224,93 @@ const Roles = () => {
   return <MaterialReactTable table={ table } />
 }
 
-// READ hook (get roles from api)
-function useGetRoles() {
-  return useQuery<Role[]>({
-    queryKey: [ 'roles' ],
+// READ hook (get manufacturer from api)
+function useGetManufacturers() {
+  return useQuery<Manufacturer[]>({
+    queryKey: [ 'manufacturers' ],
     queryFn: async () => {
-      const response = await axios.get('/api/role')
+      const response = await axios.get('/api/manufacturer')
       return response.data
     },
     refetchOnWindowFocus: false,
   })
 }
 
-// CREATE hook (post new role to api)
-function useCreateRole() {
+// CREATE hook (post new manufacturer to api)
+function useCreateManufacturer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (role: Role): Promise<Role> => {
+    mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.post('/api/role', role)
+      const response = await axios.post('/api/manufacturer', manufacturer)
       return response.data
     },
     // client side optimistic update
-    onSuccess: (newRole: Role) => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] })
+    onSuccess: (newManufacturer: Manufacturer) => {
+      queryClient.invalidateQueries({ queryKey: ['manufacturers'] })
       queryClient.setQueryData(
-        [ 'roles' ],
-        (prevRole: any) => 
+        [ 'manufacturers' ],
+        (prevManufacturer: any) => 
           [
-            ...prevRole,
+            ...prevManufacturer,
             {
-              ...newRole, 
-              id: newRole.id,
+              ...newManufacturer, 
+              id: newManufacturer.id,
             },
-          ] as Role[],
+          ] as Manufacturer[],
       )
     },
   })
 }
 
-// UPDATE hook (put role in api)
-function useUpdateRole() {
+// UPDATE hook (put manufacturer in api)
+function useUpdateManufacturer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (role: Role): Promise<Role> => {
+    mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.put('/api/role', role)
+      const response = await axios.put('/api/manufacturer', manufacturer)
       return response.data
     },
     // client side optimistic update
-    onMutate: (newRole: Role) => {
-      queryClient.setQueryData([ 'roles' ], (prevRoles: any) =>
-        prevRoles?.map((prevRole: Role) =>
-          prevRole.id === newRole.id ? newRole : prevRole,
+    onMutate: (newManufacturer: Manufacturer) => {
+      queryClient.setQueryData([ 'manufacturers' ], (prevManufacturers: any) =>
+        prevManufacturers?.map((prevManufacturer: Manufacturer) =>
+          prevManufacturer.id === newManufacturer.id ? newManufacturer : prevManufacturer,
         ),
       )
     },
   })
 }
 
-// DELETE hook (delete role in api)
-function useDeleteRole() {
+// DELETE hook (delete manufacturer in api)
+function useDeleteManufacturer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (role: Role) => {
+    mutationFn: async (manufacturer: Manufacturer) => {
       // send api update request here
-      await axios.delete(`/api/role/${role.id}`)
+      await axios.delete(`/api/manufacturer/${manufacturer.id}`)
     },
     // client side optimistic update
-    onMutate: (newRole: Role) => {
-      queryClient.setQueryData([ 'roles' ], (prevRoles: any) =>
-        prevRoles?.filter((role: Role) => role.id !== newRole.id),
+    onMutate: (newManufacturer: Manufacturer) => {
+      queryClient.setQueryData([ 'manufacturers' ], (prevManufacturers: any) =>
+        prevManufacturers?.filter((manufacturer: Manufacturer) => manufacturer.id !== newManufacturer.id),
       )
     },
   })
 }
 
-const fetchRoles: any = async () => {
-  const res = await axios.get('/api/role')
+const fetchManufacturers: any = async () => {
+  const res = await axios.get('/api/manufacturer')
   return res.data
 }
 
 const validateRequired = (value: string | number) => value !== undefined && value !== null && value !== ''
 
-function validateRole(role: Role) {
+function validateManufacturer(manufacturer: Manufacturer) {
   return {
-    name: !validateRequired(role.name) ? 'ロールは必須です。' : '',
+    name: !validateRequired(manufacturer.name) ? '製造メーカー名は必須です。' : '',
   }
 }
 
-export default Roles
+export default Manufacturers

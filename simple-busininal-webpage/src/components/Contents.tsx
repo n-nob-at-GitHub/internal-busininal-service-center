@@ -13,7 +13,7 @@ import {
 } from '@mui/material'
 import Licenses from '@/components/Licenses'
 import Roles from '@/components/Roles'
-import MemorialFlowers from '@/components/MemorialFlowers'
+import Manufacturers from '@/components/Manufacturers'
 import Users from '@/components/Users'
 import Materials from '@/components/Materials'
 
@@ -23,7 +23,7 @@ interface TabPanelProps {
   value: number;
 }
 
-type MasterKey = 'ユーザー' | '品目' | 'ロール' | 'メモリアルフラワー';
+type MasterKey = '品目' | '製造メーカー' | 'ユーザー' | 'ロール' 
 
 const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -55,10 +55,10 @@ const Contents = () => {
     setAnchorElement(event.currentTarget)
   }
   const masterComponents: Record<MasterKey, ReactNode> = {
-    'ユーザー': <Users />,
     '品目': <Materials />,
+    '製造メーカー': <Manufacturers />,
+    'ユーザー': <Users />,
     'ロール': <Roles />,
-    'メモリアルフラワー': <MemorialFlowers />
   }
   const handleTabChange = (event: SyntheticEvent, newTabIndex: number) => {
     if (newTabIndex === 1) {
@@ -90,10 +90,10 @@ const Contents = () => {
         open={ Boolean(anchorElement) }
         onClose={ handleMenuClose }
       >
-        <MenuItem onClick={() => handleMenuSelect('ユーザー')}>ユーザー</MenuItem>
         <MenuItem onClick={() => handleMenuSelect('品目')}>品目</MenuItem>
+        <MenuItem onClick={() => handleMenuSelect('製造メーカー')}>製造メーカー</MenuItem>
+        <MenuItem onClick={() => handleMenuSelect('ユーザー')}>ユーザー</MenuItem>
         <MenuItem onClick={() => handleMenuSelect('ロール')}>ロール</MenuItem>
-        <MenuItem onClick={() => handleMenuSelect('メモリアルフラワー')}>メモリアルフラワー</MenuItem>
       </Menu>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
         <div>Dashboard コンテンツ</div>
