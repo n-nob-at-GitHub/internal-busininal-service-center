@@ -1,6 +1,6 @@
 export type Role = { 
   id: number;
-  role: string;
+  name: string;
 };
 
 export type User = { 

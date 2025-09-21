@@ -26,20 +26,13 @@ import {
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import { type User } from '@/types/dbFunctions'
+import { type Role } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
-const Users = () => {
+const Roles = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
-  const [ roles, setRoles ] = useState<any>([])
-  useEffect(() => {
-    (async function () {
-      const res = await fetchRoles()
-      setRoles(res.map((v: any, k: number) => { return { id: v.id, name: v.name } }))
-    })()
-  }, [])
 
-  const columns = useMemo<MRT_ColumnDef<User>[]>(
+  const columns = useMemo<MRT_ColumnDef<Role>[]>(
     () => [
         {
           accessorKey: 'id',
@@ -58,8 +51,8 @@ const Users = () => {
           ),
         },
         {
-          accessorKey: 'mail',
-          header: 'メール',
+          accessorKey: 'name',
+          header: 'ロール名',
           muiEditTextFieldProps: {
             required: true,
             error: !!validationErrors?.name,
@@ -71,67 +64,54 @@ const Users = () => {
               }),
           },  
         },
-        {
-          accessorKey: 'roleId',
-          header: 'ロール',
-          Cell: ({ renderedCellValue }) => roles.filter((v: any) => v.id === Number(renderedCellValue)).map((v: any) => v.name),
-          enableSorting: false,
-          editVariant: 'select',
-          editSelectOptions: roles.map((v: any) => { return { label: v.name, value: v.id } }),
-          muiEditTextFieldProps: {
-            select: true,
-            error: !!validationErrors?.roleId,
-            helperText: validationErrors?.roleId,
-          },
-        },
-    ],
-    [ roles, validationErrors ],
+      ],
+    [ validationErrors ],
   )
   
   // call READ hook
   const {
-    data: fetchedUsers = [],
-    isError: isLoadingUsersError,
-    isFetching: isFetchingUsers,
-    isLoading: isLoadingUsers,
-  } = useGetUsers()
+    data: fetchedRoles = [],
+    isError: isLoadingRolesError,
+    isFetching: isFetchingRoles,
+    isLoading: isLoadingRoles,
+  } = useGetRoles()
 
   // call CREATE hook
-  const { mutateAsync: createUser, isPending: isCreatingUser } = useCreateUser()
+  const { mutateAsync: createRole, isPending: isCreatingRole } = useCreateRole()
 
   // call UPDATE hook
-  const { mutateAsync: updateUser, isPending: isUpdatingUser } = useUpdateUser()
+  const { mutateAsync: updateRole, isPending: isUpdatingRole } = useUpdateRole()
 
   // call DELETE hook
-  const { mutateAsync: deleteUser, isPending: isDeletingUser } = useDeleteUser()
+  const { mutateAsync: deleteRole, isPending: isDeletingRole } = useDeleteRole()
 
   // CREATE action
-  const handleCreateUser: MRT_TableOptions<User>['onCreatingRowSave'] = async ({
+  const handleCreateRole: MRT_TableOptions<Role>['onCreatingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateUser(values)
+    const newValidationErrors = validateRole(values)
     if (Object.values(newValidationErrors).some(error => error)) {
       setValidationErrors(newValidationErrors)
       return
     }
     setValidationErrors({})
-    await createUser(values)
+    await createRole(values)
     table.setCreatingRow(null) // exit creating mode
   }
   
   // UPDATE action
-  const handleEditUser: MRT_TableOptions<User>['onEditingRowSave'] = async ({
+  const handleEditRole: MRT_TableOptions<Role>['onEditingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateUser(values)
+    const newValidationErrors = validateRole(values)
     if (Object.values(newValidationErrors).some(error => error)) {
       setValidationErrors(newValidationErrors)
       return
     }
     setValidationErrors({})
-    await updateUser(values)
+    await updateRole(values)
     table.setEditingRow(null) // exit editing mode
   }
 
@@ -140,23 +120,23 @@ const Users = () => {
   // https://codesandbox.io/p/devbox/my-project-7xy36j
   const { isOpen, openDialog, closeDialog, judge, ConfirmDialog } = useConfirmDialog()
   const [ targetRowId, setTargetRowId ] = useState('')
-  const openDeleteConfirmModal = async (row: MRT_Row<User>) => {
+  const openDeleteConfirmModal = async (row: MRT_Row<Role>) => {
     /*
     if (window.confirm('削除しますか?')) {
-      deleteUser(row.original)
+      deleteRole(row.original)
     }
     */
     setTargetRowId(row.original.id.toString())
     const result = await openDialog()
     if (result === 'Yes') {
-      deleteUser(row.original)
+      deleteRole(row.original)
     }
   }
 
   const table = useMaterialReactTable({
     columns,
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-    data: fetchedUsers,
+    data: fetchedRoles,
     positionToolbarDropZone: 'none',
     createDisplayMode: 'row',
     editDisplayMode: 'row',
@@ -189,16 +169,16 @@ const Users = () => {
       rowsPerPageOptions: [5, 10, 20],
     },
     getRowId: (row) => row.id?.toString(),
-    muiToolbarAlertBannerProps: isLoadingUsersError
+    muiToolbarAlertBannerProps: isLoadingRolesError
       ? {
           color: 'error',
           children: 'Error loading data',
         }
       : undefined,
     onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateUser,
+    onCreatingRowSave: handleCreateRole,
     onEditingRowCancel: () => setValidationErrors({}),
-    onEditingRowSave: handleEditUser,
+    onEditingRowSave: handleEditRole,
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
         <IconButton onClick={ () => {
@@ -214,13 +194,13 @@ const Users = () => {
           onClose={ closeDialog }
           judge={ judge }
           title='削除確認'
-          message={ `ユーザー ${row.original.mail} を削除しますか？` }
+          message={ `ロール ${row.original.name} を削除しますか？` }
         />
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-        <Typography variant='h4'>ユーザー</Typography>
+        <Typography variant='h4'>ロール</Typography>
         <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
           <AddCircleOutline />
         </IconButton>
@@ -232,10 +212,10 @@ const Users = () => {
       </Box>
     ),
     state: {
-      isLoading: isLoadingUsers,
-      isSaving: isCreatingUser || isUpdatingUser || isDeletingUser,
-      showAlertBanner: isLoadingUsersError,
-      showProgressBars: isFetchingUsers,
+      isLoading: isLoadingRoles,
+      isSaving: isCreatingRole || isUpdatingRole || isDeletingRole,
+      showAlertBanner: isLoadingRolesError,
+      showProgressBars: isFetchingRoles,
       density: 'compact',
     },
   })
@@ -244,77 +224,77 @@ const Users = () => {
   return <MaterialReactTable table={ table } />
 }
 
-// READ hook (get users from api)
-function useGetUsers() {
-  return useQuery<User[]>({
-    queryKey: [ 'users' ],
+// READ hook (get roles from api)
+function useGetRoles() {
+  return useQuery<Role[]>({
+    queryKey: [ 'roles' ],
     queryFn: async () => {
-      const response = await axios.get('/api/user')
+      const response = await axios.get('/api/role')
       return response.data
     },
     refetchOnWindowFocus: false,
   })
 }
 
-// CREATE hook (post new user to api)
-function useCreateUser() {
+// CREATE hook (post new role to api)
+function useCreateRole() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (user: User): Promise<User> => {
+    mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const response = await axios.post('/api/user', user)
+      const response = await axios.post('/api/role', role)
       return response.data
     },
     // client side optimistic update
-    onSuccess: (newUser: User) => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+    onSuccess: (newRole: Role) => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] })
       queryClient.setQueryData(
-        [ 'users' ],
-        (prevUser: any) => 
+        [ 'roles' ],
+        (prevRole: any) => 
           [
-            ...prevUser,
+            ...prevRole,
             {
-              ...newUser, 
-              id: newUser.id,
+              ...newRole, 
+              id: newRole.id,
             },
-          ] as User[],
+          ] as Role[],
       )
     },
   })
 }
 
-// UPDATE hook (put user in api)
-function useUpdateUser() {
+// UPDATE hook (put role in api)
+function useUpdateRole() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (user: User): Promise<User> => {
+    mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const response = await axios.put('/api/user', user)
+      const response = await axios.put('/api/role', role)
       return response.data
     },
     // client side optimistic update
-    onMutate: (newUser: User) => {
-      queryClient.setQueryData([ 'users' ], (prevUsers: any) =>
-        prevUsers?.map((prevUser: User) =>
-          prevUser.id === newUser.id ? newUser : prevUser,
+    onMutate: (newRole: Role) => {
+      queryClient.setQueryData([ 'roles' ], (prevRoles: any) =>
+        prevRoles?.map((prevRole: Role) =>
+          prevRole.id === newRole.id ? newRole : prevRole,
         ),
       )
     },
   })
 }
 
-// DELETE hook (delete user in api)
-function useDeleteUser() {
+// DELETE hook (delete role in api)
+function useDeleteRole() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (user: User) => {
+    mutationFn: async (role: Role) => {
       // send api update request here
-      await axios.delete(`/api/user/${user.id}`)
+      await axios.delete(`/api/role/${role.id}`)
     },
     // client side optimistic update
-    onMutate: (newUser: User) => {
-      queryClient.setQueryData([ 'users' ], (prevUsers: any) =>
-        prevUsers?.filter((user: User) => user.id !== newUser.id),
+    onMutate: (newRole: Role) => {
+      queryClient.setQueryData([ 'roles' ], (prevRoles: any) =>
+        prevRoles?.filter((role: Role) => role.id !== newRole.id),
       )
     },
   })
@@ -327,11 +307,10 @@ const fetchRoles: any = async () => {
 
 const validateRequired = (value: string | number) => value !== undefined && value !== null && value !== ''
 
-function validateUser(user: User) {
+function validateRole(role: Role) {
   return {
-    mail: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
-    roleId: !validateRequired(user.roleId) ? 'ロールは必須です。' : '',
+    role: !validateRequired(role.name) ? 'ロールは必須です。' : '',
   }
 }
 
-export default Users
+export default Roles

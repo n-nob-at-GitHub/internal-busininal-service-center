@@ -1,21 +1,29 @@
 'use client'
-import React from 'react'
+import {
+  ReactNode,
+  SyntheticEvent,
+  useState
+} from 'react'
 import {
   Box,
+  Menu, 
+  MenuItem,
   Tab,
   Tabs,
 } from '@mui/material'
 import Licenses from '@/components/Licenses'
-import Bells from '@/components/Bells'
+import Roles from '@/components/Roles'
 import MemorialFlowers from '@/components/MemorialFlowers'
 import Users from '@/components/Users'
 import Materials from '@/components/Materials'
 
 interface TabPanelProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   index: number;
   value: number;
 }
+
+type MasterKey = 'ユーザー' | '品目' | 'ロール' | 'メモリアルフラワー';
 
 const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -40,34 +48,61 @@ const a11yProps = (index: number) => {
 }
 
 const Contents = () => {
-  const [ tabIndex, setTabIndex ] = React.useState(0);
-  const handleTabChange = (event: React.SyntheticEvent, newTabIndex: number) => {
-    setTabIndex(newTabIndex);
-  };
+  const [ tabIndex, setTabIndex ] = useState(0);
+  const [ masterMenu, setMasterMenu ] = useState<MasterKey | null>(null)
+  const [ anchorElement, setAnchorElement ] = useState<null | HTMLElement>(null)
+  const handleMasterTabClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElement(event.currentTarget)
+  }
+  const masterComponents: Record<MasterKey, ReactNode> = {
+    'ユーザー': <Users />,
+    '品目': <Materials />,
+    'ロール': <Roles />,
+    'メモリアルフラワー': <MemorialFlowers />
+  }
+  const handleTabChange = (event: SyntheticEvent, newTabIndex: number) => {
+    if (newTabIndex === 1) {
+      setAnchorElement(event.currentTarget as HTMLElement)
+    } else {
+      setTabIndex(newTabIndex)
+      setMasterMenu(null)
+    }
+  }
+  const handleMenuSelect = (menu: MasterKey) => {
+    setMasterMenu(menu)
+    setTabIndex(1)
+    setAnchorElement(null)
+  }
+  const handleMenuClose = () => {
+    setAnchorElement(null)
+  }
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' aria-label='basic tabs example'>
-          <Tab label='ユーザー' { ...a11yProps(0) } />
-          <Tab label='品目' { ...a11yProps(1) } />
-          <Tab label='御鈴' { ...a11yProps(2) } />
-          <Tab label='メモリアルフラワー' { ...a11yProps(3) } />
-          <Tab label='ライセンス' { ...a11yProps(4) } />
+        <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' textColor='secondary' indicatorColor='secondary' aria-label='basic tabs example'>
+          <Tab label='ダッシュボード' { ...a11yProps(0) } />
+          <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
+          <Tab label='ライセンス' { ...a11yProps(2) } />
         </Tabs>
       </Box>
+      <Menu
+        anchorEl={ anchorElement }
+        open={ Boolean(anchorElement) }
+        onClose={ handleMenuClose }
+      >
+        <MenuItem onClick={() => handleMenuSelect('ユーザー')}>ユーザー</MenuItem>
+        <MenuItem onClick={() => handleMenuSelect('品目')}>品目</MenuItem>
+        <MenuItem onClick={() => handleMenuSelect('ロール')}>ロール</MenuItem>
+        <MenuItem onClick={() => handleMenuSelect('メモリアルフラワー')}>メモリアルフラワー</MenuItem>
+      </Menu>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
-        <Users />
+        <div>Dashboard コンテンツ</div>
       </CustomTabPanel>
-      <CustomTabPanel value={ tabIndex } index={ 1 }>
-        <Materials />
+      <CustomTabPanel value={tabIndex} index={1}>
+        { !masterMenu && <div>マスタを選択してください</div> }
+        { masterMenu && masterComponents[masterMenu] }
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 2 }>
-        <Bells />
-      </CustomTabPanel>
-      <CustomTabPanel value={ tabIndex } index={ 3 }>
-        <MemorialFlowers />
-      </CustomTabPanel>
-      <CustomTabPanel value={ tabIndex } index={ 4 }>
         <Licenses />
       </CustomTabPanel>
     </Box>
