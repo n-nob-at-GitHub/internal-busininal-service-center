@@ -11,11 +11,12 @@ import {
   Tab,
   Tabs,
 } from '@mui/material'
+import DeliverySites from '@/components/DeliverySites'
 import Licenses from '@/components/Licenses'
-import Roles from '@/components/Roles'
 import Manufacturers from '@/components/Manufacturers'
-import Users from '@/components/Users'
 import Materials from '@/components/Materials'
+import Roles from '@/components/Roles'
+import Users from '@/components/Users'
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -23,7 +24,7 @@ interface TabPanelProps {
   value: number;
 }
 
-type MasterKey = '品目' | '製造メーカー' | 'ユーザー' | 'ロール' 
+type MasterKey = '品目' | '製造メーカー' | '配送先' | 'ユーザー' | 'ロール' 
 
 const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -57,6 +58,7 @@ const Contents = () => {
   const masterComponents: Record<MasterKey, ReactNode> = {
     '品目': <Materials />,
     '製造メーカー': <Manufacturers />,
+    '配送先': <DeliverySites />,
     'ユーザー': <Users />,
     'ロール': <Roles />,
   }
@@ -92,6 +94,7 @@ const Contents = () => {
       >
         <MenuItem onClick={() => handleMenuSelect('品目')}>品目</MenuItem>
         <MenuItem onClick={() => handleMenuSelect('製造メーカー')}>製造メーカー</MenuItem>
+        <MenuItem onClick={() => handleMenuSelect('配送先')}>配送先</MenuItem>
         <MenuItem onClick={() => handleMenuSelect('ユーザー')}>ユーザー</MenuItem>
         <MenuItem onClick={() => handleMenuSelect('ロール')}>ロール</MenuItem>
       </Menu>

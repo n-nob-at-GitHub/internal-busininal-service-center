@@ -65,7 +65,8 @@ model Stock {
 model DeliverySite {
   id              Int              @id @default(autoincrement())
   name            String
-  contact         String
+  code            String?
+  contact         String?
   outbounds       Outbound[]
 }
 

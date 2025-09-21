@@ -1,4 +1,5 @@
 ﻿"id","name"
-1,"ADMIN"
-2,"MANAGER"
+1,"SYSTEM"
+2,"ADMIN"
 3,"STAFF"
+9,"ROLE_04"

@@ -1,5 +1,5 @@
 import sendMail from '@/lib/sendMail'
-import { 
+import {
   NextRequest, 
   NextResponse
 } from 'next/server'

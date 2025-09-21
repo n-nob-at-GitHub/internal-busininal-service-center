@@ -50,7 +50,8 @@ export type DeliverySiteIds = number[];
 export type DeliverySite = {
   id: number;
   name: string;
-  contact: string;
+  code: string?;
+  contact: string?;
 }
 
 export type Inbound = {

@@ -25,13 +25,13 @@ import {
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import { type Manufacturer } from '@/types/dbFunctions'
+import { type DeliverySite } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
-const Manufacturers = () => {
+const DeliverySites = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
 
-  const columns = useMemo<MRT_ColumnDef<Manufacturer>[]>(
+  const columns = useMemo<MRT_ColumnDef<DeliverySite>[]>(
     () => [
         {
           accessorKey: 'id',
@@ -51,7 +51,7 @@ const Manufacturers = () => {
         },
         {
           accessorKey: 'name',
-          header: '製造メーカー名',
+          header: '配送先名',
           muiEditTextFieldProps: {
             required: true,
             error: !!validationErrors?.name,
@@ -63,54 +63,63 @@ const Manufacturers = () => {
               }),
           },  
         },
+        {
+          accessorKey: 'code',
+          header: 'コード',
+          maxSize: 30,
+        },
+        {
+          accessorKey: 'contact',
+          header: '問い合わせ',
+        },
       ],
     [ validationErrors ],
   )
   
   // call READ hook
   const {
-    data: fetchedManufacturers = [],
-    isError: isLoadingManufacturersError,
-    isFetching: isFetchingManufacturers,
-    isLoading: isLoadingManufacturers,
-  } = useGetManufacturers()
+    data: fetchedDeliverySites = [],
+    isError: isLoadingDeliverySitesError,
+    isFetching: isFetchingDeliverySites,
+    isLoading: isLoadingDeliverySites,
+  } = useGetDeliverySites()
 
   // call CREATE hook
-  const { mutateAsync: createManufacturer, isPending: isCreatingManufacturer } = useCreateManufacturer()
+  const { mutateAsync: createDeliverySite, isPending: isCreatingDeliverySite } = useCreateDeliverySite()
 
   // call UPDATE hook
-  const { mutateAsync: updateManufacturer, isPending: isUpdatingManufacturer } = useUpdateManufacturer()
+  const { mutateAsync: updateDeliverySite, isPending: isUpdatingDeliverySite } = useUpdateDeliverySite()
 
   // call DELETE hook
-  const { mutateAsync: deleteManufacturer, isPending: isDeletingManufacturer } = useDeleteManufacturer()
+  const { mutateAsync: deleteDeliverySite, isPending: isDeletingDeliverySite } = useDeleteDeliverySite()
 
   // CREATE action
-  const handleCreateManufacturer: MRT_TableOptions<Manufacturer>['onCreatingRowSave'] = async ({
+  const handleCreateDeliverySite: MRT_TableOptions<DeliverySite>['onCreatingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateManufacturer(values)
+    const newValidationErrors = validateDeliverySite(values)
     if (Object.values(newValidationErrors).some(error => error)) {
       setValidationErrors(newValidationErrors)
       return
     }
     setValidationErrors({})
-    await createManufacturer(values)
+    await createDeliverySite(values)
     table.setCreatingRow(null) // exit creating mode
   }
   
   // UPDATE action
-  const handleEditManufacturer: MRT_TableOptions<Manufacturer>['onEditingRowSave'] = async ({
+  const handleEditDeliverySite: MRT_TableOptions<DeliverySite>['onEditingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateManufacturer(values)
+    const newValidationErrors = validateDeliverySite(values)
     if (Object.values(newValidationErrors).some(error => error)) {
       setValidationErrors(newValidationErrors)
       return
     }
     setValidationErrors({})
-    await updateManufacturer(values)
+    await updateDeliverySite(values)
     table.setEditingRow(null) // exit editing mode
   }
 
@@ -119,23 +128,23 @@ const Manufacturers = () => {
   // https://codesandbox.io/p/devbox/my-project-7xy36j
   const { isOpen, openDialog, closeDialog, judge, ConfirmDialog } = useConfirmDialog()
   const [ targetRowId, setTargetRowId ] = useState('')
-  const openDeleteConfirmModal = async (row: MRT_Row<Manufacturer>) => {
+  const openDeleteConfirmModal = async (row: MRT_Row<DeliverySite>) => {
     /*
     if (window.confirm('削除しますか?')) {
-      deleteManufacturer(row.original)
+      deleteDeliverySite(row.original)
     }
     */
     setTargetRowId(row.original.id.toString())
     const result = await openDialog()
     if (result === 'Yes') {
-      deleteManufacturer(row.original)
+      deleteDeliverySite(row.original)
     }
   }
 
   const table = useMaterialReactTable({
     columns,
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-    data: fetchedManufacturers,
+    data: fetchedDeliverySites,
     positionToolbarDropZone: 'none',
     createDisplayMode: 'row',
     editDisplayMode: 'row',
@@ -168,16 +177,16 @@ const Manufacturers = () => {
       rowsPerPageOptions: [5, 10, 20],
     },
     getRowId: (row) => row.id?.toString(),
-    muiToolbarAlertBannerProps: isLoadingManufacturersError
+    muiToolbarAlertBannerProps: isLoadingDeliverySitesError
       ? {
           color: 'error',
           children: 'Error loading data',
         }
       : undefined,
     onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateManufacturer,
+    onCreatingRowSave: handleCreateDeliverySite,
     onEditingRowCancel: () => setValidationErrors({}),
-    onEditingRowSave: handleEditManufacturer,
+    onEditingRowSave: handleEditDeliverySite,
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
         <IconButton onClick={ () => {
@@ -193,13 +202,13 @@ const Manufacturers = () => {
           onClose={ closeDialog }
           judge={ judge }
           title='削除確認'
-          message={ `製造メーカー ${row.original.name} を削除しますか？` }
+          message={ `配送先 ${row.original.name} を削除しますか？` }
         />
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-        <Typography variant='h4'>製造メーカー</Typography>
+        <Typography variant='h4'>配送先</Typography>
         <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
           <AddCircleOutline />
         </IconButton>
@@ -211,10 +220,10 @@ const Manufacturers = () => {
       </Box>
     ),
     state: {
-      isLoading: isLoadingManufacturers,
-      isSaving: isCreatingManufacturer || isUpdatingManufacturer || isDeletingManufacturer,
-      showAlertBanner: isLoadingManufacturersError,
-      showProgressBars: isFetchingManufacturers,
+      isLoading: isLoadingDeliverySites,
+      isSaving: isCreatingDeliverySite || isUpdatingDeliverySite || isDeletingDeliverySite,
+      showAlertBanner: isLoadingDeliverySitesError,
+      showProgressBars: isFetchingDeliverySites,
       density: 'compact',
     },
   })
@@ -223,93 +232,93 @@ const Manufacturers = () => {
   return <MaterialReactTable table={ table } />
 }
 
-// READ hook (get manufacturer from api)
-function useGetManufacturers() {
-  return useQuery<Manufacturer[]>({
-    queryKey: [ 'manufacturers' ],
+// READ hook (get deliverySite from api)
+function useGetDeliverySites() {
+  return useQuery<DeliverySite[]>({
+    queryKey: [ 'deliverySites' ],
     queryFn: async () => {
-      const response = await axios.get('/api/manufacturer')
+      const response = await axios.get('/api/delivery-site')
       return response.data
     },
     refetchOnWindowFocus: false,
   })
 }
 
-// CREATE hook (post new manufacturer to api)
-function useCreateManufacturer() {
+// CREATE hook (post new deliverySite to api)
+function useCreateDeliverySite() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
+    mutationFn: async (deliverySite: DeliverySite): Promise<DeliverySite> => {
       // send api update request here
-      const response = await axios.post('/api/manufacturer', manufacturer)
+      const response = await axios.post('/api/delivery-site', deliverySite)
       return response.data
     },
     // client side optimistic update
-    onSuccess: (newManufacturer: Manufacturer) => {
-      queryClient.invalidateQueries({ queryKey: ['manufacturers'] })
+    onSuccess: (newDeliverySite: DeliverySite) => {
+      queryClient.invalidateQueries({ queryKey: ['deliverySites'] })
       queryClient.setQueryData(
-        [ 'manufacturers' ],
-        (prevManufacturer: any) => 
+        [ 'deliverySites' ],
+        (prevDeliverySite: any) => 
           [
-            ...prevManufacturer,
+            ...prevDeliverySite,
             {
-              ...newManufacturer, 
-              id: newManufacturer.id,
+              ...newDeliverySite, 
+              id: newDeliverySite.id,
             },
-          ] as Manufacturer[],
+          ] as DeliverySite[],
       )
     },
   })
 }
 
-// UPDATE hook (put manufacturer in api)
-function useUpdateManufacturer() {
+// UPDATE hook (put deliverySite in api)
+function useUpdateDeliverySite() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
+    mutationFn: async (deliverySite: DeliverySite): Promise<DeliverySite> => {
       // send api update request here
-      const response = await axios.put('/api/manufacturer', manufacturer)
+      const response = await axios.put('/api/delivery-site', deliverySite)
       return response.data
     },
     // client side optimistic update
-    onMutate: (newManufacturer: Manufacturer) => {
-      queryClient.setQueryData([ 'manufacturers' ], (prevManufacturers: any) =>
-        prevManufacturers?.map((prevManufacturer: Manufacturer) =>
-          prevManufacturer.id === newManufacturer.id ? newManufacturer : prevManufacturer,
+    onMutate: (newDeliverySite: DeliverySite) => {
+      queryClient.setQueryData([ 'deliverySites' ], (prevDeliverySites: any) =>
+        prevDeliverySites?.map((prevDeliverySite: DeliverySite) =>
+          prevDeliverySite.id === newDeliverySite.id ? newDeliverySite : prevDeliverySite,
         ),
       )
     },
   })
 }
 
-// DELETE hook (delete manufacturer in api)
-function useDeleteManufacturer() {
+// DELETE hook (delete deliverySite in api)
+function useDeleteDeliverySite() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (manufacturer: Manufacturer) => {
+    mutationFn: async (deliverySite: DeliverySite) => {
       // send api update request here
-      await axios.delete(`/api/manufacturer/${manufacturer.id}`)
+      await axios.delete(`/api/delivery-site/${deliverySite.id}`)
     },
     // client side optimistic update
-    onMutate: (newManufacturer: Manufacturer) => {
-      queryClient.setQueryData([ 'manufacturers' ], (prevManufacturers: any) =>
-        prevManufacturers?.filter((manufacturer: Manufacturer) => manufacturer.id !== newManufacturer.id),
+    onMutate: (newDeliverySite: DeliverySite) => {
+      queryClient.setQueryData([ 'deliverySites' ], (prevDeliverySites: any) =>
+        prevDeliverySites?.filter((deliverySite: DeliverySite) => deliverySite.id !== newDeliverySite.id),
       )
     },
   })
 }
 
-const fetchManufacturers: any = async () => {
-  const res = await axios.get('/api/manufacturer')
+const fetchDeliverySites: any = async () => {
+  const res = await axios.get('/api/delivery-site')
   return res.data
 }
 
 const validateRequired = (value: string | number) => value !== undefined && value !== null && value !== ''
 
-function validateManufacturer(manufacturer: Manufacturer) {
+function validateDeliverySite(deliverySite: DeliverySite) {
   return {
-    name: !validateRequired(manufacturer.name) ? '製造メーカー名は必須です。' : '',
+    name: !validateRequired(deliverySite.name) ? '配送先名は必須です。' : '',
   }
 }
 
-export default Manufacturers
+export default DeliverySites

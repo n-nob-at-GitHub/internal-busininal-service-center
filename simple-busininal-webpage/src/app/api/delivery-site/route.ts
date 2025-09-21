@@ -7,7 +7,7 @@ import {
 
 export async function GET(req: NextRequest) {
   try {
-    const res = await prisma.manufacturer.findMany()
+    const res = await prisma.deliverySite.findMany()
     // sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(res))
     return NextResponse.json(res)
   } catch (e) {
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { id, ...body } = await req.json()
-    const res = await prisma.manufacturer.create({ data: body })
+    const res = await prisma.deliverySite.create({ data: body })
     // sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(res))
     return NextResponse.json(res)
   } catch (e) {
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const { id, ...body } = await req.json()
-    const res = await prisma.manufacturer.update({
+    const res = await prisma.deliverySite.update({
       where: {
         id: id,
       },
