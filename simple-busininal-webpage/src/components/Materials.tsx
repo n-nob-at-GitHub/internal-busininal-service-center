@@ -411,7 +411,7 @@ function useDeleteMaterial() {
 }
 
 const fetchManufacturers: any = async () => {
-  const res = await axios.get('/api/manufacturers')
+  const res = await axios.get('/api/manufacturer')
   return res.data
 }
 
