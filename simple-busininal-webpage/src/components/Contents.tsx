@@ -13,6 +13,7 @@ import {
   Tabs,
 } from '@mui/material'
 import DeliverySites from '@/components/DeliverySites'
+import InboundHistories from '@/components/InboundHistories'
 import Licenses from '@/components/Licenses'
 import Manufacturers from '@/components/Manufacturers'
 import Materials from '@/components/Materials'
@@ -67,7 +68,7 @@ const Contents = () => {
     '在庫一覧': <Stocks />,
     '入庫': <>TODO: 入庫</>,
     '出庫': <>TODO: 出庫</>,
-    '入庫履歴': <>TODO: 入庫履歴</>,
+    '入庫履歴': <InboundHistories />,
     '出庫履歴': <>TODO: 出庫履歴</>,
   }
   const masterComponents: Record<MasterKey, ReactNode> = {
@@ -131,11 +132,11 @@ const Contents = () => {
       </Menu>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
         { !stockMenu && <div>在庫メニューを選択してください</div> }
-        { stockMenu && stockComponents[stockMenu] }
+        { stockMenu && stockComponents[ stockMenu ] }
       </CustomTabPanel>
       <CustomTabPanel value={tabIndex} index={1}>
         { !masterMenu && <div>マスタを選択してください</div> }
-        { masterMenu && masterComponents[masterMenu] }
+        { masterMenu && masterComponents[ masterMenu ] }
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 2 }>
         <Licenses />
