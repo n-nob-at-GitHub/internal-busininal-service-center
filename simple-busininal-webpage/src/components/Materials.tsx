@@ -161,8 +161,8 @@ const Materials = () => {
           },
         },
         {
-          accessorKey: 'filePath',
-          header: '画像ファイルパス',
+          accessorKey: 'fileName',
+          header: '画像ファイル',
         },
       ],
     [ manufacturers, validationErrors ],

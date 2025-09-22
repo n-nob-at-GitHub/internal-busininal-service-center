@@ -35,7 +35,7 @@ model Material {
   quantity        Int              @default(0)
   unit            String
   name            String
-  filePath        String?
+  fileName        String?
   manufacturer    Manufacturer     @relation(fields: [manufacturerId], references: [id])
   stocks          Stock[]
 }

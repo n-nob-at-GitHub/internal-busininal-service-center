@@ -20,7 +20,7 @@ export type Material = {
   quantity: number;
   unit: string;
   name: string;
-  filePath: string?;
+  fileName: string?;
 };
 
 export type ManufacturerIds = number[];
