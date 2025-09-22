@@ -106,7 +106,7 @@ const Contents = () => {
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' textColor='secondary' indicatorColor='secondary' aria-label='basic tabs example'>
           <Tab label='在庫管理' { ...a11yProps(0) } onClick={ handleStockTabClick } />
           <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
-          <Tab label='ライセンス' { ...a11yProps(2) } />
+          <Tab label='その他' { ...a11yProps(2) } />
         </Tabs>
       </Box>
       <Menu
