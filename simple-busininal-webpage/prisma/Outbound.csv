@@ -1,0 +1,4 @@
+﻿"id","stock_id","delivery_site_id","quantity","amount","unitPrice","unit","created_by","created_at"
+1,1,1,2,1996,998,"枚","user03",2025/09/22 0:00:00
+2,2,2,3,6435,2145,"式","user02",2025/09/22 0:00:00
+3,3,3,1,1899,1899,"式","user01",2025/09/22 0:00:00
