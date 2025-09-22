@@ -69,8 +69,6 @@ const Inbound = () => {
         price: m.price,
         quantity: quantities[m.id],
       }))
-    console.log(materials)
-    console.log(items)
     setSelectedItems(items)
     setOpen(true)
   }
@@ -96,7 +94,6 @@ const Inbound = () => {
           unitPrice: item.price,
           unit: item.unit,
           createdBy: 'system',
-          createdAt: new Date(),
         }
       })
       createInbounds(inboundPayload),
@@ -139,18 +136,16 @@ const Inbound = () => {
           <Grid key={ m.id } size={{ xs: 12, sm: 6, md: 2.4 }} sx={{ display: 'flex' }}>
             <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', boxShadow: 5 }}>
               <CardContent>
-                { m.fileName && (
-                  <img
-                    src={ `/images/${m.fileName}` }
-                    alt={ m.name }
-                    style={{ 
-                      width: '250px', 
-                      height: '250px', 
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                    }}
-                  />
-                )}
+                <img
+                  src={ m.fileName ? `/images/${m.fileName}` : '/images/icons8-no-image-250.png' }
+                  alt={ m.name }
+                  style={{ 
+                    width: '250px', 
+                    height: '250px', 
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                  }}
+                />
                 <Typography variant='body2'
                   sx={{
                     display: '-webkit-box',
