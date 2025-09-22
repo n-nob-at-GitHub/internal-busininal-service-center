@@ -68,11 +68,6 @@ const Stocks = () => {
           header: '単位',
           maxSize: 50,
         },
-        {
-          accessorKey: 'note',
-          header: '備考',
-          maxSize: 30,
-        },
       ],
     [ materials ],
   )
