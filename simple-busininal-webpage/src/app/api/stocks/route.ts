@@ -31,9 +31,7 @@ export async function PUT(req: NextRequest) {
               totalAmount: item.quantity * item.price,
               unit: item.unit,
               createdBy: item.updatedBy,
-              createdAt: new Date(),
               updatedBy: item.updatedBy,
-              updatedAt: new Date(),
             },
           })
         } else {
@@ -44,7 +42,6 @@ export async function PUT(req: NextRequest) {
               totalAmount: { increment: item.quantity * item.price },
               unit: item.unit,
               updatedBy: item.updatedBy,
-              updatedAt: new Date(),
             },
           })
         }
