@@ -17,6 +17,7 @@ import InboundHistories from '@/components/InboundHistories'
 import Licenses from '@/components/Licenses'
 import Manufacturers from '@/components/Manufacturers'
 import Materials from '@/components/Materials'
+import OutboundHistories from '@/components/OutboundHistories'
 import Roles from '@/components/Roles'
 import Stocks from '@/components/Stocks'
 import Users from '@/components/Users'
@@ -69,7 +70,7 @@ const Contents = () => {
     '入庫': <>TODO: 入庫</>,
     '出庫': <>TODO: 出庫</>,
     '入庫履歴': <InboundHistories />,
-    '出庫履歴': <>TODO: 出庫履歴</>,
+    '出庫履歴': <OutboundHistories />,
   }
   const masterComponents: Record<MasterKey, ReactNode> = {
     '品目': <Materials />,
