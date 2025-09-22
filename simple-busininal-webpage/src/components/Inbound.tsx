@@ -2,15 +2,14 @@
 import axios from 'axios'
 import {
   useEffect,
-  useMemo, 
   useState,
 } from 'react'
 import {
   Box,
   Card,
   CardContent,
-  Divider,
   Grid,
+  IconButton,
   Typography,
   TextField,
   Button,
@@ -22,6 +21,8 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material'
+import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 
 interface Material {
   id: number
@@ -46,6 +47,7 @@ const Inbound = () => {
   const [ quantities, setQuantities ] = useState<Record<number, number>>({})
   const [ open, setOpen ] = useState(false)
   const [ selectedItems, setSelectedItems ] = useState<InboundItem[]>([])
+  const [ alertOpen, setAlertOpen ] = useState(false)
 
   useEffect(() => {
     (async function () {
@@ -69,6 +71,10 @@ const Inbound = () => {
         price: m.price,
         quantity: quantities[m.id],
       }))
+    if (items.length === 0) {
+      setAlertOpen(true)
+      return
+    }
     setSelectedItems(items)
     setOpen(true)
   }
@@ -127,9 +133,9 @@ const Inbound = () => {
             入庫対象品
           </Typography>
         </Box>
-        <Button variant='contained' color='primary' onClick={ handleConfirm }>
-          入庫登録
-        </Button>
+        <IconButton color='primary' onClick={ handleConfirm }>
+          <DataSaverOnOutlinedIcon />
+        </IconButton>
       </div>
       <Grid container spacing={ 1 }>
         { materials.map((m) => (
@@ -198,7 +204,34 @@ const Inbound = () => {
         </DialogContent>
         <DialogActions sx={{ backgroundColor: '#eff' }}>
           <Button variant='outlined' onClick={() => setOpen(false)}>キャンセル</Button>
-          <Button variant='contained' color='primary' onClick={handleOk}>
+          <Button variant='contained' color='primary' onClick={ handleOk }>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={ alertOpen } 
+        onClose={ () => setAlertOpen(false) } 
+        maxWidth='sm' 
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: '#FFF3E0',
+            },
+          },
+        }}>
+        <DialogTitle>
+          <Box display='flex' alignItems='center' gap={ 1 }>
+            <WarningAmberIcon color='warning' />
+            <Typography variant='h6' color='warning.main'>
+              警告
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography>在庫品を選択してください。</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='contained' color='warning' onClick={ () => setAlertOpen(false) } autoFocus>
             OK
           </Button>
         </DialogActions>
