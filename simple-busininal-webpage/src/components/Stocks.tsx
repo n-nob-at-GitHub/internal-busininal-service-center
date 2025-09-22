@@ -1,0 +1,178 @@
+'use client'
+import axios from 'axios'
+import {
+  useEffect,
+  useMemo, 
+  useState,
+} from 'react'
+import {
+  MaterialReactTable, 
+  MRT_ToggleGlobalFilterButton,
+  type MRT_ColumnDef,
+  useMaterialReactTable,
+} from 'material-react-table'
+import {
+  Box,
+  IconButton,
+  Typography,
+} from '@mui/material'
+import {
+  useQuery,
+} from '@tanstack/react-query'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import { type Stock } from '@/types/dbFunctions'
+
+const Stocks = () => {
+  const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
+  const [ materials, setMaterials ] = useState<any>([])
+  useEffect(() => {
+    (async function () {
+      const res = await fetchMaterials()
+      setMaterials(res.map((v: any, k: number) => { return { id: v.id, name: v.name } }))
+    })()
+  }, [])
+
+  const columns = useMemo<MRT_ColumnDef<Stock>[]>(
+    () => [
+        {
+          accessorKey: 'id',
+          header: 'No',
+          enableEditing: false,
+          maxSize: 30,
+          Cell: ({ renderedCellValue, row }) => (
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '0.5rem',
+              }}
+              >
+              { row.index + 1 }
+            </Box>
+          ),
+        },
+        {
+          accessorKey: 'materialId',
+          header: '品目',
+          maxSize: 100,
+          Cell: ({ renderedCellValue }) => materials.filter((v: any) => v.id === Number(renderedCellValue)).map((v: any) => v.name),
+          enableSorting: false,
+          editVariant: 'select',
+          editSelectOptions: materials.map((v: any) => { return { label: v.name, value: v.id } }),
+          muiEditTextFieldProps: {
+            select: true,
+            error: !!validationErrors?.materialId,
+            helperText: validationErrors?.materialId,
+          },
+        },
+        {
+          accessorKey: 'totalQuantity',
+          header: '合計数量',
+          maxSize: 30,
+        },
+        {
+          accessorKey: 'totalAmount',
+          header: '合計金額',
+          maxSize: 30,
+        },
+        {
+          accessorKey: 'unit',
+          header: '単位',
+          maxSize: 50,
+        },
+        {
+          accessorKey: 'note',
+          header: '備考',
+          maxSize: 30,
+        },
+      ],
+    [ materials, validationErrors ],
+  )
+  
+  // call READ hook
+  const {
+    data: fetchedStocks = [],
+    isError: isLoadingStocksError,
+    isFetching: isFetchingStocks,
+    isLoading: isLoadingStocks,
+  } = useGetStocks()
+
+  const table = useMaterialReactTable({
+    columns,
+    // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
+    data: fetchedStocks,
+    positionToolbarDropZone: 'none',
+    enableColumnActions: false,
+    enableStickyHeader: true,
+    // localization: MRT_Localization_JA,
+    localization: {
+      actions: '',
+      cancel: '',
+      clearSearch: '',
+      noRecordsToDisplay: '表示するレコードがありません',
+      noResultsFound: '結果なし',
+      rowsPerPage: '表示件数',
+      save: '',
+      search: '検索',
+      showHideSearch: '',
+      sortByColumnAsc: '',
+      sortByColumnDesc: '',
+      sortedByColumnAsc: '',
+      sortedByColumnDesc: '',
+    },
+    positionActionsColumn: 'last',
+    paginationDisplayMode: 'pages',
+    muiPaginationProps: {
+      shape: 'circular',
+      variant: 'outlined',
+      rowsPerPageOptions: [5, 10, 20],
+    },
+    getRowId: (row) => row.id?.toString(),
+    muiToolbarAlertBannerProps: isLoadingStocksError
+      ? {
+          color: 'error',
+          children: 'Error loading data',
+        }
+      : undefined,
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Box sx={{ display: 'flex', gap: '0.5rem' }}>
+        <Typography variant='h4'>在庫一覧</Typography>
+        <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
+          <AddCircleOutline />
+        </IconButton>
+      </Box>
+    ),
+    renderToolbarInternalActions: ({ table }) => (
+      <Box>
+        <MRT_ToggleGlobalFilterButton table={ table } />
+      </Box>
+    ),
+    state: {
+      isLoading: isLoadingStocks,
+      showAlertBanner: isLoadingStocksError,
+      showProgressBars: isFetchingStocks,
+      density: 'compact',
+    },
+  })
+
+  // using MRT_Table instead of MaterialReactTable if we do not need any of the toolbar components or features
+  return <MaterialReactTable table={ table } />
+}
+
+// READ hook (get stocks from api)
+function useGetStocks() {
+  return useQuery<Stock[]>({
+    queryKey: [ 'stocks' ],
+    queryFn: async () => {
+      const response = await axios.get('/api/stock')
+      return response.data
+    },
+    refetchOnWindowFocus: false,
+  })
+}
+
+const fetchMaterials: any = async () => {
+  const res = await axios.get('/api/material')
+  return res.data
+}
+
+export default Stocks

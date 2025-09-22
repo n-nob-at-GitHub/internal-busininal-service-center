@@ -17,6 +17,7 @@ import Licenses from '@/components/Licenses'
 import Manufacturers from '@/components/Manufacturers'
 import Materials from '@/components/Materials'
 import Roles from '@/components/Roles'
+import Stocks from '@/components/Stocks'
 import Users from '@/components/Users'
 
 interface TabPanelProps {
@@ -63,7 +64,7 @@ const Contents = () => {
     setMasterAnchorElement(event.currentTarget)
   }
   const stockComponents: Record<StockKey, ReactNode> = {
-    '在庫一覧': <>TODO: 在庫一覧</>,
+    '在庫一覧': <Stocks />,
     '入庫': <>TODO: 入庫</>,
     '出庫': <>TODO: 出庫</>,
     '入庫履歴': <>TODO: 入庫履歴</>,
