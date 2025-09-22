@@ -13,6 +13,7 @@ import {
   Tabs,
 } from '@mui/material'
 import DeliverySites from '@/components/DeliverySites'
+import Inbound from '@/components/Inbound'
 import InboundHistories from '@/components/InboundHistories'
 import Licenses from '@/components/Licenses'
 import Manufacturers from '@/components/Manufacturers'
@@ -67,7 +68,7 @@ const Contents = () => {
   }
   const stockComponents: Record<StockKey, ReactNode> = {
     '在庫一覧': <Stocks />,
-    '入庫': <>TODO: 入庫</>,
+    '入庫': <Inbound />,
     '出庫': <>TODO: 出庫</>,
     '入庫履歴': <InboundHistories />,
     '出庫履歴': <OutboundHistories />,
