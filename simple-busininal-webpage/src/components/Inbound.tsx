@@ -22,6 +22,7 @@ import {
   ListItemText,
 } from '@mui/material'
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 
 interface Material {
@@ -143,7 +144,7 @@ const Inbound = () => {
             <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', boxShadow: 5 }}>
               <CardContent>
                 <img
-                  src={ m.fileName ? `/images/${m.fileName}` : '/images/icons8-no-image-250.png' }
+                  src={ m.fileName ? `/images/${ m.fileName }` : '/images/icons8-no-image-250.png' }
                   alt={ m.name }
                   style={{ 
                     width: '250px', 
@@ -177,8 +178,25 @@ const Inbound = () => {
         ))}
       </Grid>
 
-      <Dialog open={ open } onClose={ () => setOpen(false) } maxWidth='sm' fullWidth>
-        <DialogTitle sx={{ backgroundColor: '#eff' }}>入庫確認</DialogTitle>
+      <Dialog open={ open } 
+        onClose={ () => setOpen(false) } 
+        maxWidth='sm' 
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: '#E3F2FD',
+            },
+          },
+        }}>
+        <DialogTitle>
+          <Box display='flex' alignItems='center' gap={ 1 }>
+            <InfoOutlinedIcon color='primary' />
+            <Typography variant='h6' color='primary.main'>
+              入庫確認
+            </Typography>
+          </Box>
+        </DialogTitle>
         <DialogContent
             sx={{
             maxHeight: 400,
@@ -202,8 +220,8 @@ const Inbound = () => {
             ))}
           </List>
         </DialogContent>
-        <DialogActions sx={{ backgroundColor: '#eff' }}>
-          <Button variant='outlined' onClick={() => setOpen(false)}>キャンセル</Button>
+        <DialogActions>
+          <Button variant='outlined' onClick={ () => setOpen(false) }>キャンセル</Button>
           <Button variant='contained' color='primary' onClick={ handleOk }>
             OK
           </Button>
@@ -212,18 +230,12 @@ const Inbound = () => {
       <Dialog open={ alertOpen } 
         onClose={ () => setAlertOpen(false) } 
         maxWidth='sm' 
-        slotProps={{
-          paper: {
-            sx: {
-              backgroundColor: '#FFF3E0',
-            },
-          },
-        }}>
+        >
         <DialogTitle>
           <Box display='flex' alignItems='center' gap={ 1 }>
             <WarningAmberIcon color='warning' />
             <Typography variant='h6' color='warning.main'>
-              警告
+              注意
             </Typography>
           </Box>
         </DialogTitle>
