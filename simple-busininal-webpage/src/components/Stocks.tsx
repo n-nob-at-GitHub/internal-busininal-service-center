@@ -13,17 +13,14 @@ import {
 } from 'material-react-table'
 import {
   Box,
-  IconButton,
   Typography,
 } from '@mui/material'
 import {
   useQuery,
 } from '@tanstack/react-query'
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import { type Stock } from '@/types/dbFunctions'
 
 const Stocks = () => {
-  const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
   const [ materials, setMaterials ] = useState<any>([])
   useEffect(() => {
     (async function () {
@@ -55,14 +52,6 @@ const Stocks = () => {
           header: '品目',
           maxSize: 100,
           Cell: ({ renderedCellValue }) => materials.filter((v: any) => v.id === Number(renderedCellValue)).map((v: any) => v.name),
-          enableSorting: false,
-          editVariant: 'select',
-          editSelectOptions: materials.map((v: any) => { return { label: v.name, value: v.id } }),
-          muiEditTextFieldProps: {
-            select: true,
-            error: !!validationErrors?.materialId,
-            helperText: validationErrors?.materialId,
-          },
         },
         {
           accessorKey: 'totalQuantity',
@@ -85,7 +74,7 @@ const Stocks = () => {
           maxSize: 30,
         },
       ],
-    [ materials, validationErrors ],
+    [ materials ],
   )
   
   // call READ hook
@@ -136,9 +125,6 @@ const Stocks = () => {
     renderTopToolbarCustomActions: ({ table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
         <Typography variant='h4'>在庫一覧</Typography>
-        <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
-          <AddCircleOutline />
-        </IconButton>
       </Box>
     ),
     renderToolbarInternalActions: ({ table }) => (
