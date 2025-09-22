@@ -5,11 +5,12 @@ import logo from '@/images/logo.webp'
 
 const Header = () => {
   return (
-    <a
-      href='https://arte-info.com/'
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <>
+      <a
+        href='https://www.bijininal.com/'
+        target="_blank"
+        rel="noopener noreferrer"
+      >
       <Image
         src={ logo.src }
         width={ 220 }
@@ -17,7 +18,8 @@ const Header = () => {
         alt='Logo Image'
         style={{ objectFit: 'contain' }}
       />
-    </a>
+      </a>
+    </>
   )
 }
 
