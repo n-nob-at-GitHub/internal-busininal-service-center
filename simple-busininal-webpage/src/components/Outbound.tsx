@@ -6,20 +6,24 @@ import {
 } from 'react'
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Grid,
-  IconButton,
-  Typography,
-  TextField,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemText,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material'
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -34,26 +38,33 @@ interface Material {
   stockId: number
 }
 
-interface InboundItem {
+interface OutboundItem {
   materialId: number
   stockId: number
+  deliverySiteId: number
   name: string
   unit: string
   price: number
   quantity: number
 }
 
-const Inbound = () => {
+const Outbound = () => {
+  const [ deliverySites, setDeliverySites ] = useState<{ id: number, name: string }[]>([])
+  const [ selectedDeliverySite, setSelectedDeliverySite ] = useState<number | null>(null)
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ quantities, setQuantities ] = useState<Record<number, number>>({})
   const [ open, setOpen ] = useState(false)
-  const [ selectedItems, setSelectedItems ] = useState<InboundItem[]>([])
+  const [ selectedItems, setSelectedItems ] = useState<OutboundItem[]>([])
   const [ alertOpen, setAlertOpen ] = useState(false)
 
   useEffect(() => {
     (async function () {
       const resMs = await fetchMaterials()
       setMaterials(resMs)
+
+      const resDs = await fetchDeliverySites()
+      setDeliverySites(resDs)
+      if (resDs.length > 0) setSelectedDeliverySite(resDs[0].id)
     })()
   }, [])
 
@@ -62,11 +73,16 @@ const Inbound = () => {
   }
 
   const handleConfirm = () => {
+    if (!selectedDeliverySite) {
+      setAlertOpen(true)
+      return
+    }
     const items = materials
       .filter((m) => quantities[m.id] && quantities[m.id] > 0)
       .map((m) => ({
         materialId: m.id,
         stockId: m.stockId,
+        deliverySiteId: selectedDeliverySite,
         name: m.name,
         unit: m.unit,
         price: m.price,
@@ -84,18 +100,20 @@ const Inbound = () => {
     if (selectedItems.length === 0) return
     try {
       const stockPayload = selectedItems.map(item => ({
-        stockId: item.stockId, // If not present, undefined.
         materialId: item.materialId,
+        stockId: item.stockId, // If not present, undefined.
+        deliverySiteId: selectedDeliverySite,
         quantity: item.quantity,
         price: item.price,
         unit: item.unit,
         updatedBy: 'system',
       }))
       const updatedStocks = await updateStocks(stockPayload)
-      const inboundPayload = selectedItems.map(item => {
+      const outboundPayload = selectedItems.map(item => {
         const stockInfo = updatedStocks.find((s : any) => s.materialId === item.materialId)
         return {
           stockId: stockInfo?.id, // Here, stockId must exist.
+          deliverySiteId: selectedDeliverySite,
           quantity: item.quantity,
           amount: item.quantity * item.price,
           unitPrice: item.price,
@@ -103,12 +121,17 @@ const Inbound = () => {
           createdBy: 'system',
         }
       })
-      createInbounds(inboundPayload),
+      createOutbounds(outboundPayload),
       setOpen(false)
       setQuantities({})
     } catch (error) {
-      console.error('入庫処理エラー:', error)
+      console.error('出庫処理エラー:', error)
     }
+  }
+
+  const fetchDeliverySites: any = async () => {
+    const res = await axios.get('/api/delivery-site')
+    return res.data
   }
 
   const fetchMaterials: any = async () => {
@@ -116,23 +139,36 @@ const Inbound = () => {
     return res.data
   }
 
-  const createInbounds: any = async (inboundPayload : any) => {
-    const res = await axios.post('/api/inbounds', inboundPayload)
+  const createOutbounds: any = async (outboundPayload : any) => {
+    const res = await axios.post('/api/outbounds', outboundPayload)
     return res.data
   }
 
   const updateStocks: any = async (stockPayload : any) => {
-    const res = await axios.put('/api/inbound-stocks', stockPayload)
+    const res = await axios.put('/api/outbound-stocks', stockPayload)
     return res.data
   }
 
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.5rem' }}>
-        <Box sx={{ mb: 1 }}>
+        <Box display='flex' alignItems='center' gap={ 2 } sx={{ mb: 1 }}>
           <Typography variant='h4' component='h2'>
-            入庫対象品
+            出庫対象品
           </Typography>
+          <FormControl size='small' sx={{ minWidth: 200 }}>
+            <InputLabel id='delivery-site-label'>配送先</InputLabel>
+            <Select
+              labelId='delivery-site-label'
+              value={ selectedDeliverySite ?? '' }
+              label='配送先'
+              onChange={ (e) => setSelectedDeliverySite(Number(e.target.value)) }
+            >
+            { deliverySites.map(site => (
+              <MenuItem key={ site.id } value={ site.id }>{ site.name }</MenuItem>
+            )) }
+            </Select>
+          </FormControl>
         </Box>
         <IconButton color='primary' onClick={ handleConfirm }>
           <DataSaverOnOutlinedIcon />
@@ -165,7 +201,7 @@ const Inbound = () => {
                 </Typography>
                 <TextField
                   type='number'
-                  label={ `入庫数 (${ m.unit })` }
+                  label={ `出庫数 (${ m.unit })` }
                   value={ quantities[m.id] || '' }
                   onChange={ (e) => handleQuantityChange(m.id, Number(e.target.value)) }
                   fullWidth
@@ -193,7 +229,7 @@ const Inbound = () => {
           <Box display='flex' alignItems='center' gap={ 1 }>
             <InfoOutlinedIcon color='primary' />
             <Typography variant='h6' color='primary.main'>
-              入庫確認
+              出庫確認
             </Typography>
           </Box>
         </DialogTitle>
@@ -252,4 +288,4 @@ const Inbound = () => {
   )
 }
 
-export default Inbound
+export default Outbound
