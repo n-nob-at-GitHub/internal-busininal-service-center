@@ -21,6 +21,7 @@ export type Material = {
   unit: string;
   name: string;
   fileName: string?;
+  isValid: boolean;
 };
 
 export type ManufacturerIds = number[];

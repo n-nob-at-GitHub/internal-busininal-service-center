@@ -16,7 +16,7 @@ import {
 import {
   Box,
   IconButton,
-  Link,
+  Switch,
   Typography,
 } from '@mui/material'
 import {
@@ -164,6 +164,17 @@ const Materials = () => {
           accessorKey: 'fileName',
           header: '画像ファイル',
         },
+        {
+          accessorKey: 'isValid',
+          header: '有効／無効',
+          Cell: ({ row }) => (
+            <Switch
+              checked={ row.original.isValid }
+              onChange={ async (e) => { await updateMaterial({ ...row.original, isValid: e.target.checked, })}}
+              color='primary'
+            />
+          ),
+        },
       ],
     [ manufacturers, validationErrors ],
   )
@@ -269,6 +280,17 @@ const Materials = () => {
       rowsPerPageOptions: [5, 10, 20],
     },
     getRowId: (row) => row.id?.toString(),
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: row.original.isValid
+      ? {}
+      : {
+          backgroundColor: '#f5f5f5',
+          color: '#9e9e9e',
+          '& .MuiTableCell-root': {
+            color: '#9e9e9e',
+          },
+        },
+    }),
     muiToolbarAlertBannerProps: isLoadingMaterialsError
       ? {
           color: 'error',

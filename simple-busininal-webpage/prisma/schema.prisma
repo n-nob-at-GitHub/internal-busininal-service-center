@@ -35,7 +35,8 @@ model Material {
   quantity        Int              @default(0)
   unit            String
   name            String
-  fileName        String?
+  fileName        String?          @map("file_name")
+  isValid         Boolean          @map("is_valid") @default(true)
   manufacturer    Manufacturer     @relation(fields: [manufacturerId], references: [id])
   stocks          Stock[]
 }
