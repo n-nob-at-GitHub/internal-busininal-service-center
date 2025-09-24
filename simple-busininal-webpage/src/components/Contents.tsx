@@ -31,7 +31,7 @@ interface TabPanelProps {
 }
 
 type StockKey = '在庫一覧' | '入庫' | '出庫' | '入庫履歴' | '出庫履歴'
-type MasterKey = '品目' | '製造メーカー' | '配送先' | 'ユーザー' | 'ロール' 
+type MasterKey = '資材' | '製造メーカー' | '配送先' | 'ユーザー' | 'ロール' 
 
 const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -75,7 +75,7 @@ const Contents = () => {
     '出庫履歴': <OutboundHistories />,
   }
   const masterComponents: Record<MasterKey, ReactNode> = {
-    '品目': <Materials />,
+    '資材': <Materials />,
     '製造メーカー': <Manufacturers />,
     '配送先': <DeliverySites />,
     'ユーザー': <Users />,
@@ -127,7 +127,7 @@ const Contents = () => {
         open={ Boolean(masterAnchorElement) }
         onClose={ () => setMasterAnchorElement(null) }
       >
-        <MenuItem onClick={ () => handleMenuSelect('品目') }>品目</MenuItem>
+        <MenuItem onClick={ () => handleMenuSelect('資材') }>資材</MenuItem>
         <MenuItem onClick={ () => handleMenuSelect('製造メーカー') }>製造メーカー</MenuItem>
         <MenuItem onClick={ () => handleMenuSelect('配送先') }>配送先</MenuItem>
         <MenuItem onClick={ () => handleMenuSelect('ユーザー') }>ユーザー</MenuItem>

@@ -74,7 +74,7 @@ const Materials = () => {
         },
         {
           accessorKey: 'code',
-          header: '品番',
+          header: '資材コード',
           maxSize: 30,
           muiEditTextFieldProps: {
             required: true,
@@ -294,13 +294,13 @@ const Materials = () => {
           onClose={ closeDialog }
           judge={ judge }
           title='削除確認'
-          message={ `品目 ${row.original.name} を削除しますか？` }
+          message={ `資材 ${row.original.name} を削除しますか？` }
         />
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-        <Typography variant='h4'>品目</Typography>
+        <Typography variant='h4'>資材</Typography>
         <IconButton color='primary' onClick={ () => table.setCreatingRow(true) }>
           <AddCircleOutline />
         </IconButton>
@@ -434,7 +434,7 @@ const validateQuantity = (quantity: string) =>
 function validateMaterial(material: Material) {
   return {
     manufacturerId: !validateRequired(material.manufacturerId) ? 'メーカーは必須です。' : '',
-    code: !validateRequired(material.code) ? '品番は必須です。' : '',
+    code: !validateRequired(material.code) ? '資材コードは必須です。' : '',
     category: !validateRequired(material.category) ? 'カテゴリーは必須です。' : '',
     price: !validatePrice(material.price.toString()) ? '０円以上の単価を入力してください。' : '',
     quantity: !validateQuantity(material.quantity.toString()) ? '１以上の数量を入力してください。' : '',

@@ -49,7 +49,7 @@ const Stocks = () => {
         },
         {
           accessorKey: 'materialId',
-          header: '品目',
+          header: '資材',
           maxSize: 100,
           Cell: ({ renderedCellValue }) => materials.filter((v: any) => v.id === Number(renderedCellValue)).map((v: any) => v.name),
         },
