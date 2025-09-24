@@ -31,6 +31,7 @@ interface Material {
   unit: string
   price: number
   fileName?: string
+  isValid: boolean
   stockId: number
 }
 
@@ -139,7 +140,7 @@ const Inbound = () => {
         </IconButton>
       </div>
       <Grid container spacing={ 1 }>
-        { materials.map((m) => (
+        { materials.filter((m) => m.isValid).map((m) => (
           <Grid key={ m.id } size={{ xs: 12, sm: 6, md: 2.4 }} sx={{ display: 'flex' }}>
             <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', boxShadow: 5 }}>
               <CardContent>

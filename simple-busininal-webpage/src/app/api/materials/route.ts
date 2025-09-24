@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
       unit: m.unit,
       price: m.price,
       fileName: m.fileName,
+      isValid: m.isValid,
       stockId: m.stocks[0]?.id,
     }))
     // sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(res))
