@@ -188,7 +188,7 @@ const InboundHistories = () => {
           slotProps={{ 
             textField: { size: 'small' },
             actionBar: {
-              actions: [ 'clear', 'cancel', 'accept' ],
+              actions: [ 'clear', 'cancel' ],
             },
           }}
         />
@@ -200,7 +200,7 @@ const InboundHistories = () => {
           slotProps={{ 
             textField: { size: 'small' },
             actionBar: {
-              actions: [ 'clear', 'cancel', 'accept' ],
+              actions: [ 'clear', 'cancel' ],
             },
           }}
         />
@@ -236,6 +236,7 @@ function useGetInboundHistories() {
       return response.data
     },
     refetchOnWindowFocus: false,
+    staleTime: 0,
   })
 }
 
