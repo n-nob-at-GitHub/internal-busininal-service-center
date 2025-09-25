@@ -17,6 +17,7 @@
     "@prisma/client": "^6.16.2",
     "@tanstack/react-query": "^5.89.0",
     "axios": "^1.12.2",
+    "dayjs": "^1.11.18",
     "export-to-csv": "^1.4.0",
     "material-react-table": "^3.2.1",
     "next": "15.5.3",

@@ -15,9 +15,13 @@ import {
   Box,
   Typography,
 } from '@mui/material'
-import {
-  useQuery,
-} from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import { 
+  DatePicker, 
+  LocalizationProvider 
+} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { type Inbound } from '@/types/dbFunctions'
 
 interface Material {
@@ -34,6 +38,8 @@ interface Stock {
 const InboundHistories = () => {
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ stocks, setStocks ] = useState<Stock[]>([])
+  const [ startDate, setStartDate ] = useState<Dayjs | null>(null)
+  const [ endDate, setEndDate ] = useState<Dayjs | null>(null)
   useEffect(() => {
     (async function () {
       const resMs = await fetchMaterials()
@@ -124,10 +130,20 @@ const InboundHistories = () => {
     isLoading: isLoadingInboundHistories,
   } = useGetInboundHistories()
 
+  const filteredData = useMemo(() => {
+    return fetchedInboundHistories.filter((item) => {
+      if (!item.createdAt) return false
+      const createdAt = dayjs(item.createdAt)
+      if (startDate && createdAt.isBefore(startDate, 'day')) return false
+      if (endDate && createdAt.isAfter(endDate, 'day')) return false
+      return true
+    })
+  }, [ fetchedInboundHistories, startDate, endDate ])
+
   const table = useMaterialReactTable({
     columns,
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-    data: fetchedInboundHistories,
+    data: filteredData,
     positionToolbarDropZone: 'none',
     enableColumnActions: false,
     enableStickyHeader: true,
@@ -162,8 +178,32 @@ const InboundHistories = () => {
         }
       : undefined,
     renderTopToolbarCustomActions: ({ table }) => (
-      <Box sx={{ display: 'flex', gap: '0.5rem' }}>
+      <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <Typography variant='h4'>入庫履歴</Typography>
+        <DatePicker
+          label='開始日'
+          format='YYYY/MM/DD'
+          value={ startDate }
+          onChange={ (newValue) => setStartDate(newValue) }
+          slotProps={{ 
+            textField: { size: 'small' },
+            actionBar: {
+              actions: [ 'clear', 'cancel', 'accept' ],
+            },
+          }}
+        />
+        <DatePicker
+          label='終了日'
+          format='YYYY/MM/DD'
+          value={ endDate }
+          onChange={ (newValue) => setEndDate(newValue) }
+          slotProps={{ 
+            textField: { size: 'small' },
+            actionBar: {
+              actions: [ 'clear', 'cancel', 'accept' ],
+            },
+          }}
+        />
       </Box>
     ),
     renderToolbarInternalActions: ({ table }) => (
@@ -180,7 +220,11 @@ const InboundHistories = () => {
   })
 
   // using MRT_Table instead of MaterialReactTable if we do not need any of the toolbar components or features
-  return <MaterialReactTable table={ table } />
+  return (
+    <LocalizationProvider dateAdapter={ AdapterDayjs }>
+      <MaterialReactTable table={ table } />
+    </LocalizationProvider>
+  )
 }
 
 // READ hook (get Inbound from api)
