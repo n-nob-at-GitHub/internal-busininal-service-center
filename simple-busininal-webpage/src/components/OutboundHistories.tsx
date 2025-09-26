@@ -14,10 +14,15 @@ import {
 import {
   Box,
   IconButton,
+  Switch,
   Typography,
 } from '@mui/material'
 import DownloadingIcon from '@mui/icons-material/Downloading'
-import { useQuery } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { 
   DatePicker, 
   LocalizationProvider 
@@ -123,6 +128,17 @@ const OutboundHistories = () => {
           maxSize: 30,
         },
         {
+          accessorKey: 'isValid',
+          header: '有効／無効',
+          Cell: ({ row }) => (
+            <Switch
+              checked={ row.original.isValid }
+              onChange={ async (e) => { await updateOutboundHistory({ ...row.original, isValid: e.target.checked, })}}
+              color='primary'
+            />
+          ),
+        },
+        {
           accessorKey: 'createdBy',
           header: '出庫者',
           maxSize: 30,
@@ -155,7 +171,9 @@ const OutboundHistories = () => {
     isLoading: isLoadingOutboundHistories,
   } = useGetOutboundHistories()
 
-  
+  // call UPDATE hook
+  const { mutateAsync: updateOutboundHistory, isPending: isUpdatingOutboundHistory } = useUpdateOutboundHistory()
+
   const filteredData = useMemo(() => {
     return fetchedOutboundHistories.filter((item) => {
       if (!item.createdAt) return false
@@ -227,6 +245,17 @@ const OutboundHistories = () => {
       rowsPerPageOptions: [5, 10, 20],
     },
     getRowId: (row) => row.id?.toString(),
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: row.original.isValid
+      ? {}
+      : {
+          backgroundColor: '#f5f5f5',
+          color: '#9e9e9e',
+          '& .MuiTableCell-root': {
+            color: '#9e9e9e',
+          },
+        },
+    }),
     muiToolbarAlertBannerProps: isLoadingOutboundHistoriesError
       ? {
           color: 'error',
@@ -296,6 +325,34 @@ function useGetOutboundHistories() {
     },
     refetchOnWindowFocus: false,
     staleTime: 0,
+  })
+}
+
+// UPDATE hook (put outbound in api)
+function useUpdateOutboundHistory() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (outbound: Outbound): Promise<Outbound> => {
+      // send api update request here
+      const payload = {
+        ...outbound,
+      };
+      const response = await axios.put('/api/outbound-history', payload)
+      return response.data
+    },
+    // client side optimistic update
+    onMutate: (newOutbound: Outbound) => {
+      queryClient.setQueryData([ 'outboundHistories' ], (prevOutbounds: any) =>
+        prevOutbounds?.map((prevOutbound: Outbound) =>
+          prevOutbound.id === newOutbound.id ? newOutbound : prevOutbound,
+        ),
+      )
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [ 'stocks' ],
+      })
+    },
   })
 }
 
