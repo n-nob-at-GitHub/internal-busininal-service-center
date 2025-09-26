@@ -134,7 +134,7 @@ const OutboundHistories = () => {
           }
         },
       ],
-    [ materials, stocks, deliverySites ],
+    [ stocks, deliverySites ],
   )
   
   // call READ hook

@@ -119,7 +119,7 @@ const InboundHistories = () => {
           }
         },
       ],
-    [ materials, stocks ],
+    [ stocks ],
   )
   
   // call READ hook
