@@ -48,10 +48,11 @@ const Stocks = () => {
           ),
         },
         {
-          accessorKey: 'materialId',
+          accessorKey: 'material',
           header: '資材',
           maxSize: 100,
-          Cell: ({ renderedCellValue }) => materials.filter((v: any) => v.id === Number(renderedCellValue)).map((v: any) => v.name),
+          accessorFn: (row) => materials.find((m: any) => m.id === Number(row.materialId))?.name ?? '',
+          Cell: ({ renderedCellValue }) => renderedCellValue,
         },
         {
           accessorKey: 'totalQuantity',
@@ -86,6 +87,7 @@ const Stocks = () => {
     data: fetchedStocks,
     positionToolbarDropZone: 'none',
     enableColumnActions: false,
+    enableGlobalFilter: true,
     enableStickyHeader: true,
     // localization: MRT_Localization_JA,
     localization: {
