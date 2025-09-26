@@ -48,11 +48,14 @@ const Stocks = () => {
           ),
         },
         {
-          accessorKey: 'material',
           header: '資材',
+          id: 'material',
           maxSize: 100,
           accessorFn: (row) => materials.find((m: any) => m.id === Number(row.materialId))?.name ?? '',
-          Cell: ({ renderedCellValue }) => renderedCellValue,
+          Cell: ({ row }) => {
+            const material = materials.find((m: any) => m.id === Number(row.original.materialId))
+            return material ? material.name : ''
+          },
         },
         {
           accessorKey: 'totalQuantity',
