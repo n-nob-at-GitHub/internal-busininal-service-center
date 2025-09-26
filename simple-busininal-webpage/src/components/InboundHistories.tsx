@@ -79,10 +79,14 @@ const InboundHistories = () => {
           ),
         },
         {
-          accessorKey: 'stockId',
           header: '在庫商品名',
+          id: 'materialName',
           maxSize: 30,
-          Cell: ({ renderedCellValue }) => stocks.find((s) => s.id === Number(renderedCellValue))?.materialName ?? '',
+          accessorFn: (row) => stocks.find((s) => s.id === Number(row.stockId))?.materialName ?? '',
+          Cell: ({ row }) => {
+            const stock = stocks.find((s) => s.id === Number(row.original.stockId))
+            return stock ? stock.materialName : ''
+          },
         },
         {
           accessorKey: 'quantity',
@@ -162,7 +166,7 @@ const InboundHistories = () => {
     const url = URL.createObjectURL(blob)
 
     const link = document.createElement('a')
-    const fileName = `inbound_histories_${dayjs().format('YYYYMMDD')}.csv`
+    const fileName = `inbound_histories_${ dayjs().format('YYYYMMDD') }.csv`
     link.href = url
     link.setAttribute('download', fileName)
     document.body.appendChild(link)
@@ -175,6 +179,7 @@ const InboundHistories = () => {
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
     data: filteredData,
     positionToolbarDropZone: 'none',
+    enableGlobalFilter: true,
     enableColumnActions: false,
     enableStickyHeader: true,
     // localization: MRT_Localization_JA,

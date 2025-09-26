@@ -88,16 +88,24 @@ const OutboundHistories = () => {
           ),
         },
         {
-          accessorKey: 'stockId',
           header: '在庫商品名',
+          id: 'materialName',
           maxSize: 30,
-          Cell: ({ renderedCellValue }) => stocks.find((s) => s.id === Number(renderedCellValue))?.materialName ?? '',
+          accessorFn: (row) => stocks.find((s) => s.id === Number(row.stockId))?.materialName ?? '',
+          Cell: ({ row }) => {
+            const stock = stocks.find((s) => s.id === Number(row.original.stockId))
+            return stock ? stock.materialName : ''
+          },
         },
         {
-          accessorKey: 'deliverySiteId',
           header: '配送先名',
+          id: 'name',
           maxSize: 30,
-          Cell: ({ renderedCellValue }) => deliverySites.find((s) => s.id === Number(renderedCellValue))?.name ?? '',
+          accessorFn: (row) => deliverySites.find((s) => s.id === Number(row.deliverySiteId))?.name ?? '',
+          Cell: ({ row }) => {
+            const deliverySite = deliverySites.find((s) => s.id === Number(row.original.deliverySiteId))
+            return deliverySite ? deliverySite.name : ''
+          },
         },
         {
           accessorKey: 'quantity',
@@ -179,7 +187,7 @@ const OutboundHistories = () => {
     const url = URL.createObjectURL(blob)
 
     const link = document.createElement('a')
-    const fileName = `outbound_histories_${dayjs().format('YYYYMMDD')}.csv`
+    const fileName = `outbound_histories_${ dayjs().format('YYYYMMDD') }.csv`
     link.href = url
     link.setAttribute('download', fileName)
     document.body.appendChild(link)
@@ -192,6 +200,7 @@ const OutboundHistories = () => {
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
     data: filteredData,
     positionToolbarDropZone: 'none',
+    enableGlobalFilter: true,
     enableColumnActions: false,
     enableStickyHeader: true,
     // localization: MRT_Localization_JA,
