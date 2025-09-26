@@ -344,6 +344,11 @@ function useUpdateInboundHistory() {
         ),
       )
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [ 'stocks' ],
+      })
+    },
   })
 }
 
