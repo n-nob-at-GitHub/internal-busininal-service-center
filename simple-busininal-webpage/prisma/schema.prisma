@@ -78,8 +78,11 @@ model Inbound {
   amount          Int              @default(0)
   unitPrice       Int              @map("unit_price") @default(0)
   unit            String
+  isValid         Boolean          @map("is_valid") @default(true)
   createdBy       String           @map("created_by")
   createdAt       DateTime         @map("created_at") @default(now())
+  updatedBy       String           @map("updated_by")
+  updatedAt       DateTime         @map("updated_at") @default(now())
   stock           Stock            @relation(fields: [stockId], references: [id])
 }
 
@@ -91,8 +94,11 @@ model Outbound {
   amount          Int              @default(0)
   unitPrice       Int              @map("unit_price") @default(0)
   unit            String
+  isValid         Boolean          @map("is_valid") @default(true)
   createdBy       String           @map("created_by")
   createdAt       DateTime         @map("created_at") @default(now())
+  updatedBy       String           @map("updated_by")
+  updatedAt       DateTime         @map("updated_at") @default(now())
   stock           Stock            @relation(fields: [stockId], references: [id])
   deliverySite    DeliverySite     @relation(fields: [deliverySiteId], references: [id])
 }

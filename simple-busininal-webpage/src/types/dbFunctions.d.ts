@@ -41,9 +41,9 @@ export type Stock = {
   unit: string;
   note: string?;
   createdBy: string;
-  createdAt: string;
+  createdAt: DateTime;
   updatedBy: string;
-  updatedAt: string;
+  updatedAt: DateTime;
 }
 
 export type DeliverySiteIds = number[];
@@ -62,8 +62,11 @@ export type Inbound = {
   amount: number;
   unitPrice: number;
   unit: string;
+  isValid: boolean;
   createdBy: string;
   createdAt: DateTime;
+  updatedBy: string;
+  updatedAt: DateTime;
 }
 
 export type Outbound = {
@@ -74,8 +77,11 @@ export type Outbound = {
   amount: number;
   unitPrice: number;
   unit: string;
+  isValid: boolean;
   createdBy: string;
   createdAt: DateTime;
+  updatedBy: string;
+  updatedAt: DateTime;
 }
 
 export type CondolenceTypeIds = number[];
