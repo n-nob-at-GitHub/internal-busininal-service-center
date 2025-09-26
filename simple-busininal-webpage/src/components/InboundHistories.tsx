@@ -13,8 +13,10 @@ import {
 } from 'material-react-table'
 import {
   Box,
+  IconButton,
   Typography,
 } from '@mui/material'
+import DownloadingIcon from '@mui/icons-material/Downloading'
 import { useQuery } from '@tanstack/react-query'
 import { 
   DatePicker, 
@@ -140,6 +142,34 @@ const InboundHistories = () => {
     })
   }, [ fetchedInboundHistories, startDate, endDate ])
 
+  const downloadCSV = (rows: Inbound[]) => {
+    if (!rows.length) return
+    const headers = [ 'ID', '在庫商品名', '数量', '金額', '単位', '入庫者', '入庫時刻' ]
+    const csvRows = [
+      headers.join(','),
+      ...rows.map((row) => [
+        row.id,
+        stocks.find((s) => s.id === row.stockId)?.materialName ?? '',
+        row.quantity,
+        row.amount,
+        row.unit,
+        row.createdBy,
+        row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD HH:mm:ss') : ''
+      ].join(','))
+    ]
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    const fileName = `inbound_histories_${dayjs().format('YYYYMMDD')}.csv`
+    link.href = url
+    link.setAttribute('download', fileName)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const table = useMaterialReactTable({
     columns,
     // data, // data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
@@ -204,6 +234,9 @@ const InboundHistories = () => {
             },
           }}
         />
+        <IconButton onClick={ () => downloadCSV(filteredData) }>
+          <DownloadingIcon />
+        </IconButton>
       </Box>
     ),
     renderToolbarInternalActions: ({ table }) => (

@@ -13,8 +13,10 @@ import {
 } from 'material-react-table'
 import {
   Box,
+  IconButton,
   Typography,
 } from '@mui/material'
+import DownloadingIcon from '@mui/icons-material/Downloading'
 import { useQuery } from '@tanstack/react-query'
 import { 
   DatePicker, 
@@ -147,14 +149,43 @@ const OutboundHistories = () => {
 
   
   const filteredData = useMemo(() => {
-      return fetchedOutboundHistories.filter((item) => {
-        if (!item.createdAt) return false
-        const createdAt = dayjs(item.createdAt)
-        if (startDate && createdAt.isBefore(startDate, 'day')) return false
-        if (endDate && createdAt.isAfter(endDate, 'day')) return false
-        return true
-      })
-    }, [ fetchedOutboundHistories, startDate, endDate ])
+    return fetchedOutboundHistories.filter((item) => {
+      if (!item.createdAt) return false
+      const createdAt = dayjs(item.createdAt)
+      if (startDate && createdAt.isBefore(startDate, 'day')) return false
+      if (endDate && createdAt.isAfter(endDate, 'day')) return false
+      return true
+    })
+  }, [ fetchedOutboundHistories, startDate, endDate ])
+
+  const downloadCSV = (rows: Outbound[]) => {
+    if (!rows.length) return
+    const headers = [ 'ID', '在庫商品名', '配送先名', '数量', '金額', '単位', '出庫者', '出庫時刻' ]
+    const csvRows = [
+      headers.join(','),
+      ...rows.map((row) => [
+        row.id,
+        stocks.find((s) => s.id === row.stockId)?.materialName ?? '',
+        deliverySites.find((s) => s.id === row.deliverySiteId)?.name ?? '',
+        row.quantity,
+        row.amount,
+        row.unit,
+        row.createdBy,
+        row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD HH:mm:ss') : ''
+      ].join(','))
+    ]
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    const fileName = `outbound_histories_${dayjs().format('YYYYMMDD')}.csv`
+    link.href = url
+    link.setAttribute('download', fileName)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
   
   const table = useMaterialReactTable({
     columns,
@@ -220,6 +251,9 @@ const OutboundHistories = () => {
             },
           }}
         />
+        <IconButton onClick={ () => downloadCSV(filteredData) }>
+          <DownloadingIcon />
+        </IconButton>
       </Box>
     ),
     renderToolbarInternalActions: ({ table }) => (
