@@ -9,15 +9,21 @@ import {
   MaterialReactTable, 
   MRT_ToggleGlobalFilterButton,
   type MRT_ColumnDef,
+  type MRT_TableOptions,
   useMaterialReactTable,
 } from 'material-react-table'
 import {
   Box,
   IconButton,
+  Switch,
   Typography,
 } from '@mui/material'
 import DownloadingIcon from '@mui/icons-material/Downloading'
-import { useQuery } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { 
   DatePicker, 
   LocalizationProvider 
@@ -80,6 +86,7 @@ const InboundHistories = () => {
         },
         {
           header: '在庫商品名',
+          enableEditing: false,
           id: 'materialName',
           maxSize: 30,
           accessorFn: (row) => stocks.find((s) => s.id === Number(row.stockId))?.materialName ?? '',
@@ -91,26 +98,42 @@ const InboundHistories = () => {
         {
           accessorKey: 'quantity',
           header: '数量',
+          enableEditing: false,
           maxSize: 30,
         },
         {
           accessorKey: 'amount',
           header: '金額',
+          enableEditing: false,
           maxSize: 30,
         },
         {
           accessorKey: 'unit',
           header: '単位',
+          enableEditing: false,
           maxSize: 30,
+        },
+        {
+          accessorKey: 'isValid',
+          header: '有効／無効',
+          Cell: ({ row }) => (
+            <Switch
+              checked={ row.original.isValid }
+              onChange={ async (e) => { await updateInboundHistory({ ...row.original, isValid: e.target.checked, })}}
+              color='primary'
+            />
+          ),
         },
         {
           accessorKey: 'createdBy',
           header: '入庫者',
+          enableEditing: false,
           maxSize: 30,
         },
         {
           accessorKey: 'createdAt',
           header: '入庫時刻',
+          enableEditing: false,
           Cell: ({ renderedCellValue }) => {
             if (!renderedCellValue) return ''
             const date = new Date(renderedCellValue as string)
@@ -135,6 +158,18 @@ const InboundHistories = () => {
     isFetching: isFetchingInboundHistories,
     isLoading: isLoadingInboundHistories,
   } = useGetInboundHistories()
+
+  // call UPDATE hook
+  const { mutateAsync: updateInboundHistory, isPending: isUpdatingInboundHistory } = useUpdateInboundHistory()
+
+  // UPDATE action
+  const handleEditInboundHistory: MRT_TableOptions<Inbound>['onEditingRowSave'] = async ({
+    values,
+    table,
+  }) => {
+    await updateInboundHistory(values)
+    table.setEditingRow(null) // exit editing mode
+  }
 
   const filteredData = useMemo(() => {
     return fetchedInboundHistories.filter((item) => {
@@ -206,6 +241,17 @@ const InboundHistories = () => {
       rowsPerPageOptions: [5, 10, 20],
     },
     getRowId: (row) => row.id?.toString(),
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: row.original.isValid
+      ? {}
+      : {
+          backgroundColor: '#f5f5f5',
+          color: '#9e9e9e',
+          '& .MuiTableCell-root': {
+            color: '#9e9e9e',
+          },
+        },
+    }),
     muiToolbarAlertBannerProps: isLoadingInboundHistoriesError
       ? {
           color: 'error',
@@ -265,7 +311,7 @@ const InboundHistories = () => {
   )
 }
 
-// READ hook (get Inbound from api)
+// READ hook (get inbound from api)
 function useGetInboundHistories() {
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
@@ -275,6 +321,29 @@ function useGetInboundHistories() {
     },
     refetchOnWindowFocus: false,
     staleTime: 0,
+  })
+}
+
+// UPDATE hook (put inbound in api)
+function useUpdateInboundHistory() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (inbound: Inbound): Promise<Inbound> => {
+      // send api update request here
+      const payload = {
+        ...inbound,
+      };
+      const response = await axios.put('/api/inbound-history', payload)
+      return response.data
+    },
+    // client side optimistic update
+    onMutate: (newInbound: Inbound) => {
+      queryClient.setQueryData([ 'inboundHistories' ], (prevInbounds: any) =>
+        prevInbounds?.map((prevInbound: Inbound) =>
+          prevInbound.id === newInbound.id ? newInbound : prevInbound,
+        ),
+      )
+    },
   })
 }
 

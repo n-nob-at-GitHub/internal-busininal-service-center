@@ -102,6 +102,7 @@ const Inbound = () => {
           unitPrice: item.price,
           unit: item.unit,
           createdBy: 'system',
+          updatedBy: 'system',
         }
       })
       createInbounds(inboundPayload),

@@ -120,6 +120,7 @@ const Outbound = () => {
           unitPrice: item.price,
           unit: item.unit,
           createdBy: 'system',
+          updatedBy: 'system',
         }
       })
       createOutbounds(outboundPayload),
