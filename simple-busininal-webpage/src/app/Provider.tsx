@@ -63,7 +63,7 @@ export default function Provider(
 
     if (!hash) {
       const domain = process.env.NEXT_PUBLIC_USER_POOL_DOMAIN
-      const clientId = process.env.NEXT_PUBLIC_APP_CLIENT_ID
+      const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID
       const region = process.env.NEXT_PUBLIC_USER_POOL_REGION
       const redirectUri = window.location.origin
       window.location.href = `https://${ domain }.${ region }.amazoncognito.com/login?client_id=${ clientId }&response_type=token&scope=email+openid&redirect_uri=${redirectUri}`

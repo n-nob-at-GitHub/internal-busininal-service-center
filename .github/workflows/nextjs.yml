@@ -66,6 +66,10 @@ jobs:
           fi
         working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
+        env:
+          NEXT_PUBLIC_USER_POOL_DOMAIN: ${{ secrets.NEXT_PUBLIC_USER_POOL_DOMAIN }}
+          NEXT_PUBLIC_USER_POOL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_USER_POOL_CLIENT_ID }}
+          NEXT_PUBLIC_USER_POOL_REGION: ${{ secrets.NEXT_PUBLIC_USER_POOL_REGION }}
         run: npm run build
         working-directory: ./simple-busininal-webpage
       - name: Upload artifact
