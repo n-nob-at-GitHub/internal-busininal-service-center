@@ -55,21 +55,20 @@ jobs:
         run: npm install
         working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
-        run: npm run build
+        run: |
+          npm run build
+          npm run export
         working-directory: ./simple-busininal-webpage
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: |
-            simple-busininal-webpage/.next/static
-            simple-busininal-webpage/public
+          path: simple-busininal-webpage/out
           if-no-files-found: warn
       - name: Debug Upload artifact
         run: |
           ls -la simple-busininal-webpage
-          ls -la simple-busininal-webpage/public
-          ls -la simple-busininal-webpage/.next/static
+          ls -la simple-busininal-webpage/out
 
   # Deployment job
   deploy:
@@ -88,10 +87,4 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
       - name: Deploy to S3
-        run: |
-          aws s3 sync simple-busininal-webpage/.next/static s3://${{ secrets.AWS_S3_BUCKET }}/_next/static
-          aws s3 sync simple-busininal-webpage/public s3://${{ secrets.AWS_S3_BUCKET }}/ --delete
-      - name: Debug Deploy S3 contents
-        run: |
-          aws s3 ls s3://${{ secrets.AWS_S3_BUCKET }}/
-          aws s3 ls s3://${{ secrets.AWS_S3_BUCKET}}/_next/ --recursive
+        run: aws s3 sync simple-busininal-webpage/out s3://${{ secrets.AWS_S3_BUCKET }} --delete
