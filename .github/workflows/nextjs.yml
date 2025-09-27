@@ -55,11 +55,14 @@ jobs:
         run: npm install
         working-directory: ./simple-busininal-webpage
       - name: Remove API Routes
-        run: rm -rf ./simple-busininal-webpage/app/api/
+        run: rm -rf app/api/
+        working-directory: ./simple-busininal-webpage
       - name: Clean Next.js cache
-        run: rm -rf ./simple-busininal-webpage/.next
+        run: rm -rf .next
+        working-directory: ./simple-busininal-webpage
       - name: Debug files
-        run: ls -la ./simple-busininal-webpage/app/
+        run: ls -la app/
+        working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
         run: |
           npm run build
