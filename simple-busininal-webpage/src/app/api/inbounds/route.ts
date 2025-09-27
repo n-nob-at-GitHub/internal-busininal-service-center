@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import prisma from '@/lib/prisma'
 import { Inbound } from '@prisma/client'
 import sendMail from '@/lib/sendMail'
