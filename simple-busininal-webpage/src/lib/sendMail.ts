@@ -1,5 +1,6 @@
 // https://nodejs.keicode.com/nodejs/nodemailer.php
 // https://myaccount.google.com/apppasswords
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodemailer = require('nodemailer')
 
 const options = {
