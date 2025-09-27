@@ -86,6 +86,6 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: Deploy to S3
-        run:
+        run: |
           aws s3 sync simple-busininal-webpage/.next/static s3://${{ secrets.AWS_S3_BUCKET }}/_next/static --delete
           aws s3 sync simple-busininal-webpage/public s3://${{ secrets.AWS_S3_BUCKET }}/ --delete
