@@ -14,12 +14,18 @@ import {
 // import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
 const fetchLicenses: any = async () => {
-  const res = await axios.get('/api/licenses')
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/licenses/`
+    : `/api/licenses`
+  const res = await axios.get(url)
   return res.data
 }
 
 const sendMail: any = async (params: any) => {
-  const res = await axios.post('/api/mail', params)
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/mail/`
+    : `/api/mail`
+  const res = await axios.post(url, params)
   return res.data
 }
 

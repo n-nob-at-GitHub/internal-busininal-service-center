@@ -316,7 +316,10 @@ function useGetInboundHistories() {
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
-      const response = await axios.get('/api/inbound-history')
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/inbound-history/`
+        : `/api/inbound-history`
+      const response = await axios.get(url)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -333,7 +336,10 @@ function useUpdateInboundHistory() {
       const payload = {
         ...inbound,
       };
-      const response = await axios.put('/api/inbound-history', payload)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/inbound-history/`
+        : `/api/inbound-history`
+      const response = await axios.put(url, payload)
       return response.data
     },
     // client side optimistic update
@@ -353,12 +359,18 @@ function useUpdateInboundHistory() {
 }
 
 const fetchMaterials: any = async () => {
-  const res = await axios.get('/api/material')
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/material/`
+    : `/api/material`
+  const res = await axios.get(url)
   return res.data
 }
 
 const fetchStocks: any = async () => {
-  const res = await axios.get('/api/stock')
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/stock/`
+    : `/api/stock`
+  const res = await axios.get(url)
   return res.data
 }
 

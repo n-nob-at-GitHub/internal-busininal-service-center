@@ -228,7 +228,10 @@ function useGetManufacturers() {
   return useQuery<Manufacturer[]>({
     queryKey: [ 'manufacturers' ],
     queryFn: async () => {
-      const response = await axios.get('/api/manufacturer')
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/manufacturer/`
+        : `/api/manufacturer`
+      const response = await axios.get(url)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -241,7 +244,10 @@ function useCreateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.post('/api/manufacturer', manufacturer)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/manufacturer/`
+        : `/api/manufacturer`
+      const response = await axios.post(url, manufacturer)
       return response.data
     },
     // client side optimistic update
@@ -268,7 +274,10 @@ function useUpdateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.put('/api/manufacturer', manufacturer)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/manufacturer/`
+        : `/api/manufacturer`
+      const response = await axios.put(url, manufacturer)
       return response.data
     },
     // client side optimistic update
@@ -288,7 +297,10 @@ function useDeleteManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer) => {
       // send api update request here
-      await axios.delete(`/api/manufacturer/${manufacturer.id}`)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/manufacturer/${ manufacturer.id }`
+        : `/api/manufacturer/${ manufacturer.id }`
+      await axios.delete(url)
     },
     // client side optimistic update
     onMutate: (newManufacturer: Manufacturer) => {

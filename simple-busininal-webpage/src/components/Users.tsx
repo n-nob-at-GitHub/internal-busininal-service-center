@@ -249,7 +249,10 @@ function useGetUsers() {
   return useQuery<User[]>({
     queryKey: [ 'users' ],
     queryFn: async () => {
-      const response = await axios.get('/api/user')
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/user/`
+        : `/api/user`
+      const response = await axios.get(url)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -262,7 +265,10 @@ function useCreateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
-      const response = await axios.post('/api/user', user)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/user/`
+        : `/api/user`
+      const response = await axios.post(url, user)
       return response.data
     },
     // client side optimistic update
@@ -289,7 +295,10 @@ function useUpdateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
-      const response = await axios.put('/api/user', user)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/user/`
+        : `/api/user`
+      const response = await axios.put(url, user)
       return response.data
     },
     // client side optimistic update
@@ -309,7 +318,10 @@ function useDeleteUser() {
   return useMutation({
     mutationFn: async (user: User) => {
       // send api update request here
-      await axios.delete(`/api/user/${user.id}`)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/user/${ user.id }`
+        : `/api/user/${ user.id }`
+      await axios.delete(url)
     },
     // client side optimistic update
     onMutate: (newUser: User) => {
@@ -321,7 +333,10 @@ function useDeleteUser() {
 }
 
 const fetchRoles: any = async () => {
-  const res = await axios.get('/api/role')
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/role/`
+    : `/api/role`
+  const res = await axios.get(url)
   return res.data
 }
 

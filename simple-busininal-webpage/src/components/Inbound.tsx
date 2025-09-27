@@ -119,17 +119,26 @@ const Inbound = () => {
   }
 
   const fetchMaterials: any = async () => {
-    const res = await axios.get('/api/materials')
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/materials/`
+      : `/api/materials`
+    const res = await axios.get(url)
     return res.data
   }
 
   const createInbounds: any = async (inboundPayload : any) => {
-    const res = await axios.post('/api/inbounds', inboundPayload)
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/inbounds/`
+      : `/api/inbounds`
+    const res = await axios.post(url, inboundPayload)
     return res.data
   }
 
   const updateStocks: any = async (stockPayload : any) => {
-    const res = await axios.put('/api/inbound-stocks', stockPayload)
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/inbound-stocks/`
+      : `/api/inbound-stocks`
+    const res = await axios.put(url, stockPayload)
     return res.data
   }
 

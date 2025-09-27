@@ -355,7 +355,10 @@ function useGetMaterials() {
   return useQuery<Material[]>({
     queryKey: [ 'materials' ],
     queryFn: async () => {
-      const response = await axios.get('/api/material')
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/material/`
+        : `/api/material`
+      const response = await axios.get(url)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -375,7 +378,10 @@ function useCreateMaterial() {
         quantity: Number(material.quantity),
         isValid: true,
       };
-      const response = await axios.post('/api/material', payload)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/material/`
+        : `/api/material`
+      const response = await axios.post(url, payload)
       return response.data
     },
     // client side optimistic update
@@ -407,7 +413,10 @@ function useUpdateMaterial() {
         price: Number(material.price),
         quantity: Number(material.quantity),
       };
-      const response = await axios.put('/api/material', payload)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/material/`
+        : `/api/material`
+      const response = await axios.put(url, payload)
       return response.data
     },
     // client side optimistic update
@@ -427,7 +436,10 @@ function useDeleteMaterial() {
   return useMutation({
     mutationFn: async (material: Material) => {
       // send api update request here
-      await axios.delete(`/api/material/${material.id}`)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/material/${ material.id }`
+        : `/api/material/${ material.id }`
+      await axios.delete(url)
     },
     // client side optimistic update
     onMutate: (newMaterial: Material) => {
@@ -439,7 +451,10 @@ function useDeleteMaterial() {
 }
 
 const fetchManufacturers: any = async () => {
-  const res = await axios.get('/api/manufacturer')
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/manufacturer/`
+    : `/api/manufacturer`
+  const res = await axios.get(url)
   return res.data
 }
 

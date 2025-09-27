@@ -139,22 +139,34 @@ const Outbound = () => {
   }
 
   const fetchDeliverySites: any = async () => {
-    const res = await axios.get('/api/delivery-site')
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/delivery-site/`
+      : `/api/delivery-site`
+    const res = await axios.get(url)
     return res.data
   }
 
   const fetchMaterials: any = async () => {
-    const res = await axios.get('/api/materials')
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/materials/`
+      : `/api/materials`
+    const res = await axios.get(url)
     return res.data
   }
 
   const createOutbounds: any = async (outboundPayload : any) => {
-    const res = await axios.post('/api/outbounds', outboundPayload)
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/outbounds/`
+      : `/api/outbounds`
+    const res = await axios.post(url, outboundPayload)
     return res.data
   }
 
   const updateStocks: any = async (stockPayload : any) => {
-    const res = await axios.put('/api/outbound-stocks', stockPayload)
+    const url = process.env.NODE_ENV === 'production'
+      ? `https://your-api-gateway-url/outbound-stocks/`
+      : `/api/outbound-stocks`
+    const res = await axios.put(url, stockPayload)
     return res.data
   }
 

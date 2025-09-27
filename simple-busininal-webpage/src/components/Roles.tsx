@@ -228,7 +228,10 @@ function useGetRoles() {
   return useQuery<Role[]>({
     queryKey: [ 'roles' ],
     queryFn: async () => {
-      const response = await axios.get('/api/role')
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/role/`
+        : `/api/role`
+      const response = await axios.get(url)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -241,7 +244,10 @@ function useCreateRole() {
   return useMutation({
     mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const response = await axios.post('/api/role', role)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/role/`
+        : `/api/role`
+      const response = await axios.post(url, role)
       return response.data
     },
     // client side optimistic update
@@ -268,7 +274,10 @@ function useUpdateRole() {
   return useMutation({
     mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const response = await axios.put('/api/role', role)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/role/`
+        : `/api/role`
+      const response = await axios.put(url, role)
       return response.data
     },
     // client side optimistic update
@@ -288,7 +297,10 @@ function useDeleteRole() {
   return useMutation({
     mutationFn: async (role: Role) => {
       // send api update request here
-      await axios.delete(`/api/role/${role.id}`)
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/role/${ role.id }`
+        : `/api/role/${ role.id }`
+      await axios.delete(url)
     },
     // client side optimistic update
     onMutate: (newRole: Role) => {

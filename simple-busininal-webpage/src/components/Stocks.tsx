@@ -149,7 +149,10 @@ function useGetStocks() {
   return useQuery<Stock[]>({
     queryKey: [ 'stocks' ],
     queryFn: async () => {
-      const response = await axios.get('/api/stock')
+      const url = process.env.NODE_ENV === 'production'
+        ? `https://your-api-gateway-url/stock/`
+        : `/api/stock`
+      const response = await axios.get(url)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -157,7 +160,10 @@ function useGetStocks() {
 }
 
 const fetchMaterials: any = async () => {
-  const res = await axios.get('/api/material')
+  const url = process.env.NODE_ENV === 'production'
+    ? `https://your-api-gateway-url/material/`
+    : `/api/material`
+  const res = await axios.get(url)
   return res.data
 }
 
