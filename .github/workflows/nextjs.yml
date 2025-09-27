@@ -54,11 +54,16 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./simple-busininal-webpage
-      - name: Remove API Routes
-        run: rm -rf ./simple-busininal-webpage/app/api/
-        working-directory: ./simple-busininal-webpage
       - name: Clean Next.js cache
         run: rm -rf ./simple-busininal-webpage/.next
+      - name: Remove API Routes
+        run: |
+          if [ -d "./simple-busininal-webpage/app/api" ]; then
+            rm -rf ./simple-busininal-webpage/app/api
+            echo "Removed API Routes"
+          else
+            echo "API Routes do not exist"
+          fi
         working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
         run: |
