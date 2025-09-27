@@ -65,6 +65,11 @@ jobs:
             simple-busininal-webpage/.next/static
             simple-busininal-webpage/public
           if-no-files-found: warn
+      - name: Debug Upload artifact
+        run: |
+          ls -la simple-busininal-webpage
+          ls -la simple-busininal-webpage/public
+          ls -la simple-busininal-webpage/.next/static
 
   # Deployment job
   deploy:
@@ -76,8 +81,11 @@ jobs:
         with:
           name: github-pages
           path: simple-busininal-webpage
-      - name: Debug list files
-        run: ls -la simple-busininal-webpage
+      - name: Debug Download artifact files
+        run: |
+          ls -la simple-busininal-webpage
+          ls -la simple-busininal-webpage/public
+          ls -la simple-busininal-webpage/.next/static
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
