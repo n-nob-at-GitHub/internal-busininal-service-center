@@ -55,7 +55,8 @@ jobs:
         run: npm install
         working-directory: ./simple-busininal-webpage
       - name: Remove API Routes for SPA export
-        run: rm -rf ./simple-busininal-webpage/app/api/
+        run: rm -rf ./app/api/
+        working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
         run: |
           npm run build
