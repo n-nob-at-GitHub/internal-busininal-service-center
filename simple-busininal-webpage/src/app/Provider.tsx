@@ -66,7 +66,8 @@ export default function Provider(
       const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID
       const region = process.env.NEXT_PUBLIC_USER_POOL_REGION
       const redirectUri = window.location.origin
-      window.location.href = `https://${ domain }.${ region }.amazoncognito.com/login?client_id=${ clientId }&response_type=token&scope=email+openid&redirect_uri=${redirectUri}`
+      const url = `https://${ domain }/login?client_id=${ clientId }&response_type=token&scope=email+openid&redirect_uri=${ redirectUri }`
+      window.location.href = url
     }
   }, [ isProduction ])
 
