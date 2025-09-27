@@ -308,11 +308,6 @@ function useDeleteDeliverySite() {
   })
 }
 
-const fetchDeliverySites: any = async () => {
-  const res = await axios.get('/api/delivery-site')
-  return res.data
-}
-
 const validateRequired = (value: string | number) => value !== undefined && value !== null && value !== ''
 
 function validateDeliverySite(deliverySite: DeliverySite) {

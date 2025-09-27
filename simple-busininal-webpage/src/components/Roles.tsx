@@ -300,11 +300,6 @@ function useDeleteRole() {
   })
 }
 
-const fetchRoles: any = async () => {
-  const res = await axios.get('/api/role')
-  return res.data
-}
-
 const validateRequired = (value: string | number) => value !== undefined && value !== null && value !== ''
 
 function validateRole(role: Role) {

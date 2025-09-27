@@ -299,11 +299,6 @@ function useDeleteManufacturer() {
   })
 }
 
-const fetchManufacturers: any = async () => {
-  const res = await axios.get('/api/manufacturer')
-  return res.data
-}
-
 const validateRequired = (value: string | number) => value !== undefined && value !== null && value !== ''
 
 function validateManufacturer(manufacturer: Manufacturer) {
