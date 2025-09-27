@@ -105,18 +105,6 @@
     "licenseText": "MIT License\n\nCopyright (c) 2018-present, iamkun\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
     "copyright": "Copyright (c) 2018-present, iamkun"
   },
-  "export-to-csv@1.4.0": {
-    "licenses": "MIT",
-    "repository": "https://github.com/alexcaza/export-to-csv",
-    "publisher": "alexcaza",
-    "name": "export-to-csv",
-    "version": "1.4.0",
-    "description": "Easily create CSV data from json collection",
-    "path": "C:\\Users\\MyWork\\117_GitHub\\simple-busininal-webpage\\node_modules\\export-to-csv",
-    "licenseFile": "C:\\Users\\MyWork\\117_GitHub\\simple-busininal-webpage\\node_modules\\export-to-csv\\LICENSE",
-    "licenseText": "MIT License\n\nCopyright for portions of project export-to-csv are held by Javier Telio <jtelio@gmail.com>, 2016 as part of project Angular2Csv. \nAll other copyright for project export-to-csv are held by Alex Caza <alex@alexcaza.com>, 2017.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
-    "copyright": "Copyright for portions of project export-to-csv are held by Javier Telio <jtelio@gmail.com>, 2016 as part of project Angular2Csv. . All other copyright for project export-to-csv are held by Alex Caza <alex@alexcaza.com>, 2017."
-  },
   "material-react-table@3.2.1": {
     "licenses": "MIT",
     "repository": "https://github.com/KevinVandy/material-react-table",
