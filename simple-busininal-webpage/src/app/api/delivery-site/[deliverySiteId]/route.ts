@@ -5,9 +5,13 @@ import {
   NextResponse
 } from 'next/server'
 
+interface Params {
+  params: { deliverySiteId: string }
+}
+
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { deliverySiteId: string } },
+  { params }: Params,
 ) {
   try {
     const deliverySiteId = Number(params.deliverySiteId)
@@ -26,7 +30,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest, 
-  { params }: { params: { deliverySiteId: string } },
+  { params }: Params,
 ) {
   try {
     const deliverySiteId = Number(params.deliverySiteId)
