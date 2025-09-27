@@ -54,9 +54,9 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./simple-busininal-webpage
+      - name: Remove API Routes for SPA export
+        run: rm -rf ./simple-busininal-webpage/app/api/
       - name: Build with Next.js
-        env:
-          OUTPUT_MODE: export
         run: |
           npm run build
           npm run export

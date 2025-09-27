@@ -1,13 +1,12 @@
 import prisma from '@/lib/prisma'
 import { Outbound } from '@prisma/client'
 import sendMail from '@/lib/sendMail'
-import { apiHandler } from '@/lib/apiGuard'
 import { 
   NextRequest, 
   NextResponse
 } from 'next/server'
 
-export const POST = apiHandler(async (req: NextRequest) => {
+export const POST = async (req: NextRequest) => {
   try {
     const body: Outbound[] = await req.json()
     if (!Array.isArray(body) || body.length === 0) {
@@ -20,4 +19,4 @@ export const POST = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}

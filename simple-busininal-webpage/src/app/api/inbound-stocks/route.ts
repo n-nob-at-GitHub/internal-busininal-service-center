@@ -1,6 +1,5 @@
 import prisma from '@/lib/prisma'
 import sendMail from '@/lib/sendMail'
-import { apiHandler } from '@/lib/apiGuard'
 import { 
   NextRequest, 
   NextResponse
@@ -15,7 +14,7 @@ interface StockItem {
   updatedBy: string
 }
 
-export const PUT = apiHandler(async (req: NextRequest) => {
+export const PUT = async (req: NextRequest) => {
   try {
     const items: StockItem[] = await req.json()
     if (!Array.isArray(items) || items.length === 0) {
@@ -53,4 +52,4 @@ export const PUT = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}

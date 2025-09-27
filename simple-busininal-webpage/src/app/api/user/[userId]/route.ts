@@ -1,12 +1,11 @@
 import prisma from '@/lib/prisma'
 import sendMail from '@/lib/sendMail'
-import { apiHandler } from '@/lib/apiGuard'
 import { 
   NextRequest, 
   NextResponse
 } from 'next/server'
 
-export const GET = apiHandler(async (req: NextRequest) => {
+export const GET = async (req: NextRequest) => {
   try {
     const userId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.user.findMany({
@@ -20,9 +19,9 @@ export const GET = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}
 
-export const DELETE = apiHandler(async (req: NextRequest) => {
+export const DELETE = async (req: NextRequest) => {
   try {
     const userId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.user.delete({
@@ -36,4 +35,4 @@ export const DELETE = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}

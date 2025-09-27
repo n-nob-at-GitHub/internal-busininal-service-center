@@ -1,9 +1,8 @@
 import prisma from '@/lib/prisma'
 import sendMail from '@/lib/sendMail'
-import { apiHandler } from '@/lib/apiGuard'
 import { NextRequest, NextResponse } from 'next/server'
 
-export const GET = apiHandler(async (req: NextRequest) => {
+export const GET = async (req: NextRequest) => {
   try {
     const res = await prisma.material.findMany()
     // sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(res))
@@ -12,9 +11,9 @@ export const GET = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}
 
-export const POST = apiHandler(async (req: NextRequest) => {
+export const POST = async (req: NextRequest) => {
   try {
     const { id, ...body } = await req.json()
     const res = await prisma.material.create({ data: body })
@@ -24,9 +23,9 @@ export const POST = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}
 
-export const PUT = apiHandler(async (req: NextRequest) => {
+export const PUT = async (req: NextRequest) => {
   try {
     const { id, ...body } = await req.json()
     const res = await prisma.material.update({
@@ -41,4 +40,4 @@ export const PUT = apiHandler(async (req: NextRequest) => {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-})
+}
