@@ -5,7 +5,6 @@ import {
 } from 'next/server'
 
 export async function GET(req: NextRequest) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const fs = require('node:fs')
   try {
     const data = fs.readFileSync('licenses.json', 'utf8')
