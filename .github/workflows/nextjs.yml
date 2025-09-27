@@ -65,10 +65,6 @@ jobs:
             simple-busininal-webpage/.next/static
             simple-busininal-webpage/public
           if-no-files-found: warn
-      - name: Debug Upload folder
-        run: ls -la ./simple-busininal-webpage/out
-      - name: Debug Project root
-        run: ls -la
 
   # Deployment job
   deploy:
