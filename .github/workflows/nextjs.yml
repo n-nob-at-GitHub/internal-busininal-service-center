@@ -61,7 +61,12 @@ jobs:
         run: rm -rf .next
         working-directory: ./simple-busininal-webpage
       - name: Debug files
-        run: ls -la app/
+        run: |
+          if [ -d "app" ]; then
+            ls -la app/
+          else
+            echo "app folder does not exist"
+          fi
         working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
         run: |
