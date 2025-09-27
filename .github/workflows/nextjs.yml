@@ -54,7 +54,10 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./simple-busininal-webpage
-      - name: Remove API Routes for SPA export
+      - name: Clean Next.js cache
+        run: rm -rf .next
+        working-directory: ./simple-busininal-webpage
+      - name: Remove API Routes
         run: rm -rf ./app/api/
         working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
