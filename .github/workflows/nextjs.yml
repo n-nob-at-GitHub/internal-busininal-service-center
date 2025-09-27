@@ -61,7 +61,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: simple-busininal-webpage/out
+          path: |
+            simple-busininal-webpage/.next/static
+            simple-busininal-webpage/public
+          if-no-files-found: warn
       - name: Debug Upload folder
         run: ls -la ./simple-busininal-webpage/out
       - name: Debug Project root
@@ -87,5 +90,6 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: Deploy to S3
-        run: aws s3 sync simple-busininal-webpage s3://${{ secrets.AWS_S3_BUCKET }} --delete
-        
+        run:
+          aws s3 sync simple-busininal-webpage/.next/static s3://${{ secrets.AWS_S3_BUCKET }}/_next/static --delete
+          aws s3 sync simple-busininal-webpage/public s3://${{ secrets.AWS_S3_BUCKET }}/ --delete
