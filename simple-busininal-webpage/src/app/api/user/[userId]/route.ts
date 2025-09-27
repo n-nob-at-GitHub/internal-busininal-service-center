@@ -7,7 +7,7 @@ import {
 
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { userId: number } },
+  { params }: { params: { userId: string } },
 ) {
   try {
     const userId = Number(params.userId)
@@ -26,7 +26,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest, 
-  { params }: { params: { userId: number } },
+  { params }: { params: { userId: string } },
 ) {
   try {
     const userId = Number(params.userId)

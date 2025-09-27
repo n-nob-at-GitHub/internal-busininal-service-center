@@ -7,7 +7,7 @@ import {
 
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { materialId: number } },
+  { params }: { params: { materialId: string } },
 ) {
   try {
     const materialId = Number(params.materialId)
@@ -26,7 +26,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest, 
-  { params }: { params: { materialId: number } },
+  { params }: { params: { materialId: string } },
 ) {
   try {
     const materialId = Number(params.materialId)

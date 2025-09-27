@@ -7,7 +7,7 @@ import {
 
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { roleId: number } },
+  { params }: { params: { roleId: string } },
 ) {
   try {
     const roleId = Number(params.roleId)
@@ -26,7 +26,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest, 
-  { params }: { params: { roleId: number } },
+  { params }: { params: { roleId: string } },
 ) {
   try {
     const roleId = Number(params.roleId)

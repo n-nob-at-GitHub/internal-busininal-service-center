@@ -7,7 +7,7 @@ import {
 
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { manufacturerId: number } },
+  { params }: { params: { manufacturerId: string } },
 ) {
   try {
     const manufacturerId = Number(params.manufacturerId)
@@ -26,7 +26,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest, 
-  { params }: { params: { manufacturerId: number } },
+  { params }: { params: { manufacturerId: string } },
 ) {
   try {
     const manufacturerId = Number(params.manufacturerId)
