@@ -25,6 +25,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import {
+  useQueryClient,
+} from '@tanstack/react-query'
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
@@ -57,6 +60,7 @@ const Outbound = () => {
   const [ open, setOpen ] = useState(false)
   const [ selectedItems, setSelectedItems ] = useState<OutboundItem[]>([])
   const [ alertOpen, setAlertOpen ] = useState(false)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     (async function () {
@@ -109,9 +113,11 @@ const Outbound = () => {
         unit: item.unit,
         updatedBy: 'system',
       }))
+      console.log(stockPayload)
       const updatedStocks = await updateStocks(stockPayload)
       const outboundPayload = selectedItems.map(item => {
         const stockInfo = updatedStocks.find((s : any) => s.materialId === item.materialId)
+        console.log(stockInfo)
         return {
           stockId: stockInfo?.id, // Here, stockId must exist.
           deliverySiteId: selectedDeliverySite,
@@ -124,6 +130,7 @@ const Outbound = () => {
         }
       })
       createOutbounds(outboundPayload),
+      queryClient.invalidateQueries({ queryKey: [ 'stocks' ] })
       setOpen(false)
       setQuantities({})
     } catch (error) {

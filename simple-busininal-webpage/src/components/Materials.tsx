@@ -60,18 +60,20 @@ const Materials = () => {
         },
         {
           header: 'メーカー',
-          id: 'manufacturer',
-          maxSize: 100,
-          accessorFn: (row) => manufacturers.find((m: any) => m.id === Number(row.manufacturerId))?.name ?? '',
-          Cell: ({ renderedCellValue }) => renderedCellValue,
+          id: 'manufacturerId',
+          accessorKey: 'manufacturerId',
           enableSorting: false,
+          Cell: ({ renderedCellValue }) => manufacturers.find((m: any) => m.id === Number(renderedCellValue))?.name ?? '',
           editVariant: 'select',
-          editSelectOptions: manufacturers.map((v: any) => { return { label: v.name, value: v.id } }),
-          muiEditTextFieldProps: {
+          editSelectOptions: manufacturers.map((m: any) => ({
+            label: m.name,
+            value: Number(m.id),
+          })),
+          muiEditTextFieldProps: ({ row }) => ({
             select: true,
             error: !!validationErrors?.manufacturerId,
             helperText: validationErrors?.manufacturerId,
-          },
+          }),
         },
         {
           accessorKey: 'code',
@@ -368,8 +370,10 @@ function useCreateMaterial() {
       // send api update request here
       const payload = {
         ...material,
+        manufacturerId: Number(material.manufacturerId),
         price: Number(material.price),
         quantity: Number(material.quantity),
+        isValid: true,
       };
       const response = await axios.post('/api/material', payload)
       return response.data

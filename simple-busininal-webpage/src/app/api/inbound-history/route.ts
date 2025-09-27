@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
 import sendMail from '@/lib/sendMail'
+import { apiHandler } from '@/lib/apiGuard'
 import { 
   NextRequest, 
   NextResponse
@@ -16,7 +17,7 @@ interface StockItem {
   updatedBy: string
 }
 
-export async function GET(req: NextRequest) {
+export const GET = apiHandler(async (req: NextRequest) => {
   try {
     const res = await prisma.inbound.findMany()
     // sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(res))
@@ -25,9 +26,9 @@ export async function GET(req: NextRequest) {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-}
+})
 
-export async function PUT(req: NextRequest) {
+export const PUT = apiHandler(async (req: NextRequest) => {
   try {
     const data: StockItem[] = await req.json()
     const items = Array.isArray(data) ? data : [ data ]
@@ -64,4 +65,4 @@ export async function PUT(req: NextRequest) {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-}
+})

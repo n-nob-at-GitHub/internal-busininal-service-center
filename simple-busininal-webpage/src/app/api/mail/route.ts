@@ -1,5 +1,6 @@
 // https://nodejs.keicode.com/nodejs/nodemailer.php
 // https://myaccount.google.com/apppasswords
+import { apiHandler } from '@/lib/apiGuard'
 import { NextRequest, NextResponse } from 'next/server'
 const nodemailer = require('nodemailer')
 
@@ -17,7 +18,7 @@ const options = {
   },
 }
 
-export async function POST (req: NextRequest) {
+export const POST = apiHandler(async (req: NextRequest) => {
   const params = await req.json()
   const mail = {
     from: process.env.MAIL_FROM_ADDRESS,
@@ -33,4 +34,4 @@ export async function POST (req: NextRequest) {
   } catch (e) {
     return NextResponse.json({ message: 'Email sending failed.' })
   }
-}
+})

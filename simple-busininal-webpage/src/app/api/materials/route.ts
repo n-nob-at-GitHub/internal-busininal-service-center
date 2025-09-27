@@ -1,8 +1,9 @@
 import prisma from '@/lib/prisma'
 import sendMail from '@/lib/sendMail'
+import { apiHandler } from '@/lib/apiGuard'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest) {
+export const GET = apiHandler(async (req: NextRequest) => {
   try {
     const materials = await prisma.material.findMany({
       include: {
@@ -27,4 +28,4 @@ export async function GET(req: NextRequest) {
     sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(e))
     throw e
   }
-}
+})

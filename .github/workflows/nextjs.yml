@@ -55,6 +55,8 @@ jobs:
         run: npm install
         working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
+        env:
+          OUTPUT_MODE: export
         run: |
           npm run build
           npm run export

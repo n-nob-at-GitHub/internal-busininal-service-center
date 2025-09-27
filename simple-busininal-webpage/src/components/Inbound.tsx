@@ -21,6 +21,9 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material'
+import {
+  useQueryClient,
+} from '@tanstack/react-query'
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
@@ -50,6 +53,7 @@ const Inbound = () => {
   const [ open, setOpen ] = useState(false)
   const [ selectedItems, setSelectedItems ] = useState<InboundItem[]>([])
   const [ alertOpen, setAlertOpen ] = useState(false)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     (async function () {
@@ -106,6 +110,7 @@ const Inbound = () => {
         }
       })
       createInbounds(inboundPayload),
+      queryClient.invalidateQueries({ queryKey: [ 'stocks' ] })
       setOpen(false)
       setQuantities({})
     } catch (error) {
