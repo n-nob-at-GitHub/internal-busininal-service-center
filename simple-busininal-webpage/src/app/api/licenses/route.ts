@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import sendMail from '@/lib/sendMail'
 import {
   NextRequest, 

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 // https://nodejs.keicode.com/nodejs/nodemailer.php
 // https://myaccount.google.com/apppasswords
 import { NextRequest, NextResponse } from 'next/server'
