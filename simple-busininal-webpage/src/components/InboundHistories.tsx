@@ -73,7 +73,7 @@ const InboundHistories = () => {
           header: 'No',
           enableEditing: false,
           maxSize: 30,
-          Cell: ({ renderedCellValue, row }) => (
+          Cell: ({ row }) => (
             <Box
               sx={{
                 display: 'flex',
