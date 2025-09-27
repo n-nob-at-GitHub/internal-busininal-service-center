@@ -5,16 +5,9 @@ import {
   NextResponse
 } from 'next/server'
 
-interface Params {
-  params: { deliverySiteId: string }
-}
-
-export async function GET(
-  req: NextRequest, 
-  { params }: Params,
-) {
+export async function GET(req: NextRequest) {
   try {
-    const deliverySiteId = Number(params.deliverySiteId)
+    const deliverySiteId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.deliverySite.findMany({
       where: {
         id: deliverySiteId,
@@ -28,12 +21,9 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  req: NextRequest, 
-  { params }: Params,
-) {
+export async function DELETE(req: NextRequest) {
   try {
-    const deliverySiteId = Number(params.deliverySiteId)
+    const deliverySiteId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.deliverySite.delete({
       where: {
         id: deliverySiteId,

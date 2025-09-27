@@ -5,12 +5,9 @@ import {
   NextResponse
 } from 'next/server'
 
-export async function GET(
-  req: NextRequest, 
-  { params }: { params: { roleId: string } },
-) {
+export async function GET(req: NextRequest) {
   try {
-    const roleId = Number(params.roleId)
+    const roleId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.role.findMany({
       where: {
         id: roleId,
@@ -24,12 +21,9 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  req: NextRequest, 
-  { params }: { params: { roleId: string } },
-) {
+export async function DELETE(req: NextRequest) {
   try {
-    const roleId = Number(params.roleId)
+    const roleId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.role.delete({
       where: {
         id: roleId,

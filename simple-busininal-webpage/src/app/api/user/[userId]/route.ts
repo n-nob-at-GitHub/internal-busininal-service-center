@@ -5,12 +5,9 @@ import {
   NextResponse
 } from 'next/server'
 
-export async function GET(
-  req: NextRequest, 
-  { params }: { params: { userId: string } },
-) {
+export async function GET(req: NextRequest) {
   try {
-    const userId = Number(params.userId)
+    const userId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.user.findMany({
       where: {
         id: userId,
@@ -24,12 +21,9 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  req: NextRequest, 
-  { params }: { params: { userId: string } },
-) {
+export async function DELETE(req: NextRequest) {
   try {
-    const userId = Number(params.userId)
+    const userId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.user.delete({
       where: {
         id: userId,

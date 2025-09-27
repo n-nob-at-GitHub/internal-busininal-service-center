@@ -5,12 +5,9 @@ import {
   NextResponse
 } from 'next/server'
 
-export async function GET(
-  req: NextRequest, 
-  { params }: { params: { manufacturerId: string } },
-) {
+export async function GET(req: NextRequest) {
   try {
-    const manufacturerId = Number(params.manufacturerId)
+    const manufacturerId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.manufacturer.findMany({
       where: {
         id: manufacturerId,
@@ -24,12 +21,9 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  req: NextRequest, 
-  { params }: { params: { manufacturerId: string } },
-) {
+export async function DELETE(req: NextRequest) {
   try {
-    const manufacturerId = Number(params.manufacturerId)
+    const manufacturerId = Number(req.nextUrl.pathname.split('/').pop())
     const res = await prisma.manufacturer.delete({
       where: {
         id: manufacturerId,

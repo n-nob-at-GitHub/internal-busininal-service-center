@@ -1,7 +1,6 @@
 'use client'
 import axios from 'axios'
 import {
-  useEffect,
   useMemo, 
   useState,
 } from 'react'
