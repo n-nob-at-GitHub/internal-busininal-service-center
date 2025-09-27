@@ -32,7 +32,7 @@ jobs:
           cache: "npm"
           # https://github.com/nextjs/deploy-github-pages/blob/main/.github/workflows/deploy.yml
           # https://dev.to/imomaliev/til-fix-error-dependencies-lock-file-is-not-found-ade
-          cache-dependency-path: "./internal-busininal-service-center/package-lock.json"
+          cache-dependency-path: "./simple-busininal-webpage/package-lock.json"
       - name: Setup Pages
         uses: actions/configure-pages@v5
         # with:
@@ -53,17 +53,17 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: npm install
-        working-directory: ./internal-busininal-service-center
+        working-directory: ./simple-busininal-webpage
       - name: Build with Next.js
         run: npm run build
-        working-directory: ./internal-busininal-service-center
+        working-directory: ./simple-busininal-webpage
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: internal-busininal-service-center/out
+          path: simple-busininal-webpage/out
       - name: Debug Upload folder
-        run: ls -la ./internal-busininal-service-center/out
+        run: ls -la ./simple-busininal-webpage/out
       - name: Debug Project root
         run: ls -la
 
@@ -76,9 +76,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: github-pages
-          path: internal-busininal-service-center
+          path: simple-busininal-webpage
       - name: Debug list files
-        run: ls -la internal-busininal-service-center
+        run: ls -la simple-busininal-webpage
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -87,5 +87,5 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: Deploy to S3
-        run: aws s3 sync internal-busininal-service-center s3://${{ secrets.AWS_S3_BUCKET }} --delete
+        run: aws s3 sync simple-busininal-webpage s3://${{ secrets.AWS_S3_BUCKET }} --delete
         
