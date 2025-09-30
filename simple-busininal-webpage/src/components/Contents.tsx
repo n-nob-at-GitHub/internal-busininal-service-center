@@ -20,6 +20,7 @@ import Manufacturers from '@/components/Manufacturers'
 import Materials from '@/components/Materials'
 import Outbound from '@/components/Outbound'
 import OutboundHistories from '@/components/OutboundHistories'
+import Overview from '@/components/Overview'
 import Roles from '@/components/Roles'
 import Stocks from '@/components/Stocks'
 import Users from '@/components/Users'
@@ -91,7 +92,7 @@ const Contents = () => {
   }
   const otherComponents: Record<OtherKey, ReactNode> = {
     'ライセンス表示': <Licenses />,
-    'アプリ機能説明': <div>ここにアプリ機能説明コンポーネントを入れる</div>,
+    'アプリ機能説明': <Overview />,
   }
 
   const handleTabChange = (event: SyntheticEvent, newTabIndex: number) => {
@@ -99,6 +100,8 @@ const Contents = () => {
       setStockAnchorElement(event.currentTarget as HTMLElement)
     } else if (newTabIndex === 1) {
       setMasterAnchorElement(event.currentTarget as HTMLElement)
+    } else if (newTabIndex === 2) {
+      setOtherAnchorElement(event.currentTarget as HTMLElement)
     } else {
       setTabIndex(newTabIndex)
       setStockMenu(null)
