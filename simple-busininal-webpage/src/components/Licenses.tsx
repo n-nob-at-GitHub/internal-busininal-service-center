@@ -11,32 +11,29 @@ import {
   Typography,
 } from '@mui/material'
 
-const fetchLicenses: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/licenses/`
-    : `/api/licenses`
-  const res = await axios.get(url)
-  return res.data
+type License = {
+  name: string
+  repository?: string
+  licenseText: string
 }
 
-const sendMail: any = async (params: any) => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/mail/`
-    : `/api/mail`
-  const res = await axios.post(url, params)
+const fetchLicenses: any = async () => {
+  const res = await axios.get('/licenses.json')
   return res.data
 }
 
 const Licenses = () => {
-  const [ licenses, setLicenses ] = useState<any>()
+  const [ licenses, setLicenses ] = useState<Record<string, License>>({})
   const createLicenseInformation = () => {
-    const keys = Object.keys(licenses ?? {})
-    return keys.map(k => {
+    return Object.keys(licenses).map(k => {
       return <Card key={ k } variant='outlined' sx={{ m: 2 }}>
         <CardContent>
           <Typography>
-            <Link sx={{ textDecoration: licenses[k].repository ? 'underline' : 'none' }} color={ licenses[k].repository ? 'primary' : 'textSecondary' } href={ licenses[k].repository } target='_blank'>
-              { licenses[k].name }
+            <Link sx={{ textDecoration: licenses[k].repository ? 'underline' : 'none' }} 
+              color={ licenses[k].repository ? 'primary' : 'textSecondary' }
+              href={ licenses[k].repository }
+              target='_blank'>
+                { licenses[k].name }
             </Link>
           </Typography>
           <Typography>
@@ -50,14 +47,11 @@ const Licenses = () => {
   useEffect(() => {
     (async function () {
       const res = await fetchLicenses()
-      const resJson = JSON.parse(res)
-      setLicenses(resJson)
+      setLicenses(res)
     })()
   }, [])
 
-  return (
-    createLicenseInformation()
-  )
+  return createLicenseInformation()
 }
 
 export default Licenses
