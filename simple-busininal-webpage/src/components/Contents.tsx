@@ -32,6 +32,7 @@ interface TabPanelProps {
 
 type StockKey = '在庫一覧' | '入庫' | '出庫' | '入庫履歴' | '出庫履歴'
 type MasterKey = '資材' | '製造メーカー' | '配送先' | 'ユーザー' | 'ロール' 
+type OtherKey = 'ライセンス表示' | 'アプリ機能説明'
 
 const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -61,12 +62,19 @@ const Contents = () => {
   const [ masterMenu, setMasterMenu ] = useState<MasterKey | null>(null)
   const [ stockAnchorElement, setStockAnchorElement ] = useState<null | HTMLElement>(null)
   const [ masterAnchorElement, setMasterAnchorElement ] = useState<null | HTMLElement>(null)
+  const [ otherMenu, setOtherMenu ] = useState<OtherKey | null>(null)
+  const [ otherAnchorElement, setOtherAnchorElement ] = useState<null | HTMLElement>(null)
+
   const handleStockTabClick = (event: MouseEvent<HTMLElement>) => {
     setStockAnchorElement(event.currentTarget)
   }
   const handleMasterTabClick = (event: MouseEvent<HTMLElement>) => {
     setMasterAnchorElement(event.currentTarget)
   }
+  const handleOtherTabClick = (event: MouseEvent<HTMLElement>) => {
+    setOtherAnchorElement(event.currentTarget)
+  }
+
   const stockComponents: Record<StockKey, ReactNode> = {
     '在庫一覧': <Stocks />,
     '入庫': <Inbound />,
@@ -81,6 +89,11 @@ const Contents = () => {
     'ユーザー': <Users />,
     'ロール': <Roles />,
   }
+  const otherComponents: Record<OtherKey, ReactNode> = {
+    'ライセンス表示': <Licenses />,
+    'アプリ機能説明': <div>ここにアプリ機能説明コンポーネントを入れる</div>,
+  }
+
   const handleTabChange = (event: SyntheticEvent, newTabIndex: number) => {
     if (newTabIndex === 0) {
       setStockAnchorElement(event.currentTarget as HTMLElement)
@@ -102,13 +115,19 @@ const Contents = () => {
     setTabIndex(1)
     setMasterAnchorElement(null)
   }
+  const handleOtherMenuSelect = (menu: OtherKey) => {
+    setOtherMenu(menu)
+    setTabIndex(2)
+    setOtherAnchorElement(null)
+  }
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' textColor='secondary' indicatorColor='secondary' aria-label='basic tabs example'>
           <Tab label='在庫管理' { ...a11yProps(0) } onClick={ handleStockTabClick } />
           <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
-          <Tab label='その他' { ...a11yProps(2) } />
+          <Tab label='その他' { ...a11yProps(2) } onClick={ handleOtherTabClick } />
         </Tabs>
       </Box>
       <Menu
@@ -133,16 +152,25 @@ const Contents = () => {
         <MenuItem onClick={ () => handleMenuSelect('ユーザー') }>ユーザー</MenuItem>
         <MenuItem onClick={ () => handleMenuSelect('ロール') }>ロール</MenuItem>
       </Menu>
+      <Menu
+        anchorEl={ otherAnchorElement }
+        open={ Boolean(otherAnchorElement) }
+        onClose={ () => setOtherAnchorElement(null) }
+      >
+        <MenuItem onClick={ () => handleOtherMenuSelect('ライセンス表示') }>ライセンス表示</MenuItem>
+        <MenuItem onClick={ () => handleOtherMenuSelect('アプリ機能説明') }>アプリ機能説明</MenuItem>
+      </Menu>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
         { !stockMenu && <div>在庫メニューを選択してください</div> }
         { stockMenu && stockComponents[ stockMenu ] }
       </CustomTabPanel>
-      <CustomTabPanel value={tabIndex} index={1}>
+      <CustomTabPanel value={tabIndex} index={ 1 }>
         { !masterMenu && <div>マスタを選択してください</div> }
         { masterMenu && masterComponents[ masterMenu ] }
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 2 }>
-        <Licenses />
+        { !otherMenu && <div>その他メニューを選択してください</div> }
+        { otherMenu && otherComponents[ otherMenu ] }
       </CustomTabPanel>
     </Box>
   )
