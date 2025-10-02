@@ -1,8 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { 
-  getCurrentUser 
-} from 'aws-amplify/auth'
+import { getCurrentUser } from '@aws-amplify/auth'
 
 export function useUser() {
   const [ user, setUser ] = useState<{ name: string } | null>(null)
