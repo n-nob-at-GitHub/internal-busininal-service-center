@@ -1,7 +1,9 @@
 import sendMail from '@/lib/sendMail'
 import { NextRequest } from 'next/server'
 
-const apiHandler = (handler: Function) => {
+type Handler = (req: NextRequest) => Promise<Response> | Response
+
+const apiHandler = (handler: Handler) => {
   return async (req: NextRequest) => {
     try {
       const res = await handler(req)
