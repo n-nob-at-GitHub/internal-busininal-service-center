@@ -1,10 +1,19 @@
-import { Amplify } from '@aws-amplify/core'
+import { Amplify } from 'aws-amplify'
 
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: 'ap-northeast-1_ATjV25DWx',
-      userPoolClientId: '4hpif7u4ej7a8vep45hsdklvae',
-    }
+      userPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID!,
+      userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!,
+      loginWith: {
+        oauth: {
+          domain: process.env.NEXT_PUBLIC_USER_POOL_DOMAIN!,
+          scopes: [ 'openid', 'email' ],
+          redirectSignIn: [ process.env.NEXT_PUBLIC_REDIRECT_URI! ],
+          redirectSignOut: [ process.env.NEXT_PUBLIC_REDIRECT_URI! ],
+          responseType: 'token',
+        },
+      },
+    },
   },
 })
