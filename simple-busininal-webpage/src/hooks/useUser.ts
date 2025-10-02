@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
 import { 
-  fetchAuthSession, 
-  signIn, 
-  signOut, 
   getCurrentUser 
 } from 'aws-amplify/auth'
 

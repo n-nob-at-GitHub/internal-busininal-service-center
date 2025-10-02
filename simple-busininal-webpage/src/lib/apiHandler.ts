@@ -5,7 +5,7 @@ const apiHandler = (handler: Function) => {
   return async (req: NextRequest) => {
     try {
       const res = await handler(req)
-      const body = await res.clone().json()
+      // const body = await res.clone().json()
       // sendMail(`${req.method} [${req.nextUrl.pathname}]`, JSON.stringify(body));
       return res
     } catch (e: any) {
