@@ -1,15 +1,30 @@
 import { useState, useEffect } from 'react'
+import { 
+  fetchAuthSession, 
+  signIn, 
+  signOut, 
+  getCurrentUser 
+} from 'aws-amplify/auth'
 
 export function useUser() {
-  const [ user, setUser ] = useState<{ name: string } | null>(null)
+  const [user, setUser] = useState<{ name: string } | null>(null)
 
   useEffect(() => {
-    // Development.
-    setUser({ name: 'dev-user' })
+    const fetchUser = async () => {
+      try {
+        if (process.env.NODE_ENV === 'development') {
+          setUser({ name: 'dev-user' })
+        } else {
+          const cognitoUser = await getCurrentUser()
+          setUser({ name: cognitoUser.username })
+        }
+      } catch (error) {
+        console.error('Failed to get user:', error)
+        setUser(null)
+      }
+    }
 
-    // Production.
-    // const cognitoUser = await Auth.currentAuthenticatedUser()
-    // setUser({ name: cognitoUser.username })
+    fetchUser()
   }, [])
 
   return user
