@@ -1,3 +1,4 @@
+import '@/lib/amplify'
 import Provider from './Provider'
 import Header from '@/components/Header'
 import Contents from '@/components/Contents'

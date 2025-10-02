@@ -4,7 +4,7 @@ import {
 } from 'aws-amplify/auth'
 
 export function useUser() {
-  const [user, setUser] = useState<{ name: string } | null>(null)
+  const [ user, setUser ] = useState<{ name: string } | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -13,6 +13,7 @@ export function useUser() {
           setUser({ name: 'dev-user' })
         } else {
           const cognitoUser = await getCurrentUser()
+          console.log(cognitoUser.username)
           setUser({ name: cognitoUser.username })
         }
       } catch (error) {
