@@ -24,6 +24,7 @@ import Overview from '@/components/Overview'
 import Roles from '@/components/Roles'
 import Stocks from '@/components/Stocks'
 import Users from '@/components/Users'
+import { useUser } from '@/hooks/useUser'
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -58,6 +59,11 @@ const a11yProps = (index: number) => {
 }
 
 const Contents = () => {
+  const user = useUser()
+  const role = process.env.NODE_ENV === 'development'
+    ? 'SYSTEM'
+    : (user as any)?.role || 'SYSTEM'
+
   const [ tabIndex, setTabIndex ] = useState(0);
   const [ stockMenu, setStockMenu ] = useState<StockKey | null>(null)
   const [ masterMenu, setMasterMenu ] = useState<MasterKey | null>(null)
@@ -95,25 +101,31 @@ const Contents = () => {
     'アプリ機能説明': <Overview />,
   }
 
+  const stockMenuItems: StockKey[] = role === 'STAFF'
+    ? [ '在庫一覧', '入庫', '出庫' ]
+    : [ '在庫一覧', '入庫', '出庫', '入庫履歴', '出庫履歴' ]
+
+  const masterMenuItems: MasterKey[] = role === 'SYSTEM'
+    ? [ '資材', '製造メーカー', '配送先', 'ユーザー', 'ロール' ]
+    : role === 'ADMIN'
+      ? [ '資材', '製造メーカー', '配送先', 'ユーザー' ] 
+      : []
+
+  const otherMenuItems: OtherKey[] = [ 'ライセンス表示', 'アプリ機能説明' ]
+
   const handleTabChange = (event: SyntheticEvent, newTabIndex: number) => {
-    if (newTabIndex === 0) {
-      setStockAnchorElement(event.currentTarget as HTMLElement)
-    } else if (newTabIndex === 1) {
-      setMasterAnchorElement(event.currentTarget as HTMLElement)
-    } else if (newTabIndex === 2) {
-      setOtherAnchorElement(event.currentTarget as HTMLElement)
-    } else {
-      setTabIndex(newTabIndex)
-      setStockMenu(null)
-      setMasterMenu(null)
-    }
+    setTabIndex(newTabIndex)
+    setStockAnchorElement(null)
+    setMasterAnchorElement(null)
+    setOtherAnchorElement(null)
   }
+
   const handleStockMenuSelect = (menu: StockKey) => {
     setStockMenu(menu)
     setTabIndex(0)
     setStockAnchorElement(null)
   }
-  const handleMenuSelect = (menu: MasterKey) => {
+  const handleMasterMenuSelect = (menu: MasterKey) => {
     setMasterMenu(menu)
     setTabIndex(1)
     setMasterAnchorElement(null)
@@ -138,42 +150,36 @@ const Contents = () => {
         open={ Boolean(stockAnchorElement) }
         onClose={ () => setStockAnchorElement(null) }
       >
-        <MenuItem onClick={ () => handleStockMenuSelect('在庫一覧') }>在庫一覧</MenuItem>
-        <MenuItem onClick={ () => handleStockMenuSelect('入庫') }>入庫</MenuItem>
-        <MenuItem onClick={ () => handleStockMenuSelect('出庫') }>出庫</MenuItem>
-        <MenuItem onClick={ () => handleStockMenuSelect('入庫履歴') }>入庫履歴</MenuItem>
-        <MenuItem onClick={ () => handleStockMenuSelect('出庫履歴') }>出庫履歴</MenuItem>
+        { stockMenuItems.map(menu => (
+          <MenuItem key={ menu } onClick={ () => handleStockMenuSelect(menu) }>{ menu }</MenuItem>
+        )) }
       </Menu>
       <Menu
         anchorEl={ masterAnchorElement }
         open={ Boolean(masterAnchorElement) }
         onClose={ () => setMasterAnchorElement(null) }
       >
-        <MenuItem onClick={ () => handleMenuSelect('資材') }>資材</MenuItem>
-        <MenuItem onClick={ () => handleMenuSelect('製造メーカー') }>製造メーカー</MenuItem>
-        <MenuItem onClick={ () => handleMenuSelect('配送先') }>配送先</MenuItem>
-        <MenuItem onClick={ () => handleMenuSelect('ユーザー') }>ユーザー</MenuItem>
-        <MenuItem onClick={ () => handleMenuSelect('ロール') }>ロール</MenuItem>
+        { masterMenuItems.map(menu => (
+          <MenuItem key={ menu } onClick={ () => handleMasterMenuSelect(menu) }>{ menu }</MenuItem>
+        )) }
       </Menu>
       <Menu
         anchorEl={ otherAnchorElement }
         open={ Boolean(otherAnchorElement) }
         onClose={ () => setOtherAnchorElement(null) }
       >
-        <MenuItem onClick={ () => handleOtherMenuSelect('ライセンス表示') }>ライセンス表示</MenuItem>
-        <MenuItem onClick={ () => handleOtherMenuSelect('アプリ機能説明') }>アプリ機能説明</MenuItem>
+        { otherMenuItems.map(menu => (
+          <MenuItem key={ menu } onClick={ () => handleOtherMenuSelect(menu) }>{ menu }</MenuItem>
+        )) }
       </Menu>
       <CustomTabPanel value={ tabIndex } index={ 0 }>
-        { !stockMenu && <div>在庫メニューを選択してください</div> }
-        { stockMenu && stockComponents[ stockMenu ] }
+        { stockMenu ? stockComponents[ stockMenu ] : <div>在庫メニューを選択してください</div> }
       </CustomTabPanel>
       <CustomTabPanel value={tabIndex} index={ 1 }>
-        { !masterMenu && <div>マスタを選択してください</div> }
-        { masterMenu && masterComponents[ masterMenu ] }
+        { masterMenu ? masterComponents[ masterMenu ] : <div>マスタを選択してください</div> }
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 2 }>
-        { !otherMenu && <div>その他メニューを選択してください</div> }
-        { otherMenu && otherComponents[ otherMenu ] }
+        { otherMenu ? otherComponents[ otherMenu ] : <div>その他メニューを選択してください</div> }
       </CustomTabPanel>
     </Box>
   )
