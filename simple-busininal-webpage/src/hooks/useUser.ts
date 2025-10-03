@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode'
 
 interface DecodedIdToken {
   'cognito:username'?: string
+  name?: string
   email?: string
   [ key: string ]: any
 }
@@ -22,7 +23,7 @@ export function useUser() {
           const idToken = params.get('id_token')
           if (idToken) {
             const decoded = jwtDecode<DecodedIdToken>(idToken)
-            const username = decoded[ 'cognito:username' ] || decoded.email || 'unknown'
+            const username = decoded.name || decoded.email || decoded['cognito:username'] || 'unknown'
             setUser({ name: username })
           } else {
             setUser(null)
