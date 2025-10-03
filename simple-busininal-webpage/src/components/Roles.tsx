@@ -28,7 +28,11 @@ import EditIcon from '@mui/icons-material/Edit'
 import { type Role } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
-const Roles = () => {
+const baseURL = process.env.NODE_ENV === 'production'
+  ? 'https://aoby2arsjj.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+  const Roles = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
 
   const columns = useMemo<MRT_ColumnDef<Role>[]>(
@@ -232,10 +236,7 @@ function useGetRoles() {
   return useQuery<Role[]>({
     queryKey: [ 'roles' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/role/`
-        : `/api/role`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ baseURL }/role`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -248,10 +249,7 @@ function useCreateRole() {
   return useMutation({
     mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/role/`
-        : `/api/role`
-      const response = await axios.post(url, role)
+      const response = await axios.post(`${ baseURL }/role`, role)
       return response.data
     },
     // client side optimistic update
@@ -278,10 +276,7 @@ function useUpdateRole() {
   return useMutation({
     mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/role/`
-        : `/api/role`
-      const response = await axios.put(url, role)
+      const response = await axios.put(`${ baseURL }/role`, role)
       return response.data
     },
     // client side optimistic update
@@ -301,10 +296,7 @@ function useDeleteRole() {
   return useMutation({
     mutationFn: async (role: Role) => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/role/${ role.id }`
-        : `/api/role/${ role.id }`
-      await axios.delete(url)
+      await axios.delete(`${ baseURL }/role/${ role.id }`)
     },
     // client side optimistic update
     onMutate: (newRole: Role) => {

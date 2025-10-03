@@ -177,7 +177,7 @@ const Contents = () => {
       <CustomTabPanel value={ tabIndex } index={ 0 }>
         { stockMenu ? stockComponents[ stockMenu ] : <div>在庫メニューを選択してください</div> }
       </CustomTabPanel>
-      <CustomTabPanel value={tabIndex} index={ 1 }>
+      <CustomTabPanel value={ tabIndex } index={ 1 }>
         { masterMenu ? masterComponents[ masterMenu ] : <div>マスタを選択してください</div> }
       </CustomTabPanel>
       <CustomTabPanel value={ tabIndex } index={ 2 }>
