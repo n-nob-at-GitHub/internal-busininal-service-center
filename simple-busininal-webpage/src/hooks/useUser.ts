@@ -7,7 +7,9 @@ export function useUser() {
   const [ user, setUser ] = useState<{ name: string } | null>(null)
   
   useEffect(() => {
+    console.log('----- configureAmplify start. -----')
     configureAmplify()
+    console.log('----- configureAmplify end. -----')
     const fetchUser = async () => {
       try {
         if (process.env.NODE_ENV === 'development') {
@@ -23,7 +25,9 @@ export function useUser() {
       }
     }
 
+    console.log('----- fetchUser start. -----')
     fetchUser()
+    console.log('----- fetchUser end. -----')
   }, [])
 
   return user
