@@ -48,6 +48,11 @@ jobs:
 
           for dir in "${!LAMBDA_MAP[@]}"; do
             echo "Deploying $dir → ${LAMBDA_MAP[$dir]}"
+            # ディレクトリ存在チェック
+            if [ ! -d "lambda/$dir" ]; then
+                echo "Skipping $dir: directory not found"
+                continue
+            fi
 
             # ZIP 作成
             zip_file="${dir}.zip"
