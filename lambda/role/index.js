@@ -12,7 +12,8 @@ const TABLE_NAME = process.env.TABLE_NAME || 'Role';
 exports.handler = async (event) => {
   console.log('Received event:', event);
 
-  const method = event.httpMethod;
+  // const method = event.httpMethod;
+  const method = event.httpMethod || event.requestContext?.http?.method;
   const pathParams = event.pathParameters || {};
   let body = {};
   if (event.body) body = JSON.parse(event.body);
