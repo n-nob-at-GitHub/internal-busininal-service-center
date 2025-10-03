@@ -63,6 +63,10 @@ const Roles = () => {
               }),
           },  
         },
+        {
+          accessorKey: 'description',
+          header: '説明',
+        },
       ],
     [ validationErrors ],
   )
