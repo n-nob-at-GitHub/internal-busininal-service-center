@@ -56,32 +56,33 @@
     ```
     // This is your Prisma schema file,
     // learn more about it in the docs: https://pris.ly/d/prisma-schema
-    
+
     // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
     // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-    
+
     generator client {
       provider = "prisma-client-js"
     }
-    
+
     datasource db {
       provider = "sqlite"
       url      = env("DATABASE_URL")
     }
-    
+
     model Role {
       id              Int              @id @default(autoincrement())
       name            String           @unique
+      description     String?
       users           User[]
     }
-    
+
     model User {
       id              Int              @id @default(autoincrement())
       roleId          Int              @map("role_id")
       mail            String           @unique
       role            Role             @relation(fields: [roleId], references: [id])
     }
-    
+
     model Material {
       id              Int              @id @default(autoincrement())
       manufacturerId  Int              @map("manufacturer_id")
@@ -91,22 +92,23 @@
       quantity        Int              @default(0)
       unit            String
       name            String
-      filePath        String?
+      fileName        String?          @map("file_name")
+      isValid         Boolean          @map("is_valid") @default(true)
       manufacturer    Manufacturer     @relation(fields: [manufacturerId], references: [id])
       stocks          Stock[]
     }
-    
+
     model Manufacturer {
       id              Int              @id @default(autoincrement())
       name            String
       materials       Material[]
     }
-    
+
     model Stock {
       id              Int              @id @default(autoincrement())
       materialId      Int              @map("material_id")
-      totalQuantity   Int              @default(0)
-      totalAmount     Int              @default(0)
+      totalQuantity   Int              @map("total_quantity") @default(0)
+      totalAmount     Int              @map("total_amount") @default(0)
       unit            String
       note            String?
       createdBy       String           @map("created_by")
@@ -117,36 +119,43 @@
       inbounds        Inbound[]
       outbounds       Outbound[]
     }
-    
+
     model DeliverySite {
       id              Int              @id @default(autoincrement())
       name            String
-      contact         String
+      code            String?
+      contact         String?
       outbounds       Outbound[]
     }
-    
+
     model Inbound {
       id              Int              @id @default(autoincrement())
       stockId         Int              @map("stock_id")
       quantity        Int              @default(0)
       amount          Int              @default(0)
-      unitPrice       Int              @default(0)
+      unitPrice       Int              @map("unit_price") @default(0)
       unit            String
+      isValid         Boolean          @map("is_valid") @default(true)
       createdBy       String           @map("created_by")
       createdAt       DateTime         @map("created_at") @default(now())
+      updatedBy       String           @map("updated_by")
+      updatedAt       DateTime         @map("updated_at") @default(now())
       stock           Stock            @relation(fields: [stockId], references: [id])
     }
-    
+
     model Outbound {
       id              Int              @id @default(autoincrement())
       stockId         Int              @map("stock_id")
       deliverySiteId  Int              @map("delivery_site_id")
       quantity        Int              @default(0)
       amount          Int              @default(0)
-      unitPrice       Int              @default(0)
+      unitPrice       Int              @map("unit_price") @default(0)
       unit            String
+      isValid         Boolean          @map("is_valid") @default(true)
       createdBy       String           @map("created_by")
       createdAt       DateTime         @map("created_at") @default(now())
+      updatedBy       String           @map("updated_by")
+      updatedAt       DateTime         @map("updated_at") @default(now())
       stock           Stock            @relation(fields: [stockId], references: [id])
       deliverySite    DeliverySite     @relation(fields: [deliverySiteId], references: [id])
     }
@@ -165,9 +174,14 @@
     > npm i axios
     ```
     
-  - [Export to CSV Mini Library](https://www.npmjs.com/package/export-to-csv)
+  - [dayjs](https://www.npmjs.com/package/dayjs)
     ```
-    > npm i export-to-csv
+    > npm i dayjs
+    ```
+    
+  - [jwt-decode](https://www.npmjs.com/package/jwt-decode)
+    ```
+    > npm i jwt-decode
     ```
   
   - [NPM License Checker](https://www.npmjs.com/package/license-checker)
@@ -180,7 +194,7 @@
       <summary>license-checker使用例</summary>
         
       ```
-        > npx license-checker --packages ';@emotion/react@11.14.0;@emotion/styled@11.14.1;@mui/icons-material@7.3.2;@mui/material@7.3.2;@mui/x-date-pickers@8.11.2;@prisma/client@6.16.2;@tanstack/react-query@5.89.0;@tanstack/react-table@8.21.3;axios@1.12.2;export-to-csv@1.4.0;nodemailer@7.0.6;next@15.5.3;react@19.1.0;react-dom@19.1.0;' --customPath licensesFormat.json --json > licenses.json
+        > npx license-checker --packages ';@emotion/react@11.14.0;@emotion/styled@11.14.1;@mui/icons-material@7.3.2;@mui/material@7.3.2;@mui/x-date-pickers@8.11.2;@prisma/client@6.16.2;@tanstack/react-query@5.89.0;axios@1.12.2;dayjs@1.11.18;jwt-decode@4.0.0;material-react-table@3.2.1;next@15.5.3;nodemailer@7.0.6;react@19.1.0;react-dom@19.1.0;' --customPath licensesFormat.json --json > licenses.json
       ```
         
       </details>
@@ -240,10 +254,11 @@
     | Add             |     〇     | 2025/09/19 |
     | Update          |     〇     | 2025/09/19 |
     | Delete          |     〇     | 2025/09/19 |
-    | CSV             |     ―     | |
-    | Package         |     ―     | Webアプリのため, $${\color{yellow}タスク不正}$$（2025/09/19）|
-    | S3              |     ―     | S3 Hosting |
-    | Cognito         |     ―     |  |
+    | CSV             |     〇     | 2025/09/26 |
+    | GitHub Actions  |     〇     | 2025/09/27, 1. ローカル環境は, 一時的に app/api を使用. 2. 本番環境は, [simple-busininal-webpage]フォルダの外側に, [api-backup]フォルダを置く, commit -> push -> build -> deploy |
+    | S3              |     〇     | 2025/09/27, S3 Hosting |
+    | CloudFront      |     〇     | 2025/09/28 |
+    | Cognito         |     〇     | 2025/10/03 |
     | API Gateway     |     ―     |  |
     | DynamoDB        |     ―     |  |
     | Log             |     ―     |  |
@@ -252,5 +267,7 @@
     | License         |     〇     | ライブラリ（[NPM License Checker](https://www.npmjs.com/package/license-checker) Weekly Downloads Weekly Downloads 691,433）を利用（2025/09/19）|
     
 - 課題
-  - Deploy
-  - ローカル環境で動作したものを本番環境(AWS)に移行する方法は？
+  - 本番環境のAPIの動作（API Gateway + Lambda）
+  - F5リロード後も, 認証を継続
+  - S3上保存された画像ファイルの読み込み, 表示
+  - CSV仕訳データの仕様, フォーマット, ロジック
