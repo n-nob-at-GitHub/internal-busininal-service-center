@@ -108,7 +108,7 @@ const Contents = () => {
   const masterMenuItems: MasterKey[] = role === 'SYSTEM'
     ? [ '資材', '製造メーカー', '配送先', 'ユーザー', 'ロール' ]
     : role === 'ADMIN'
-      ? [ '資材', '製造メーカー', '配送先', 'ユーザー' ] 
+      ? [ '資材', '製造メーカー', '配送先'] 
       : []
 
   const otherMenuItems: OtherKey[] = [ 'ライセンス表示', 'アプリ機能説明' ]
@@ -141,8 +141,10 @@ const Contents = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' textColor='secondary' indicatorColor='secondary' aria-label='basic tabs example'>
           <Tab label='在庫管理' { ...a11yProps(0) } onClick={ handleStockTabClick } />
-          <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
-          <Tab label='その他' { ...a11yProps(2) } onClick={ handleOtherTabClick } />
+          { role !== 'STAFF' && (
+            <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
+          )}
+          <Tab label='その他' { ...a11yProps(role !== 'STAFF' ? 2 : 1) } onClick={ handleOtherTabClick } />
         </Tabs>
       </Box>
       <Menu
