@@ -24,6 +24,7 @@ export function useUser() {
           if (idToken) {
             const decoded = jwtDecode<DecodedIdToken>(idToken)
             const username = decoded.name || decoded.email || decoded['cognito:username'] || 'unknown'
+            console.log(decoded)
             setUser({ name: username })
           } else {
             setUser(null)
