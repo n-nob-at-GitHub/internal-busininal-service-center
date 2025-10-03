@@ -1,11 +1,9 @@
 'use client'
-import { configureAmplify } from '@/lib/amplify'
 import { useState, useEffect } from 'react'
 import { getCurrentUser } from '@aws-amplify/auth'
 
 export function useUser() {
   const [ user, setUser ] = useState<{ name: string } | null>(null)
-  configureAmplify()
   
   useEffect(() => {
     const fetchUser = async () => {
