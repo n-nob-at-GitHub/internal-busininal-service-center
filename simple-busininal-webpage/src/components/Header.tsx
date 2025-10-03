@@ -1,16 +1,10 @@
 'use client'
-import React, { useEffect } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import logo from '@/images/logo.webp'
-import { configureAmplify } from '@/lib/amplify'
 import { useUser } from '@/hooks/useUser'
 
 const Header = () => {
-  useEffect(() => {
-    console.log('----- Header configureAmplify start. -----')
-    configureAmplify()
-    console.log('----- Header configureAmplify end. -----')
-  }, [])
   const user = useUser()
   return (
     <div style={{

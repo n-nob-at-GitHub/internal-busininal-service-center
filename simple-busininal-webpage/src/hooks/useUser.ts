@@ -1,23 +1,32 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { getCurrentUser } from '@aws-amplify/auth'
-import { configureAmplify } from '@/lib/amplify'
+import { jwtDecode } from 'jwt-decode'
+
+interface DecodedIdToken {
+  'cognito:username'?: string
+  email?: string
+  [ key: string ]: any
+}
 
 export function useUser() {
   const [ user, setUser ] = useState<{ name: string } | null>(null)
   
   useEffect(() => {
-    console.log('----- configureAmplify start. -----')
-    configureAmplify()
-    console.log('----- configureAmplify end. -----')
     const fetchUser = async () => {
       try {
         if (process.env.NODE_ENV === 'development') {
           setUser({ name: 'dev-user' })
         } else {
-          const cognitoUser = await getCurrentUser()
-          console.log(cognitoUser.username)
-          setUser({ name: cognitoUser.username })
+          const hash = window.location.hash
+          const params = new URLSearchParams(hash.replace(/^#/, ''))
+          const idToken = params.get('id_token')
+          if (idToken) {
+            const decoded = jwtDecode<DecodedIdToken>(idToken)
+            const username = decoded[ 'cognito:username' ] || decoded.email || 'unknown'
+            setUser({ name: username })
+          } else {
+            setUser(null)
+          }
         }
       } catch (error) {
         console.error('Failed to get user:', error)
@@ -25,9 +34,7 @@ export function useUser() {
       }
     }
 
-    console.log('----- fetchUser start. -----')
     fetchUser()
-    console.log('----- fetchUser end. -----')
   }, [])
 
   return user
