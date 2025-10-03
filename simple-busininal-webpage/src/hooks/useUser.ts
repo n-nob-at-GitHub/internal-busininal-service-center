@@ -1,11 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { getCurrentUser } from '@aws-amplify/auth'
+import { configureAmplify } from '@/lib/amplify'
 
 export function useUser() {
   const [ user, setUser ] = useState<{ name: string } | null>(null)
   
   useEffect(() => {
+    configureAmplify()
     const fetchUser = async () => {
       try {
         if (process.env.NODE_ENV === 'development') {
