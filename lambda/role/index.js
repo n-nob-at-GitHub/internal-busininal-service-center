@@ -1,19 +1,15 @@
-import {
+const {
   DynamoDBClient,
   ScanCommand,
   PutItemCommand,
   UpdateItemCommand,
   DeleteItemCommand,
-} from '@aws-sdk/client-dynamodb';
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+} = require('@aws-sdk/client-dynamodb');
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 const TABLE_NAME = process.env.TABLE_NAME || 'Role';
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   console.log('Received event:', event);
 
   const method = event.httpMethod;
