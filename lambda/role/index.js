@@ -26,7 +26,11 @@ exports.handler = async (event) => {
           name: item.name.S,
           description: item.description.S,
         })) || [];
-      return { statusCode: 200, body: JSON.stringify(roles) };
+      return { 
+        statusCode: 200, 
+        headers: { "Access-Control-Allow-Origin": "*" }, 
+        body: JSON.stringify(roles), 
+      };
     }
 
     if (method === 'POST') {
@@ -44,6 +48,7 @@ exports.handler = async (event) => {
       );
       return {
         statusCode: 200,
+        headers: { "Access-Control-Allow-Origin": "*" }, 
         body: JSON.stringify({ id, name, description }),
       };
     }
@@ -62,9 +67,10 @@ exports.handler = async (event) => {
           },
         })
       );
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ id, name, description }),
+      return { 
+        statusCode: 200, 
+        headers: { "Access-Control-Allow-Origin": "*" }, 
+        body: JSON.stringify({ id, name, description }), 
       };
     }
 
@@ -76,12 +82,24 @@ exports.handler = async (event) => {
           Key: { PK: { S: `ROLE#${id}` }, SK: { S: 'META' } },
         })
       );
-      return { statusCode: 200, body: JSON.stringify({ id }) };
+      return { 
+        statusCode: 200, 
+        headers: { "Access-Control-Allow-Origin": "*" }, 
+        body: JSON.stringify({ id }), 
+      };
     }
 
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { 
+      statusCode: 405, 
+      headers: { "Access-Control-Allow-Origin": "*" }, 
+      body: 'Method Not Allowed',
+    };
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify(err) };
+    return { 
+      statusCode: 500, 
+      headers: { "Access-Control-Allow-Origin": "*" }, 
+      body: JSON.stringify(err),
+    };
   }
 };
