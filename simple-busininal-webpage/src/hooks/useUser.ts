@@ -10,13 +10,13 @@ interface DecodedIdToken {
 }
 
 export function useUser() {
-  const [ user, setUser ] = useState<{ name: string } | null>(null)
+  const [ user, setUser ] = useState<{ name: string, role: string } | null>(null)
   
   useEffect(() => {
     const fetchUser = async () => {
       try {
         if (process.env.NODE_ENV === 'development') {
-          setUser({ name: 'dev-user' })
+          setUser({ name: 'dev-user', role: 'SYSTEM' })
         } else {
           const hash = window.location.hash
           const params = new URLSearchParams(hash.replace(/^#/, ''))
@@ -24,8 +24,9 @@ export function useUser() {
           if (idToken) {
             const decoded = jwtDecode<DecodedIdToken>(idToken)
             const username = decoded.name || decoded.email || decoded['cognito:username'] || 'unknown'
+            const userrole = decoded['custom:role'] || 'STAFF'
             console.log(decoded)
-            setUser({ name: username })
+            setUser({ name: username, role: userrole })
           } else {
             setUser(null)
           }
