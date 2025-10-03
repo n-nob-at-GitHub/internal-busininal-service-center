@@ -9,6 +9,13 @@ const {
 const client = new DynamoDBClient({ region: process.env.REGION });
 const TABLE_NAME = process.env.TABLE_NAME || 'Role';
 
+// Common CORS Headers.
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "https://d2slubzovll4xp.cloudfront.net/",
+  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 exports.handler = async (event) => {
   console.log('Received event:', event);
 
@@ -17,7 +24,16 @@ exports.handler = async (event) => {
   const pathParams = event.pathParameters || {};
   let body = {};
   if (event.body) body = JSON.parse(event.body);
-
+  
+  // Handling preflight OPTIONS requests.
+  if (method === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: '',
+    };
+  }
+  
   try {
     if (method === 'GET') {
       const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
@@ -29,7 +45,7 @@ exports.handler = async (event) => {
         })) || [];
       return { 
         statusCode: 200, 
-        headers: { "Access-Control-Allow-Origin": "*" }, 
+        headers: CORS_HEADERS, 
         body: JSON.stringify(roles), 
       };
     }
@@ -49,7 +65,7 @@ exports.handler = async (event) => {
       );
       return {
         statusCode: 200,
-        headers: { "Access-Control-Allow-Origin": "*" }, 
+        headers: CORS_HEADERS, 
         body: JSON.stringify({ id, name, description }),
       };
     }
@@ -70,7 +86,7 @@ exports.handler = async (event) => {
       );
       return { 
         statusCode: 200, 
-        headers: { "Access-Control-Allow-Origin": "*" }, 
+        headers: CORS_HEADERS, 
         body: JSON.stringify({ id, name, description }), 
       };
     }
@@ -85,7 +101,7 @@ exports.handler = async (event) => {
       );
       return { 
         statusCode: 200, 
-        headers: { "Access-Control-Allow-Origin": "*" }, 
+        headers: CORS_HEADERS, 
         body: JSON.stringify({ id }), 
       };
     }
@@ -99,7 +115,7 @@ exports.handler = async (event) => {
     console.error(err);
     return { 
       statusCode: 500, 
-      headers: { "Access-Control-Allow-Origin": "*" }, 
+      headers: CORS_HEADERS, 
       body: JSON.stringify(err),
     };
   }
