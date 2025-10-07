@@ -1,6 +1,7 @@
 'use client'
 import {
   createContext,
+  ReactNode,
   useEffect,
   useState,
 } from 'react'
@@ -9,12 +10,20 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { AuthProvider, useAuth } from 'react-oidc-context'
+import type { UserManagerSettings } from 'oidc-client-ts'
 
-interface AuthContextType {
-  accessToken: string | null
+const isProduction = process.env.NODE_ENV === 'production'
+
+const oidcConfig: UserManagerSettings  = {
+  authority: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`,
+  client_id: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!,
+  redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
+  response_type: 'code',
+  scope: 'openid email profile',
+  automaticSilentRenew: true,
+  loadUserInfo: true,
 }
-
-export const AuthContext = createContext<AuthContextType>({ accessToken: null })
 
 function makeQueryClient() {
   return new QueryClient({
@@ -29,7 +38,7 @@ function makeQueryClient() {
 let browserQueryClient: QueryClient | undefined = undefined
 
 function getQueryClient() {
-  if (isServer) {
+  if (typeof window === 'undefined') {
     return makeQueryClient()
   } else {
     if (!browserQueryClient) browserQueryClient = makeQueryClient()
@@ -37,44 +46,55 @@ function getQueryClient() {
   }
 }
 
-export default function Provider(
-  { children } : { children: React.ReactNode }
-) {
-  const queryClient = getQueryClient()
-  const [ accessToken, setAccessToken ] = useState<string | null>(null)
-  const isProduction = process.env.NODE_ENV === 'production'
+export const AuthContext = createContext<{ accessToken: string | null }>({
+  accessToken: null,
+})
 
-  useEffect(() => {
+function AuthWrapper({ children }: { children: React.ReactNode }) {
+  const auth = useAuth()
+  const accessToken = auth.user?.access_token ?? null
+
+  if (auth.isLoading) {
+    return <div>Loading authentication...</div>
+  }
+
+  if (auth.error) {
+    return (
+      <div>
+        Authentication error: { auth.error.message }
+        <button onClick={() => auth.signinRedirect()}>Retry</button>
+      </div>
+    )
+  }
+
+  if (!auth.isAuthenticated) {
     if (!isProduction) {
-      setAccessToken('local-dev-token')
-      return
+      return (
+        <AuthContext.Provider value={{ accessToken: 'local-dev-token' }}>
+          { children }
+        </AuthContext.Provider>
+      )
     }
 
-    const hash = window.location.hash
-    if (hash) {
-      const params = new URLSearchParams(hash.replace('#', ''))
-      const token = params.get('access_token')
-      if (token) {
-        setAccessToken(token)
-        window.history.replaceState(null, '', window.location.pathname)
-      }
-    }
+    auth.signinRedirect()
+    return <div>Redirecting to login...</div>
+  }
 
-    if (!hash) {
-      const domain = process.env.NEXT_PUBLIC_USER_POOL_DOMAIN
-      const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID
-      const region = process.env.NEXT_PUBLIC_USER_POOL_REGION
-      const redirectUri = window.location.origin
-      const url = `https://${ domain }/login?client_id=${ clientId }&response_type=token&scope=email+openid&redirect_uri=${ redirectUri }`
-      window.location.href = url
-    }
-  }, [ isProduction ])
+  return (
+    <AuthContext.Provider value={{ accessToken }}>
+      { children }
+    </AuthContext.Provider>
+  )
+}
+
+export default function Provider({ children }: { children: ReactNode }) {
+  const queryClient = getQueryClient()
 
   return (
     <QueryClientProvider client={ queryClient }>
-      <AuthContext.Provider value={{ accessToken }}>
-        { children }
-      </AuthContext.Provider>
+      <AuthProvider { ...oidcConfig }>
+        <AuthWrapper>{ children }</AuthWrapper>
+      </AuthProvider>
     </QueryClientProvider>
   )
 }
