@@ -16,6 +16,10 @@ export function useUser() {
   const [ user, setUser ] = useState<{ name: string, role: string } | null>(null)
   
   useEffect(() => {
+    if (!auth) {
+      console.warn('Auth context is not available')
+      return
+    }
     if (auth.isLoading) return
     if (process.env.NODE_ENV === 'development') {
       setUser({ name: 'dev-user', role: 'SYSTEM' })

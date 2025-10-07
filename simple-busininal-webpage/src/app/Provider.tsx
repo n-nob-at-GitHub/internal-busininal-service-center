@@ -2,11 +2,8 @@
 import {
   createContext,
   ReactNode,
-  useEffect,
-  useState,
 } from 'react'
 import {
-  isServer,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
