@@ -16,10 +16,17 @@ const oidcConfig: UserManagerSettings  = {
   authority: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`,
   client_id: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!,
   redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
+  post_logout_redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
   response_type: 'code',
   scope: 'openid email profile',
   automaticSilentRenew: true,
   loadUserInfo: true,
+  metadata: {
+    authorization_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/oauth2/authorize`,
+    token_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/oauth2/token`,
+    userinfo_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/oauth2/userInfo`,
+    end_session_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/logout`,
+  },
 }
 
 function makeQueryClient() {
@@ -59,7 +66,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     return (
       <div>
         Authentication error: { auth.error.message }
-        <button onClick={() => auth.signinRedirect()}>Retry</button>
+        <button onClick={ () => auth.signinRedirect() }>Retry</button>
       </div>
     )
   }
