@@ -64,7 +64,7 @@ exports.handler = async (event) => {
         if (a.id > b.id) return 1;
         return 0;
       });
-      
+
       return { 
         statusCode: 200,
         headers: CORS_HEADERS,
@@ -90,7 +90,6 @@ exports.handler = async (event) => {
               TableName: TABLE_NAME,
               Item: {
                 PK: { S: PK },
-                SK: { S: 'META' },
                 name: { S: name },
                 description: { S: description },
               },
@@ -124,7 +123,7 @@ exports.handler = async (event) => {
       await client.send(
         new UpdateItemCommand({
           TableName: TABLE_NAME,
-          Key: { PK: { S: `ROLE#${id}` }, SK: { S: 'META' } },
+          Key: { PK: { S: `ROLE#${id}` } },
           UpdateExpression: 'SET #name = :name, description = :desc',
           ExpressionAttributeNames: { '#name': 'name' },
           ExpressionAttributeValues: {
@@ -145,7 +144,7 @@ exports.handler = async (event) => {
       await client.send(
         new DeleteItemCommand({
           TableName: TABLE_NAME,
-          Key: { PK: { S: `ROLE#${id}` }, SK: { S: 'META' } },
+          Key: { PK: { S: `ROLE#${id}` } },
         })
       );
       return { 
