@@ -11,20 +11,12 @@ const TABLE_NAME = process.env.TABLE_NAME || 'Role';
 
 // Common CORS Headers.
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net/',
+  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Credentials': 'true',
+  'Content-Type': 'application/json',
 };
-
-// Preflight OPTIONS are also returned by Lambda.
-if (method === 'OPTIONS') {
-  return {
-    statusCode: 204,
-    headers: CORS_HEADERS,
-    body: '',
-  };
-}
 
 exports.handler = async (event) => {
   console.log('Received event:', event);
@@ -33,34 +25,38 @@ exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
   const pathParams = event.pathParameters || {};
   let body = {};
-  if (event.body) body = JSON.parse(event.body);
+  if (event.body) {
+    try {
+      body = JSON.parse(event.body);
+    } catch (err) {
+      console.warn('Invalid JSON:', event.body);
+    }
+  }
+
+  // Preflight OPTIONS are also returned by Lambda.
+  if (method === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: CORS_HEADERS,
+      body: '',
+    };
+  }
   
   try {
-    /*
     if (method === 'GET') {
       const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
       const roles =
         res.Items?.map((item) => ({
           id: item.PK.S?.replace('ROLE#', ''),
-          name: item.name.S!,
-          description: item.description.S!,
+          name: item.name.S,
+          description: item.description.S,
         })) || [];
       return { 
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify(roles),
-        isBase64Encoded: false,
       };
     }
-    */
-    if (method === 'GET') {
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: JSON.stringify([{ id: 'SYSTEM', name: 'SYSTEM', description: 'システム管理者' }]),
-    };
-  }
-
 
     if (method === 'POST') {
       const { id, name, description } = body;
@@ -79,7 +75,6 @@ exports.handler = async (event) => {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify({ id, name, description }),
-        isBase64Encoded: false,
       };
     }
 
@@ -101,7 +96,6 @@ exports.handler = async (event) => {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify({ id, name, description }),
-        isBase64Encoded: false,
       };
     }
 
@@ -117,23 +111,20 @@ exports.handler = async (event) => {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify({ id }),
-        isBase64Encoded: false,
       };
     }
 
     return { 
       statusCode: 405,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: 'Method Not Allowed',
-      isBase64Encoded: false,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Method not allowed' }),
     };
   } catch (err) {
     console.error(err);
     return { 
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify(err),
-      isBase64Encoded: false,
+      body: JSON.stringify({ message: 'Internal Server Error' }),
     };
   }
 };
