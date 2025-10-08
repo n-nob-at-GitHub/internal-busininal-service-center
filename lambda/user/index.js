@@ -1,11 +1,14 @@
-import {
+const {
   CognitoIdentityProviderClient,
   ListUsersCommand,
   AdminCreateUserCommand,
   AdminUpdateUserAttributesCommand,
   AdminDeleteUserCommand,
-} from '@aws-sdk/client-cognito-identity-provider';
-import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
+} = require('@aws-sdk/client-cognito-identity-provider');
+const {
+  DynamoDBClient,
+  GetItemCommand
+} = require('@aws-sdk/client-dynamodb');
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
 const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
@@ -56,7 +59,7 @@ export const handler = async (event) => {
             if (roleId) {
               const roleRes = await ddbClient.send(new GetItemCommand({
                 TableName: ROLE_TABLE,
-                Key: { PK: { S: `ROLE#${roleId}` } }
+                Key: { PK: { S: `ROLE#${ roleId }` } }
               }));
               roleName = roleRes.Item?.name?.S || '';
             }
