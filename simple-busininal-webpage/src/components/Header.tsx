@@ -19,6 +19,9 @@ const Header = () => {
   }
   const handleJudge = (result: YesOrNo) => {
     setIsDialogOpen(false)
+    if (window && window.location) {
+      console.log("logout redirect:", window.location.origin)
+    }
     if (result === 'Yes') {
       auth.signoutRedirect()
     }
