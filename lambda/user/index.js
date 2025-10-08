@@ -78,9 +78,12 @@ exports.handler = async (event) => {
       if (!mail) throw new Error('メール必須');
       if (!roleId) throw new Error('roleId 必須');
 
-      const selectedRole = roles.find(r => r.name === roleId);
-      if (!selectedRole) throw new Error('無効なロールです');
-      const cognitoRoleId = selectedRole.id;
+      const roleRes = await ddbClient.send(new GetItemCommand({
+        TableName: ROLE_TABLE,
+        Key: { PK: { S: `ROLE#${ roleId }` } }
+      }));
+      const roleName = roleRes.Item?.name?.S;
+      if (!roleName) throw new Error('無効なロールです');
 
       const createRes = await cognitoClient.send(new AdminCreateUserCommand({
         UserPoolId: USER_POOL_ID,
@@ -88,7 +91,7 @@ exports.handler = async (event) => {
         UserAttributes: [
           { Name: 'email', Value: mail },
           { Name: 'email_verified', Value: 'true' },
-          { Name: 'custom:role', Value: cognitoRoleId },
+          { Name: 'custom:role', Value: roleName },
         ],
         MessageAction: 'SUPPRESS',
       }));
@@ -107,11 +110,15 @@ exports.handler = async (event) => {
       const attrs = [];
       if (mail) attrs.push({ Name: 'email', Value: mail });
       if (roleId) {
-        const selectedRole = roles.find(r => r.name === roleId);
-        if (!selectedRole) throw new Error('無効なロールです');
+        const roleRes = await ddbClient.send(new GetItemCommand({
+          TableName: ROLE_TABLE,
+          Key: { PK: { S: `ROLE#${ roleId }` } }
+        }));
+        const roleName = roleRes.Item?.name?.S;
+        if (!roleName) throw new Error('無効なロールです');
         attrs.push({
           Name: 'custom:role',
-          Value: selectedRole.id
+          Value: roleName
         });
       }
 
