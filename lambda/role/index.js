@@ -12,10 +12,19 @@ const TABLE_NAME = process.env.TABLE_NAME || 'Role';
 // Common CORS Headers.
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net/',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Credentials': 'true',
 };
+
+// Preflight OPTIONS are also returned by Lambda.
+if (method === 'OPTIONS') {
+  return {
+    statusCode: 204,
+    headers: CORS_HEADERS,
+    body: '',
+  };
+}
 
 exports.handler = async (event) => {
   console.log('Received event:', event);

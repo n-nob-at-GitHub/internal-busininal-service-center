@@ -37,7 +37,7 @@ function AuthWrapper({ children }: { children: ReactNode }) {
 
   if (auth.error) {
     return (
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         Authentication error: { auth.error.message }
         <Button variant='outlined' onClick={ () => auth.signinRedirect() }>Retry</Button>
       </div>
