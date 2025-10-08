@@ -5,10 +5,17 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-const { v4: uuidv4 } = require('uuid');
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 const TABLE_NAME = process.env.TABLE_NAME || 'Role';
+
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 // Common CORS Headers.
 const CORS_HEADERS = {
@@ -68,7 +75,7 @@ exports.handler = async (event) => {
 
       while (!inserted && attempt < MAX_RETRY) {
         attempt++;
-        newId = uuidv4();
+        newId = generateUUID();
         const PK = `ROLE#${ newId }`;
 
         try {
