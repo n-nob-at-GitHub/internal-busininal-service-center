@@ -89,6 +89,7 @@ exports.handler = async (event) => {
       const createRes = await cognitoClient.send(new AdminCreateUserCommand({
         UserPoolId: USER_POOL_ID,
         Username: mail,
+        TemporaryPassword: 'InitPass123!',
         UserAttributes: [
           { Name: 'email', Value: mail },
           { Name: 'email_verified', Value: 'true' },
