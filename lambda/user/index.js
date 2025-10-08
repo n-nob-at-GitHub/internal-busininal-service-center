@@ -25,7 +25,7 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json',
 };
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
   const pathParams = event.pathParameters || {};
   let body = {};
