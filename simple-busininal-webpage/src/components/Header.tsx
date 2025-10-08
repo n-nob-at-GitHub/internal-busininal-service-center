@@ -6,6 +6,7 @@ import { useUser } from '@/hooks/useUser'
 import { useAuth } from 'react-oidc-context'
 import ConfirmDialog from '@/app/ConfirmDialog'
 import { YesOrNo } from '@/types/YesOrNo'
+import { generateRandomString } from '@/lib/utils'
 
 const Header = () => {
   const user = useUser()
@@ -22,16 +23,16 @@ const Header = () => {
     
     if (result === 'Yes') {
       try {
-        return await auth.removeUser()
-        // await auth.signoutRedirect()
-        /*
+        await auth.removeUser()
         const domain = `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`
         const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!
         const redirectUri = `${ window.location.origin }/`
-        const logoutUrl = `${ domain }/logout?client_id=${ clientId }&logout_uri=${ encodeURIComponent(redirectUri) }`
+        const state = generateRandomString(16)
+        const nonce = generateRandomString(16)
+        const scope = 'openid email profile'
+        const logoutUrl = `${ domain }/logout?client_id=${ clientId }&logout_uri=${ encodeURIComponent(redirectUri) }&state=${ state }&nonce=${ nonce }&scope=${ scope }`
 
         window.location.href = logoutUrl
-        */
       } catch (err) {
         console.warn("Failed to remove OIDC user from storage:", err)
       }
