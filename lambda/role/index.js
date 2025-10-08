@@ -36,13 +36,14 @@ exports.handler = async (event) => {
   if (event.body) body = JSON.parse(event.body);
   
   try {
+    /*
     if (method === 'GET') {
       const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
       const roles =
         res.Items?.map((item) => ({
           id: item.PK.S?.replace('ROLE#', ''),
-          name: item.name.S,
-          description: item.description.S,
+          name: item.name.S!,
+          description: item.description.S!,
         })) || [];
       return { 
         statusCode: 200,
@@ -51,6 +52,15 @@ exports.handler = async (event) => {
         isBase64Encoded: false,
       };
     }
+    */
+    if (method === 'GET') {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify([{ id: 'SYSTEM', name: 'SYSTEM', description: 'システム管理者' }]),
+    };
+  }
+
 
     if (method === 'POST') {
       const { id, name, description } = body;
