@@ -7,6 +7,7 @@ const {
 } = require('@aws-sdk/client-cognito-identity-provider');
 const {
   DynamoDBClient,
+  GetItemCommand,
   ScanCommand,
 } = require('@aws-sdk/client-dynamodb');
 
