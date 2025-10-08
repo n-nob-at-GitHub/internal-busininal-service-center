@@ -7,7 +7,7 @@ const {
 } = require('@aws-sdk/client-cognito-identity-provider');
 const {
   DynamoDBClient,
-  GetItemCommand
+  ScanCommand,
 } = require('@aws-sdk/client-dynamodb');
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
@@ -46,32 +46,26 @@ exports.handler = async (event) => {
   }
 
   try {
+    const roleRes = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }));
+    const roles = roleRes.Items?.map(item => ({
+      id: item.PK.S.replace('ROLE#', ''),
+      name: item.name.S
+    })) || [];
+
     if (method === 'GET') {
       const listUsersRes = await cognitoClient.send(new ListUsersCommand({ UserPoolId: USER_POOL_ID }));
-      const users = await Promise.all(
-        listUsersRes.Users.map(async (u) => 
-          {
-            const sub = u.Attributes.find(a => a.Name === 'sub')?.Value || '';
-            const email = u.Attributes.find(a => a.Name === 'email')?.Value || '';
-            const roleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || '';
-
-            let roleName = '';
-            if (roleId) {
-              const roleRes = await ddbClient.send(new GetItemCommand({
-                TableName: ROLE_TABLE,
-                Key: { PK: { S: `ROLE#${ roleId }` } }
-              }));
-              roleName = roleRes.Item?.name?.S || '';
-            }
-
-            return {
-              id: sub,
-              mail: email,
-              roleId,
-              roleName
-            };
-          })
-        );
+      const users = listUsersRes.Users.map(u => {
+        const sub = u.Attributes.find(a => a.Name === 'sub')?.Value || '';
+        const email = u.Attributes.find(a => a.Name === 'email')?.Value || '';
+        const roleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || '';
+        const roleName = roles.find(r => r.id === roleId)?.name || '';
+        return {
+          id: sub,
+          mail: email,
+          roleId: roleName,
+          roleName
+        };
+      });
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
@@ -84,13 +78,17 @@ exports.handler = async (event) => {
       if (!mail) throw new Error('メール必須');
       if (!roleId) throw new Error('roleId 必須');
 
+      const selectedRole = roles.find(r => r.name === roleId);
+      if (!selectedRole) throw new Error('無効なロールです');
+      const cognitoRoleId = selectedRole.id;
+
       const createRes = await cognitoClient.send(new AdminCreateUserCommand({
         UserPoolId: USER_POOL_ID,
         Username: mail,
         UserAttributes: [
           { Name: 'email', Value: mail },
           { Name: 'email_verified', Value: 'true' },
-          { Name: 'custom:role', Value: roleId },
+          { Name: 'custom:role', Value: cognitoRoleId },
         ],
         MessageAction: 'SUPPRESS',
       }));
@@ -108,7 +106,14 @@ exports.handler = async (event) => {
 
       const attrs = [];
       if (mail) attrs.push({ Name: 'email', Value: mail });
-      if (roleId) attrs.push({ Name: 'custom:role', Value: roleId });
+      if (roleId) {
+        const selectedRole = roles.find(r => r.name === roleId);
+        if (!selectedRole) throw new Error('無効なロールです');
+        attrs.push({
+          Name: 'custom:role',
+          Value: selectedRole.id
+        });
+      }
 
       await cognitoClient.send(new AdminUpdateUserAttributesCommand({
         UserPoolId: USER_POOL_ID,
@@ -128,7 +133,7 @@ exports.handler = async (event) => {
       await cognitoClient.send(new AdminDeleteUserCommand({ UserPoolId: USER_POOL_ID, Username: id }));
       return {
         statusCode: 200,
-        headers: CORS_HEADERS, 
+        headers: CORS_HEADERS,
         body: JSON.stringify({ id })
       };
     }
