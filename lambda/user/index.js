@@ -57,13 +57,13 @@ exports.handler = async (event) => {
       const users = listUsersRes.Users.map(u => {
         const sub = u.Attributes.find(a => a.Name === 'sub')?.Value || '';
         const email = u.Attributes.find(a => a.Name === 'email')?.Value || '';
-        const roleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || '';
-        const roleName = roles.find(r => r.id === roleId)?.name || '';
+        const cognitoRoleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || '';
+        const matchedRole = roles.find(r => r.name === cognitoRoleId);
         return {
           id: sub,
           mail: email,
-          roleId: roleName,
-          roleName
+          roleId: matchedRole?.id || '',
+          roleName: matchedRole?.name || ''
         };
       });
       return {
