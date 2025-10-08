@@ -70,14 +70,18 @@ const Users = () => {
           header: 'メール',
           muiEditTextFieldProps: {
             required: true,
-            error: !!validationErrors?.name,
-            helperText: validationErrors?.name,
+            error: !!validationErrors?.mail,
+            helperText: validationErrors?.mail,
             onFocus: () =>
               setValidationErrors({
                 ...validationErrors,
-                name: undefined,
+                mail: undefined,
               }),
           },  
+        },
+        {
+          accessorKey: 'name',
+          header: '名前',
         },
         {
           accessorKey: 'roleId',

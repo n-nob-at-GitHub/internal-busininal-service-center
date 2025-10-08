@@ -58,11 +58,13 @@ exports.handler = async (event) => {
       const users = listUsersRes.Users.map(u => {
         const sub = u.Attributes.find(a => a.Name === 'sub')?.Value || '';
         const email = u.Attributes.find(a => a.Name === 'email')?.Value || '';
+        const name = u.Attributes.find(a => a.Name === 'name')?.Value || '';
         const cognitoRoleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || '';
         const matchedRole = roles.find(r => r.name === cognitoRoleId);
         return {
           id: sub,
           mail: email,
+          name,
           roleId: matchedRole?.id || '',
           roleName: matchedRole?.name || ''
         };
@@ -93,6 +95,7 @@ exports.handler = async (event) => {
         UserAttributes: [
           { Name: 'email', Value: mail },
           { Name: 'email_verified', Value: 'true' },
+          { Name: 'name', Value: body.name || '' },
           { Name: 'custom:role', Value: roleName },
         ],
         MessageAction: 'SUPPRESS',
@@ -122,6 +125,9 @@ exports.handler = async (event) => {
           Name: 'custom:role',
           Value: roleName
         });
+      }
+      if (body.name) {
+        attrs.push({ Name: 'name', Value: body.name });
       }
 
       await cognitoClient.send(new AdminUpdateUserAttributesCommand({
