@@ -19,13 +19,21 @@ const Header = () => {
   }
   const handleJudge = (result: YesOrNo) => {
     setIsDialogOpen(false)
-    const logoutUrl = `${ window.location.origin }/`
+    const domain = `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`
+    const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!
+    const redirectUri = `${ window.location.origin }/`
+    const logoutUrl = `${ domain }/logout?client_id=${ clientId }&logout_uri=${ encodeURIComponent(redirectUri) }`
+    
     if (result === 'Yes') {
+      window.location.href = logoutUrl
+      /*
+      logout_uri を指定したものの, post_logout_redirect_uri が 付いたままだったので, ライブラリは使用しない方針に(ChatGPT先生より)
       auth.signoutRedirect({
         extraQueryParams: {
           logout_uri: logoutUrl,
         },
       })
+      */
     }
   }
 
