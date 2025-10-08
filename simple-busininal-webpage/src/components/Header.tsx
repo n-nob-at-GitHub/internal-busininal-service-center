@@ -59,9 +59,7 @@ const Header = () => {
       />
       </a>
       <div
-        style={{ fontSize: '30px', cursor: 'pointer' }}
-        onClick={ handleUserClick }
-        title='クリックでログアウト'
+        style={{ fontSize: '30px' }}
       >
         { user ? `${ user.name }@${ user.role }` : 'loading...' }
       </div>
