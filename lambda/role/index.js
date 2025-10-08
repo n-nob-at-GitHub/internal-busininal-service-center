@@ -11,9 +11,9 @@ const TABLE_NAME = process.env.TABLE_NAME || 'Role';
 
 // Common CORS Headers.
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "https://d2slubzovll4xp.cloudfront.net/",
-  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net/',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
+  'Access-Control-Allow-Headers': 'Content-Type',
 };
 
 exports.handler = async (event) => {
@@ -25,15 +25,6 @@ exports.handler = async (event) => {
   let body = {};
   if (event.body) body = JSON.parse(event.body);
   
-  // Handling preflight OPTIONS requests.
-  if (method === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: '',
-    };
-  }
-  
   try {
     if (method === 'GET') {
       const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
@@ -44,9 +35,10 @@ exports.handler = async (event) => {
           description: item.description.S,
         })) || [];
       return { 
-        statusCode: 200, 
-        headers: CORS_HEADERS, 
-        body: JSON.stringify(roles), 
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify(roles),
+        isBase64Encoded: false,
       };
     }
 
@@ -65,8 +57,9 @@ exports.handler = async (event) => {
       );
       return {
         statusCode: 200,
-        headers: CORS_HEADERS, 
+        headers: CORS_HEADERS,
         body: JSON.stringify({ id, name, description }),
+        isBase64Encoded: false,
       };
     }
 
@@ -85,9 +78,10 @@ exports.handler = async (event) => {
         })
       );
       return { 
-        statusCode: 200, 
-        headers: CORS_HEADERS, 
-        body: JSON.stringify({ id, name, description }), 
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ id, name, description }),
+        isBase64Encoded: false,
       };
     }
 
@@ -100,23 +94,26 @@ exports.handler = async (event) => {
         })
       );
       return { 
-        statusCode: 200, 
-        headers: CORS_HEADERS, 
-        body: JSON.stringify({ id }), 
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ id }),
+        isBase64Encoded: false,
       };
     }
 
     return { 
-      statusCode: 405, 
-      headers: { "Access-Control-Allow-Origin": "*" }, 
+      statusCode: 405,
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: 'Method Not Allowed',
+      isBase64Encoded: false,
     };
   } catch (err) {
     console.error(err);
     return { 
-      statusCode: 500, 
-      headers: CORS_HEADERS, 
+      statusCode: 500,
+      headers: CORS_HEADERS,
       body: JSON.stringify(err),
+      isBase64Encoded: false,
     };
   }
 };
