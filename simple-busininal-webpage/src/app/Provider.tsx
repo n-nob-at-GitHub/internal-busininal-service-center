@@ -8,25 +8,20 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from 'react-oidc-context'
-import type { UserManagerSettings } from 'oidc-client-ts'
+import { UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
 const oidcConfig: UserManagerSettings  = {
   authority: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`,
   client_id: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!,
-  redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
-  post_logout_redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
+  redirect_uri: typeof window !== 'undefined' ? `${ window.location.origin }/` : '',
+  post_logout_redirect_uri: typeof window !== 'undefined' ? `${ window.location.origin }/` : '',
   response_type: 'code',
   scope: 'openid email profile',
   automaticSilentRenew: true,
   loadUserInfo: true,
-  metadata: {
-    authorization_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/oauth2/authorize`,
-    token_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/oauth2/token`,
-    userinfo_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/oauth2/userInfo`,
-    end_session_endpoint: `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }/logout`,
-  },
+  userStore: new WebStorageStateStore({ store: window.localStorage }),
 }
 
 function makeQueryClient() {
