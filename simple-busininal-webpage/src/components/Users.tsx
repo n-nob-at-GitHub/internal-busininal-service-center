@@ -82,7 +82,10 @@ const Users = () => {
         {
           accessorKey: 'roleId',
           header: 'ロール',
-          Cell: ({ renderedCellValue }) => roles.filter((v: any) => v.id === Number(renderedCellValue)).map((v: any) => v.name),
+          Cell: ({ cell }) => {
+            const role = roles.find((v: any) => v.id === cell.getValue())
+            return role ? role.name : ''
+          },
           enableSorting: false,
           editVariant: 'select',
           editSelectOptions: roles.map((v: any) => { return { label: v.name, value: v.id } }),
@@ -297,7 +300,7 @@ function useUpdateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
-      const response = await axios.post(`${ userBaseURL }/user`, user)
+      const response = await axios.put(`${ userBaseURL }/user`, user)
       return response.data
     },
     // client side optimistic update
