@@ -14,6 +14,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net/',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
   'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Credentials': 'true',
 };
 
 exports.handler = async (event) => {
