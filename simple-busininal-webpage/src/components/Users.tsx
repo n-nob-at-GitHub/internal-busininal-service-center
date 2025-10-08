@@ -29,6 +29,10 @@ import EditIcon from '@mui/icons-material/Edit'
 import { type User } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
+const baseURL = process.env.NODE_ENV === 'production'
+  ? 'https://4skj5hqozf.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const Users = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
   const [ roles, setRoles ] = useState<any>([])
@@ -249,10 +253,7 @@ function useGetUsers() {
   return useQuery<User[]>({
     queryKey: [ 'users' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/user/`
-        : `/api/user`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ baseURL }/user`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -265,10 +266,7 @@ function useCreateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/user/`
-        : `/api/user`
-      const response = await axios.post(url, user)
+      const response = await axios.post(`${ baseURL }/user`, user)
       return response.data
     },
     // client side optimistic update
@@ -295,10 +293,7 @@ function useUpdateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/user/`
-        : `/api/user`
-      const response = await axios.put(url, user)
+      const response = await axios.post(`${ baseURL }/user`, user)
       return response.data
     },
     // client side optimistic update
@@ -318,10 +313,7 @@ function useDeleteUser() {
   return useMutation({
     mutationFn: async (user: User) => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/user/${ user.id }`
-        : `/api/user/${ user.id }`
-      await axios.delete(url)
+      await axios.delete(`${ baseURL }/user/${ user.id }`)
     },
     // client side optimistic update
     onMutate: (newUser: User) => {
@@ -333,10 +325,7 @@ function useDeleteUser() {
 }
 
 const fetchRoles: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/role/`
-    : `/api/role`
-  const res = await axios.get(url)
+  const res = await axios.get(`${ baseURL }/role`)
   return res.data
 }
 
