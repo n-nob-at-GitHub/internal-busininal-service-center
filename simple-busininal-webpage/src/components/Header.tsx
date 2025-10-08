@@ -23,18 +23,17 @@ const Header = () => {
     if (result === 'Yes') {
       try {
         await auth.removeUser()
-        await auth.signoutRedirect()
+        // await auth.signoutRedirect()
+        const domain = `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`
+        const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!
+        const redirectUri = `${ window.location.origin }/`
+        const logoutUrl = `${ domain }/logout?client_id=${ clientId }&logout_uri=${ encodeURIComponent(redirectUri) }`
+
+        window.location.href = logoutUrl
       } catch (err) {
         console.warn("Failed to remove OIDC user from storage:", err)
       }
-
       /*
-      const domain = `https://${ process.env.NEXT_PUBLIC_USER_POOL_DOMAIN }`
-      const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID!
-      const redirectUri = `${ window.location.origin }/`
-      const logoutUrl = `${ domain }/logout?client_id=${ clientId }&logout_uri=${ encodeURIComponent(redirectUri) }`
-
-      window.location.href = logoutUrl
       logout_uri を指定したものの, post_logout_redirect_uri が 付いたままだったので, ライブラリは使用しない方針に(ChatGPT先生より)
       という主張が, 正しくないように見える
       auth.signoutRedirect({
