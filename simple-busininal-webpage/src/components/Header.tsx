@@ -6,7 +6,7 @@ import { useUser } from '@/hooks/useUser'
 import { useAuth } from 'react-oidc-context'
 import ConfirmDialog from '@/app/ConfirmDialog'
 import { YesOrNo } from '@/types/YesOrNo'
-import { generateRandomString } from '@/lib/utils'
+import generateRandomString from '@/lib/utils'
 
 const Header = () => {
   const user = useUser()
