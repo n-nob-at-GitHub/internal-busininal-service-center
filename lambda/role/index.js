@@ -5,6 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
+import { v4 as uuidv4 } from 'uuid';
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 const TABLE_NAME = process.env.TABLE_NAME || 'Role';
@@ -59,22 +60,49 @@ exports.handler = async (event) => {
     }
 
     if (method === 'POST') {
-      const { id, name, description } = body;
-      await client.send(
-        new PutItemCommand({
-          TableName: TABLE_NAME,
-          Item: {
-            PK: { S: `ROLE#${id}` },
-            SK: { S: 'META' },
-            name: { S: name },
-            description: { S: description },
-          },
-        })
-      );
+      const { name, description } = body;
+      let newId;
+      let inserted = false;
+      let attempt = 0;
+      const MAX_RETRY = 5;
+
+      while (!inserted && attempt < MAX_RETRY) {
+        attempt++;
+        newId = uuidv4();
+        const PK = `ROLE#${ newId }`;
+
+        try {
+          await client.send(
+            new PutItemCommand({
+              TableName: TABLE_NAME,
+              Item: {
+                PK: { S: PK },
+                SK: { S: 'META' },
+                name: { S: name },
+                description: { S: description },
+              },
+              ConditionExpression: 'attribute_not_exists(PK)',
+            })
+          );
+          inserted = true;
+        } catch (err) {
+          if (err.name === 'ConditionalCheckFailedException') {
+            console.warn(`PK 重複発生、再試行 ${ attempt }`);
+            continue;
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      if (!inserted) {
+        throw new Error('Failed to insert unique PK after multiple attempts');
+      }
+
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ id, name, description }),
+        body: JSON.stringify({ newId, name, description }),
       };
     }
 
