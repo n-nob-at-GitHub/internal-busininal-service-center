@@ -59,6 +59,12 @@ exports.handler = async (event) => {
           name: item.name.S,
           description: item.description.S,
         })) || [];
+      roles.sort((a, b) => {
+        if (a.id < b.id) return -1;
+        if (a.id > b.id) return 1;
+        return 0;
+      });
+      
       return { 
         statusCode: 200,
         headers: CORS_HEADERS,
