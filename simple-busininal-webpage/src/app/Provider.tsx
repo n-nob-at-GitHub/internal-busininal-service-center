@@ -21,7 +21,9 @@ const oidcConfig: UserManagerSettings  = {
   scope: 'openid email profile',
   automaticSilentRenew: true,
   loadUserInfo: true,
-  // userStore: new WebStorageStateStore({ store: window.localStorage }),
+  userStore: typeof window !== 'undefined' 
+    ? new WebStorageStateStore({ store: window.localStorage }) 
+    : undefined,
 }
 
 function makeQueryClient() {
