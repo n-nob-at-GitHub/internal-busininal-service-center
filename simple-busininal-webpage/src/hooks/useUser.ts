@@ -1,7 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { jwtDecode } from 'jwt-decode'
 import { useAuth } from 'react-oidc-context'
+import { jwtDecode } from 'jwt-decode'
+
+interface UserInfo {
+  name: string
+  role: string
+}
 
 interface DecodedIdToken {
   'cognito:username'?: string
@@ -13,38 +18,39 @@ interface DecodedIdToken {
 
 export function useUser() {
   const auth = useAuth()
-  const [ user, setUser ] = useState<{ name: string, role: string } | null>(null)
-  
+  const [ user, setUser ] = useState<UserInfo | null>(null)
+
   useEffect(() => {
-    if (!auth) {
-      console.warn('Auth context is not available')
-      return
-    }
-    if (auth.isLoading) return
     if (process.env.NODE_ENV === 'development') {
       setUser({ name: 'dev-user', role: 'SYSTEM' })
       return
     }
+
+    if (!auth || auth.isLoading) return
+
     if (auth.error) {
       console.error('Auth error:', auth.error)
       setUser(null)
       return
     }
-    if (auth.user?.id_token) {
-      try {
-        const decoded = jwtDecode<DecodedIdToken>(auth.user.id_token)
-        const username =
-          decoded.name ||
-          decoded.email ||
-          decoded['cognito:username'] ||
-          'unknown'
-        const userrole = decoded['custom:role'] || 'STAFF'
 
-        setUser({ name: username, role: userrole })
-      } catch (error) {
-        console.error('Failed to decode id_token:', error)
-        setUser(null)
+    if (auth.isAuthenticated) {
+      let username = 'unknown'
+      let userrole = 'STAFF'
+
+      if (auth.user?.profile) {
+        username = String(auth.user.profile.name || auth.user.profile.email || auth.user.profile['cognito:username'] || 'unknown')
+        userrole = String(auth.user.profile['custom:role'] || 'STAFF')
+      } else if (auth.user?.id_token) {
+        try {
+          const decoded = jwtDecode<DecodedIdToken>(auth.user.id_token)
+          username = decoded.name || decoded.email || decoded['cognito:username'] || 'unknown'
+          userrole = decoded['custom:role'] || 'STAFF'
+        } catch (err) {
+          console.error('Failed to decode id_token:', err)
+        }
       }
+      setUser({ name: username, role: userrole })
     } else {
       setUser(null)
     }
