@@ -8,11 +8,11 @@ export default function RootLayout()
   return (
     <html lang='ja'>
       <body>
-        <Header />
         <Provider>
+          <Header />
           <Contents />
+          <Footer />
         </Provider>
-        <Footer />
       </body>
     </html>
   )
