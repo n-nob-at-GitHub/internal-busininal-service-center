@@ -19,11 +19,13 @@ const Header = () => {
   }
   const handleJudge = (result: YesOrNo) => {
     setIsDialogOpen(false)
-    if (window && window.location) {
-      console.log("logout redirect:", window.location.origin)
-    }
+    const logoutUrl = `${ window.location.origin }/`
     if (result === 'Yes') {
-      auth.signoutRedirect()
+      auth.signoutRedirect({
+        extraQueryParams: {
+          logout_uri: logoutUrl,
+        },
+      })
     }
   }
 
