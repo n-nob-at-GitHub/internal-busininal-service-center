@@ -3,6 +3,7 @@
 import React, { createContext, ReactNode } from 'react'
 import { AuthProvider as OidcAuthProvider, useAuth } from 'react-oidc-context'
 import { UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts'
+import { Button } from '@mui/material'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -38,21 +39,21 @@ function AuthWrapper({ children }: { children: ReactNode }) {
     return (
       <div>
         Authentication error: { auth.error.message }
-        <button onClick={ () => auth.signinRedirect() }>Retry</button>
+        <Button variant='outlined' onClick={ () => auth.signinRedirect() }>Retry</Button>
       </div>
     )
   }
 
   if (!auth.isAuthenticated) {
     if (!isProduction) {
-      return <AuthContext.Provider value={{ accessToken: 'local-dev-token' }}>{children}</AuthContext.Provider>
+      return <AuthContext.Provider value={{ accessToken: 'local-dev-token' }}>{ children }</AuthContext.Provider>
     }
 
     auth.signinRedirect()
     return <div>Redirecting to login...</div>
   }
 
-  return <AuthContext.Provider value={{ accessToken }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ accessToken }}>{ children }</AuthContext.Provider>
 }
 
 export default function AuthProviderWrapper({ children }: { children: ReactNode }) {
