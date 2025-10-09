@@ -18,7 +18,16 @@ const CORS_HEADERS = {
 };
 
 exports.handler = async (event) => {
-  const method = event.httpMethod;
+  const method = event.httpMethod || event.requestContext?.http?.method;
+  const pathParams = event.pathParameters || {};
+  let body = {};
+  try {
+    body = event.body ? JSON.parse(event.body) : {};
+  } catch {
+    console.warn('Invalid JSON:', event.body);
+  }
+
+
   try {
     if (method === 'OPTIONS') {
       return {
@@ -28,11 +37,11 @@ exports.handler = async (event) => {
       };
     }
 
-    if (method === 'GET' && event.path === '/material') {
+    if (method === 'GET' && !pathParams.id) {
       const res = await client.send(new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression: 'begins_with(PK, :p)',
-        ExpressionAttributeValues: { ':p': PREFIX },
+        ExpressionAttributeValues: { ':p': { S: PREFIX } },
       }));
       const items = res.Items?.map((i) => ({
         id: Number(i.PK.S.replace(PREFIX, '')),
@@ -49,14 +58,13 @@ exports.handler = async (event) => {
     }
 
     if (method === 'POST') {
-      const body = JSON.parse(event.body);
       const res = await client.send(new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression: 'begins_with(PK, :p)',
         ExpressionAttributeValues: { ':p': { S: PREFIX } },
         ProjectionExpression: 'PK',
       }));
-      const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.replace(PREFIX, ''))));
+      const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.S.replace(PREFIX, ''))));
       const newId = maxId + 1;
 
       await client.send(new PutItemCommand({
@@ -80,7 +88,6 @@ exports.handler = async (event) => {
     }
 
     if (method === 'PUT') {
-      const body = JSON.parse(event.body);
       if (!body.id) {
         return {
           statusCode: 400,
@@ -102,7 +109,7 @@ exports.handler = async (event) => {
 
       await client.send(new UpdateItemCommand({
         TableName: TABLE_NAME,
-        Key: { PK: `${ PREFIX }${ body.id }`, SK: 'DETAIL' },
+        Key: { PK: { S: `${ PREFIX }${ body.id }` }, SK: { S: 'DETAIL' } },
         UpdateExpression: `SET ${ updateExp.join(', ') }`,
         ExpressionAttributeNames: Object.fromEntries(Object.keys(body).filter(k => k !== 'id').map(k => [`#${ k }`, k])),
         ExpressionAttributeValues: expAttrValues,
@@ -115,11 +122,18 @@ exports.handler = async (event) => {
       };
     }
 
-    if (method === 'DELETE' && event.pathParameters?.id) {
-      const id = Number(event.pathParameters.id);
+    if (method === 'DELETE') {
+      const { id } = pathParams;
+      if (!id) {
+        return {
+          statusCode: 400,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ message: 'id is required in path' })
+        };
+      }
       await client.send(new DeleteItemCommand({
         TableName: TABLE_NAME,
-        Key: { PK: `${ PREFIX }${ id }`, SK: 'DETAIL' },
+        Key: { PK: { S: `${ PREFIX }${ id }` }, SK: { S: 'DETAIL' } },
       }));
       return {
         statusCode: 200,
