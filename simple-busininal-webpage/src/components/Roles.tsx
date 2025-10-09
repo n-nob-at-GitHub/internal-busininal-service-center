@@ -27,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { type Role } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
+import { getAccessToken } from '@/lib/utils'
 
 const baseURL = process.env.NODE_ENV === 'production'
   ? 'https://aoby2arsjj.execute-api.ap-northeast-1.amazonaws.com'
@@ -236,7 +237,15 @@ function useGetRoles() {
   return useQuery<Role[]>({
     queryKey: [ 'roles' ],
     queryFn: async () => {
-      const response = await axios.get(`${ baseURL }/role`)
+      const accessToken = getAccessToken()
+      const response = await axios.get(`${ baseURL }/role`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -249,7 +258,15 @@ function useCreateRole() {
   return useMutation({
     mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const response = await axios.post(`${ baseURL }/role`, role)
+      const accessToken = getAccessToken()
+      const response = await axios.post(`${ baseURL }/role`, role,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -276,7 +293,15 @@ function useUpdateRole() {
   return useMutation({
     mutationFn: async (role: Role): Promise<Role> => {
       // send api update request here
-      const response = await axios.put(`${ baseURL }/role`, role)
+      const accessToken = getAccessToken()
+      const response = await axios.put(`${ baseURL }/role`, role,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -296,7 +321,15 @@ function useDeleteRole() {
   return useMutation({
     mutationFn: async (role: Role) => {
       // send api update request here
-      await axios.delete(`${ baseURL }/role/${ role.id }`)
+      const accessToken = getAccessToken()
+      await axios.delete(`${ baseURL }/role/${ role.id }`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     },
     // client side optimistic update
     onMutate: (newRole: Role) => {

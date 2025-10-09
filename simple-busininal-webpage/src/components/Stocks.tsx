@@ -19,6 +19,7 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { type Stock } from '@/types/dbFunctions'
+import { getAccessToken } from '@/lib/utils'
 
 const stockBaseURL = process.env.NODE_ENV === 'production'
   ? 'https://zfa9svhlo5.execute-api.ap-northeast-1.amazonaws.com'
@@ -157,7 +158,15 @@ function useGetStocks() {
   return useQuery<Stock[]>({
     queryKey: [ 'stocks' ],
     queryFn: async () => {
-      const response = await axios.get(`${ stockBaseURL }/stock`)
+      const accessToken = getAccessToken()
+      const response = await axios.get(`${ stockBaseURL }/stock`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -165,7 +174,15 @@ function useGetStocks() {
 }
 
 const fetchMaterials: any = async () => {
-  const res = await axios.get(`${ materialBaseURL }/material`)
+  const accessToken = getAccessToken()
+  const res = await axios.get(`${ materialBaseURL }/material`,
+    {
+      headers: {
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 

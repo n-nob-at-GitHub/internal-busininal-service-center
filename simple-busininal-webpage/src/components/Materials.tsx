@@ -29,6 +29,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { type Material } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
+import { getAccessToken } from '@/lib/utils'
 
 const materialBaseURL = process.env.NODE_ENV === 'production'
   ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
@@ -363,7 +364,15 @@ function useGetMaterials() {
   return useQuery<Material[]>({
     queryKey: [ 'materials' ],
     queryFn: async () => {
-      const response = await axios.get(`${ materialBaseURL }/material`)
+      const accessToken = getAccessToken()
+      const response = await axios.get(`${ materialBaseURL }/material`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -383,7 +392,15 @@ function useCreateMaterial() {
         quantity: Number(material.quantity),
         isValid: true,
       };
-      const response = await axios.post(`${ materialBaseURL }/material`, payload)
+      const accessToken = getAccessToken()
+      const response = await axios.post(`${ materialBaseURL }/material`, payload,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -415,7 +432,15 @@ function useUpdateMaterial() {
         price: Number(material.price),
         quantity: Number(material.quantity),
       };
-      const response = await axios.put(`${ materialBaseURL }/material`, payload)
+      const accessToken = getAccessToken()
+      const response = await axios.put(`${ materialBaseURL }/material`, payload,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -435,7 +460,15 @@ function useDeleteMaterial() {
   return useMutation({
     mutationFn: async (material: Material) => {
       // send api update request here
-      await axios.delete(`${ materialBaseURL }/material/${ material.id }`)
+      const accessToken = getAccessToken()
+      await axios.delete(`${ materialBaseURL }/material/${ material.id }`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     },
     // client side optimistic update
     onMutate: (newMaterial: Material) => {
@@ -447,7 +480,15 @@ function useDeleteMaterial() {
 }
 
 const fetchManufacturers: any = async () => {
-  const res = await axios.get(`${ manufacturerBaseURL }/manufacturer`)
+  const accessToken = getAccessToken()
+  const res = await axios.get(`${ manufacturerBaseURL }/manufacturer`,
+    {
+      headers: {
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 

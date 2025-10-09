@@ -27,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { type DeliverySite } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
+import { getAccessToken } from '@/lib/utils'
 
 const baseURL = process.env.NODE_ENV === 'production'
   ? 'https://rvqu4egfwd.execute-api.ap-northeast-1.amazonaws.com'
@@ -241,7 +242,15 @@ function useGetDeliverySites() {
   return useQuery<DeliverySite[]>({
     queryKey: [ 'deliverySites' ],
     queryFn: async () => {
-      const response = await axios.get(`${ baseURL }/delivery-site`)
+      const accessToken = getAccessToken()
+      const response = await axios.get(`${ baseURL }/delivery-site`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -254,7 +263,15 @@ function useCreateDeliverySite() {
   return useMutation({
     mutationFn: async (deliverySite: DeliverySite): Promise<DeliverySite> => {
       // send api update request here
-      const response = await axios.post(`${ baseURL }/delivery-site`, deliverySite)
+      const accessToken = getAccessToken()
+      const response = await axios.post(`${ baseURL }/delivery-site`, deliverySite,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -281,7 +298,15 @@ function useUpdateDeliverySite() {
   return useMutation({
     mutationFn: async (deliverySite: DeliverySite): Promise<DeliverySite> => {
       // send api update request here
-      const response = await axios.put(`${ baseURL }/delivery-site`, deliverySite)
+      const accessToken = getAccessToken()
+      const response = await axios.put(`${ baseURL }/delivery-site`, deliverySite,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -301,7 +326,15 @@ function useDeleteDeliverySite() {
   return useMutation({
     mutationFn: async (deliverySite: DeliverySite) => {
       // send api update request here
-      await axios.delete(`${ baseURL }/delivery-site/${ deliverySite.id }`)
+      const accessToken = getAccessToken()
+      await axios.delete(`${ baseURL }/delivery-site/${ deliverySite.id }`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     },
     // client side optimistic update
     onMutate: (newDeliverySite: DeliverySite) => {

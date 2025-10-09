@@ -27,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { type Manufacturer } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
+import { getAccessToken } from '@/lib/utils'
 
 const baseURL = process.env.NODE_ENV === 'production'
   ? 'https://8whuj514nf.execute-api.ap-northeast-1.amazonaws.com'
@@ -232,7 +233,15 @@ function useGetManufacturers() {
   return useQuery<Manufacturer[]>({
     queryKey: [ 'manufacturers' ],
     queryFn: async () => {
-      const response = await axios.get(`${ baseURL }/manufacturer`)
+      const accessToken = getAccessToken()
+      const response = await axios.get(`${ baseURL }/manufacturer`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -245,7 +254,15 @@ function useCreateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.post(`${ baseURL }/manufacturer`, manufacturer)
+      const accessToken = getAccessToken()
+      const response = await axios.post(`${ baseURL }/manufacturer`, manufacturer,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -272,7 +289,15 @@ function useUpdateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.put(`${ baseURL }/manufacturer`, manufacturer)
+      const accessToken = getAccessToken()
+      const response = await axios.put(`${ baseURL }/manufacturer`, manufacturer,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -292,7 +317,15 @@ function useDeleteManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer) => {
       // send api update request here
-      await axios.delete(`${ baseURL }/manufacturer/${ manufacturer.id }`)
+      const accessToken = getAccessToken()
+      await axios.delete(`${ baseURL }/manufacturer/${ manufacturer.id }`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     },
     // client side optimistic update
     onMutate: (newManufacturer: Manufacturer) => {
