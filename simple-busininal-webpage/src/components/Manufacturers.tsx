@@ -245,7 +245,7 @@ function useCreateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.post(`${ baseURL }/manufacturer`)
+      const response = await axios.post(`${ baseURL }/manufacturer`, manufacturer)
       return response.data
     },
     // client side optimistic update
@@ -272,7 +272,7 @@ function useUpdateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const response = await axios.put(`${ baseURL }/manufacturer`)
+      const response = await axios.put(`${ baseURL }/manufacturer`, manufacturer)
       return response.data
     },
     // client side optimistic update
