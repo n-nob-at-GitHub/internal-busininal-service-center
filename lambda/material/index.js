@@ -55,6 +55,7 @@ exports.handler = async (event) => {
         fileName: i.fileName?.S || '',
         isValid: i.isValid?.BOOL ?? true,
       })) || [];
+      items.sort((a, b) => a.id - b.id);
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
@@ -75,7 +76,6 @@ exports.handler = async (event) => {
       const newItem = {
         PK: { S: `${ PREFIX }${ newId }` },
         SK: { S: 'DETAIL' },
-        id: { N: newId.toString() },
         manufacturerId: { N: body.manufacturerId?.toString() || '0' },
         code: { S: body.code || '' },
         category: { S: body.category || '' },
