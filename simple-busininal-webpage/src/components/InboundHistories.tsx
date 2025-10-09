@@ -43,6 +43,18 @@ interface Stock {
   materialName?: string
 }
 
+const inboundHistoryBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://swsuyesvr8.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const stockBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://zfa9svhlo5.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const materialBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const InboundHistories = () => {
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ stocks, setStocks ] = useState<Stock[]>([])
@@ -316,10 +328,7 @@ function useGetInboundHistories() {
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/inbound-history/`
-        : `/api/inbound-history`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ inboundHistoryBaseURL }/inbound-history`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -336,10 +345,7 @@ function useUpdateInboundHistory() {
       const payload = {
         ...inbound,
       };
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/inbound-history/`
-        : `/api/inbound-history`
-      const response = await axios.put(url, payload)
+      const response = await axios.put(`${ inboundHistoryBaseURL }/inbound-history`, payload)
       return response.data
     },
     // client side optimistic update
@@ -359,18 +365,12 @@ function useUpdateInboundHistory() {
 }
 
 const fetchMaterials: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/material/`
-    : `/api/material`
-  const res = await axios.get(url)
+  const res = await axios.get(`${ materialBaseURL }/material`)
   return res.data
 }
 
 const fetchStocks: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/stock/`
-    : `/api/stock`
-  const res = await axios.get(url)
+  const res = await axios.get(`${ stockBaseURL }/stock`)
   return res.data
 }
 
