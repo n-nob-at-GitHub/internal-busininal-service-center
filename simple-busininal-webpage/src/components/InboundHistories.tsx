@@ -31,7 +31,7 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import { type Inbound } from '@/types/dbFunctions'
-import { getIdToken } from '@/lib/utils'
+import { getAccessToken } from '@/lib/utils'
 
 interface Material {
   id: number
@@ -326,14 +326,14 @@ const InboundHistories = () => {
 
 // READ hook (get inbound from api)
 function useGetInboundHistories() {
-  const idToken = getIdToken()
+  const accessToken = getAccessToken()
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
       const response = await axios.get(`${ inboundHistoryBaseURL }/inbound-history`,
         {
           headers: {
-            Authorization: idToken ? `Bearer ${ idToken }` : '',
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
             'Content-Type': 'application/json',
           },
         }
@@ -348,7 +348,7 @@ function useGetInboundHistories() {
 // UPDATE hook (put inbound in api)
 function useUpdateInboundHistory() {
   const queryClient = useQueryClient()
-  const idToken = getIdToken()
+  const accessToken = getAccessToken()
   return useMutation({
     mutationFn: async (inbound: Inbound): Promise<Inbound> => {
       // send api update request here
@@ -358,7 +358,7 @@ function useUpdateInboundHistory() {
       const response = await axios.put(`${ inboundHistoryBaseURL }/inbound-history`, payload, 
         {
           headers: {
-            Authorization: idToken ? `Bearer ${ idToken }` : '',
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
             'Content-Type': 'application/json',
           },
         }
@@ -382,11 +382,11 @@ function useUpdateInboundHistory() {
 }
 
 const fetchMaterials: any = async () => {
-  const idToken = getIdToken()
+  const accessToken = getAccessToken()
   const res = await axios.get(`${ materialBaseURL }/material`,
     {
       headers: {
-        Authorization: idToken ? `Bearer ${ idToken }` : '',
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
         'Content-Type': 'application/json',
       },
     }
@@ -395,11 +395,11 @@ const fetchMaterials: any = async () => {
 }
 
 const fetchStocks: any = async () => {
-  const idToken = getIdToken()
+  const accessToken = getAccessToken()
   const res = await axios.get(`${ stockBaseURL }/stock`,
     {
       headers: {
-        Authorization: idToken ? `Bearer ${ idToken }` : '',
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
         'Content-Type': 'application/json',
       },
     }
