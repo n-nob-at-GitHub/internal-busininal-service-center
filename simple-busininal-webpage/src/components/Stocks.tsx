@@ -20,6 +20,14 @@ import {
 } from '@tanstack/react-query'
 import { type Stock } from '@/types/dbFunctions'
 
+const stockBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://t1hoj81lsa.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const materialBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const Stocks = () => {
   const [ materials, setMaterials ] = useState<any>([])
   useEffect(() => {
@@ -149,10 +157,7 @@ function useGetStocks() {
   return useQuery<Stock[]>({
     queryKey: [ 'stocks' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/stock/`
-        : `/api/stock`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ stockBaseURL }/stock`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -160,10 +165,7 @@ function useGetStocks() {
 }
 
 const fetchMaterials: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/material/`
-    : `/api/material`
-  const res = await axios.get(url)
+  const res = await axios.get(`${ materialBaseURL }/material`)
   return res.data
 }
 
