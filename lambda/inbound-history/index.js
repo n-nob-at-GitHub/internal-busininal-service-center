@@ -22,10 +22,9 @@ const CORS_HEADERS = {
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
-  const currentUser =
-    event.requestContext?.authorizer?.claims?.name ||
-    event.requestContext?.authorizer?.claims?.['cognito:username'] ||
-    'system';
+  const claims = event.requestContext?.authorizer?.jwt?.claims;
+  const currentUser = claims?.name || claims?.['cognito:username'] || 'system';
+  console.log('1. ', claims)
   let body = {};
 
   if (event.body) {
