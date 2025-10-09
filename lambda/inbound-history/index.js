@@ -15,7 +15,7 @@ const STOCK_PREFIX = 'STOCK#';
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
