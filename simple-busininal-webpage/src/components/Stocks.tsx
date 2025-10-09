@@ -21,7 +21,7 @@ import {
 import { type Stock } from '@/types/dbFunctions'
 
 const stockBaseURL = process.env.NODE_ENV === 'production'
-  ? 'https://t1hoj81lsa.execute-api.ap-northeast-1.amazonaws.com'
+  ? 'https://zfa9svhlo5.execute-api.ap-northeast-1.amazonaws.com'
   : '/api'
 
 const materialBaseURL = process.env.NODE_ENV === 'production'
