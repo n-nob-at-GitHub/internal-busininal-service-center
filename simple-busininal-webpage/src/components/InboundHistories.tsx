@@ -354,7 +354,7 @@ function useUpdateInboundHistory() {
   return useMutation({
     mutationFn: async (inbound: Inbound): Promise<Inbound> => {
       // send api update request here
-      inbound.updatedBy = userInfo?.name!
+      inbound.updatedBy = userInfo?.name ?? 'system'
       inbound.updatedAt = new Date().toISOString()
       const payload = {
         ...inbound,
