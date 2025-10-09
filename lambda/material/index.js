@@ -1,28 +1,24 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  DynamoDBDocumentClient,
+const {
+  DynamoDBClient,
   ScanCommand,
-  PutCommand,
-  UpdateCommand,
-  DeleteCommand,
-} from '@aws-sdk/lib-dynamodb';
+  PutItemCommand,
+  UpdateItemCommand,
+  DeleteItemCommand,
+} = require('@aws-sdk/client-dynamodb');
 
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
-
+const client = new DynamoDBClient({ region: process.env.AWS_REGION });
 const TABLE_NAME = process.env.DELIVERY_SITE_TABLE || 'Material';
 const PREFIX = 'MATERIAL#';
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Credentials': 'true',
+  'Content-Type': 'application/json',
+};
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   const method = event.httpMethod;
-  const headers = {
-    'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Credentials': 'true',
-    'Content-Type': 'application/json',
-  };
-
   try {
     if (method === 'OPTIONS') {
       return {
@@ -33,7 +29,7 @@ export const handler = async (event) => {
     }
 
     if (method === 'GET' && event.path === '/material') {
-      const res = await docClient.send(new ScanCommand({
+      const res = await client.send(new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression: 'begins_with(PK, :p)',
         ExpressionAttributeValues: { ':p': PREFIX },
@@ -44,14 +40,14 @@ export const handler = async (event) => {
       }));
       return {
         statusCode: 200,
-        headers, body:
-        JSON.stringify(items)
+        headers: CORS_HEADERS,
+        body: JSON.stringify(items)
       };
     }
 
     if (method === 'POST') {
       const body = JSON.parse(event.body);
-      const res = await docClient.send(new ScanCommand({
+      const res = await client.send(new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression: 'begins_with(PK, :p)',
         ExpressionAttributeValues: { ':p': PREFIX },
@@ -60,20 +56,22 @@ export const handler = async (event) => {
       const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.replace(PREFIX, ''))));
       const newId = maxId + 1;
 
-      const newItem = {
-        PK: `${PREFIX}${newId}`,
-        SK: 'DETAIL',
-        id: newId,
-        ...body,
-      };
-      await docClient.send(new PutCommand({
+      await client.send(new PutItemCommand({
         TableName: TABLE_NAME,
-        Item: newItem,
+        Item: {
+          PK: { S: `${ PREFIX }${ newId }` },
+          SK: { S: 'DETAIL' },
+          id: { N: newId.toString() },
+          name: { S: body.name },
+          unit: { S: body.unit },
+          code: { S: body.code },
+          description: { S: body.description || '' },
+        },
       }));
 
       return {
         statusCode: 200,
-        headers,
+        headers: CORS_HEADERS,
         body: JSON.stringify(newItem)
       };
     }
@@ -83,7 +81,7 @@ export const handler = async (event) => {
       if (!body.id) {
         return {
           statusCode: 400,
-          headers,
+          headers: CORS_HEADERS,
           body: JSON.stringify({ message: 'id is required' })
         };
       }
@@ -93,11 +91,13 @@ export const handler = async (event) => {
       for (const [key, value] of Object.entries(body)) {
         if (key !== 'id') {
           updateExp.push(`#${ key } = :${ key }`);
-          expAttrValues[`:${ key }`] = value;
+          expAttrValues[`:${ key }`] = typeof value === 'number'
+            ? { N: value.toString() }
+            : { S: value };
         }
       }
 
-      await docClient.send(new UpdateCommand({
+      await client.send(new UpdateItemCommand({
         TableName: TABLE_NAME,
         Key: { PK: `${ PREFIX }${ body.id }`, SK: 'DETAIL' },
         UpdateExpression: `SET ${ updateExp.join(', ') }`,
@@ -107,21 +107,21 @@ export const handler = async (event) => {
 
       return {
         statusCode: 200,
-        headers, body:
-        JSON.stringify(body)
+        headers: CORS_HEADERS,
+        body: JSON.stringify(body)
       };
     }
 
     if (method === 'DELETE' && event.pathParameters?.id) {
       const id = Number(event.pathParameters.id);
-      await docClient.send(new DeleteCommand({
+      await client.send(new DeleteItemCommand({
         TableName: TABLE_NAME,
         Key: { PK: `${ PREFIX }${ id }`, SK: 'DETAIL' },
       }));
       return {
         statusCode: 200,
-        headers, body:
-        JSON.stringify({ id })
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ id })
       };
     }
 
