@@ -55,8 +55,6 @@ const materialBaseURL = process.env.NODE_ENV === 'production'
   ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
   : '/api'
 
-const idToken = localStorage.getItem('id_token');
-
 const InboundHistories = () => {
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ stocks, setStocks ] = useState<Stock[]>([])
@@ -327,6 +325,7 @@ const InboundHistories = () => {
 
 // READ hook (get inbound from api)
 function useGetInboundHistories() {
+  const idToken = localStorage.getItem('id_token')
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
@@ -348,6 +347,7 @@ function useGetInboundHistories() {
 // UPDATE hook (put inbound in api)
 function useUpdateInboundHistory() {
   const queryClient = useQueryClient()
+  const idToken = localStorage.getItem('id_token')
   return useMutation({
     mutationFn: async (inbound: Inbound): Promise<Inbound> => {
       // send api update request here
@@ -381,6 +381,7 @@ function useUpdateInboundHistory() {
 }
 
 const fetchMaterials: any = async () => {
+  const idToken = localStorage.getItem('id_token')
   const res = await axios.get(`${ materialBaseURL }/material`,
     {
       headers: {
@@ -393,6 +394,7 @@ const fetchMaterials: any = async () => {
 }
 
 const fetchStocks: any = async () => {
+  const idToken = localStorage.getItem('id_token')
   const res = await axios.get(`${ stockBaseURL }/stock`,
     {
       headers: {
