@@ -32,6 +32,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import { type Inbound } from '@/types/dbFunctions'
 import { getAccessToken } from '@/lib/utils'
+import { useUser } from '@/hooks/useUser'
 
 interface Material {
   id: number
@@ -349,9 +350,12 @@ function useGetInboundHistories() {
 function useUpdateInboundHistory() {
   const queryClient = useQueryClient()
   const accessToken = getAccessToken()
+  const userInfo = useUser()
   return useMutation({
     mutationFn: async (inbound: Inbound): Promise<Inbound> => {
       // send api update request here
+      inbound.updatedBy = userInfo?.name!
+      inbound.updatedAt = new Date().toISOString()
       const payload = {
         ...inbound,
       };

@@ -22,9 +22,6 @@ const CORS_HEADERS = {
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
-  const claims = event.requestContext?.authorizer?.jwt?.claims;
-  const currentUser = claims?.name || claims?.['cognito:username'] || 'system';
-  console.log('1. ', claims)
   let body = {};
 
   if (event.body) {
@@ -94,8 +91,8 @@ exports.handler = async (event) => {
           unitPrice,
           isValid,
           unit,
+          updatedBy,
         } = item;
-        const updatedBy = currentUser;
 
         if (!id || !stockId) {
           throw new Error('id または stockId が不足しています');
