@@ -31,6 +31,7 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import { type Inbound } from '@/types/dbFunctions'
+import { getIdToken } from '@/lib/utils'
 
 interface Material {
   id: number
@@ -325,7 +326,7 @@ const InboundHistories = () => {
 
 // READ hook (get inbound from api)
 function useGetInboundHistories() {
-  const idToken = localStorage.getItem('id_token')
+  const idToken = getIdToken()
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
@@ -347,7 +348,7 @@ function useGetInboundHistories() {
 // UPDATE hook (put inbound in api)
 function useUpdateInboundHistory() {
   const queryClient = useQueryClient()
-  const idToken = localStorage.getItem('id_token')
+  const idToken = getIdToken()
   return useMutation({
     mutationFn: async (inbound: Inbound): Promise<Inbound> => {
       // send api update request here
@@ -381,7 +382,7 @@ function useUpdateInboundHistory() {
 }
 
 const fetchMaterials: any = async () => {
-  const idToken = localStorage.getItem('id_token')
+  const idToken = getIdToken()
   const res = await axios.get(`${ materialBaseURL }/material`,
     {
       headers: {
@@ -394,7 +395,7 @@ const fetchMaterials: any = async () => {
 }
 
 const fetchStocks: any = async () => {
-  const idToken = localStorage.getItem('id_token')
+  const idToken = getIdToken()
   const res = await axios.get(`${ stockBaseURL }/stock`,
     {
       headers: {
