@@ -32,7 +32,7 @@ const baseURL = process.env.NODE_ENV === 'production'
   ? 'https://aoby2arsjj.execute-api.ap-northeast-1.amazonaws.com'
   : '/api'
 
-  const Roles = () => {
+const Roles = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
 
   const columns = useMemo<MRT_ColumnDef<Role>[]>(
