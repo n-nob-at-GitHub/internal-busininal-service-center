@@ -30,6 +30,14 @@ import EditIcon from '@mui/icons-material/Edit'
 import { type Material } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
+const materialBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const manufacturerBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://8whuj514nf.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const Materials = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
   const [ manufacturers, setManufacturers ] = useState<any>([])
@@ -355,10 +363,7 @@ function useGetMaterials() {
   return useQuery<Material[]>({
     queryKey: [ 'materials' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/material/`
-        : `/api/material`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ materialBaseURL }/material`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -378,10 +383,7 @@ function useCreateMaterial() {
         quantity: Number(material.quantity),
         isValid: true,
       };
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/material/`
-        : `/api/material`
-      const response = await axios.post(url, payload)
+      const response = await axios.post(`${ materialBaseURL }/material`, payload)
       return response.data
     },
     // client side optimistic update
@@ -413,10 +415,7 @@ function useUpdateMaterial() {
         price: Number(material.price),
         quantity: Number(material.quantity),
       };
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/material/`
-        : `/api/material`
-      const response = await axios.put(url, payload)
+      const response = await axios.put(`${ materialBaseURL }/material`, payload)
       return response.data
     },
     // client side optimistic update
@@ -436,10 +435,7 @@ function useDeleteMaterial() {
   return useMutation({
     mutationFn: async (material: Material) => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/material/${ material.id }`
-        : `/api/material/${ material.id }`
-      await axios.delete(url)
+      await axios.delete(`${ materialBaseURL }/material/${ material.id }`)
     },
     // client side optimistic update
     onMutate: (newMaterial: Material) => {
@@ -451,10 +447,7 @@ function useDeleteMaterial() {
 }
 
 const fetchManufacturers: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/manufacturer/`
-    : `/api/manufacturer`
-  const res = await axios.get(url)
+  const res = await axios.get(`${ manufacturerBaseURL }/manufacturer`)
   return res.data
 }
 
