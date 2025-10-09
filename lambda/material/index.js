@@ -7,7 +7,7 @@ const {
 } = require('@aws-sdk/client-dynamodb');
 
 const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-const TABLE_NAME = process.env.DELIVERY_SITE_TABLE || 'Material';
+const TABLE_NAME = process.env.MATERIAL_TABLE || 'Material';
 const PREFIX = 'MATERIAL#';
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
@@ -34,10 +34,13 @@ exports.handler = async (event) => {
         FilterExpression: 'begins_with(PK, :p)',
         ExpressionAttributeValues: { ':p': PREFIX },
       }));
-      const items = res.Items?.map(i => ({
-        id: Number(i.PK.replace(PREFIX, '')),
-        ...i,
-      }));
+      const items = res.Items?.map((i) => ({
+        id: Number(i.PK.S.replace(PREFIX, '')),
+        name: i.name?.S,
+        unit: i.unit?.S,
+        code: i.code?.S,
+        description: i.description?.S,
+      })) || [];
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
@@ -50,7 +53,7 @@ exports.handler = async (event) => {
       const res = await client.send(new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression: 'begins_with(PK, :p)',
-        ExpressionAttributeValues: { ':p': PREFIX },
+        ExpressionAttributeValues: { ':p': { S: PREFIX } },
         ProjectionExpression: 'PK',
       }));
       const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.replace(PREFIX, ''))));
@@ -72,7 +75,7 @@ exports.handler = async (event) => {
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify(newItem)
+        body: JSON.stringify({ id: newId, ...body })
       };
     }
 
