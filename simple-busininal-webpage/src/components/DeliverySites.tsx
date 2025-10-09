@@ -28,6 +28,10 @@ import EditIcon from '@mui/icons-material/Edit'
 import { type DeliverySite } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
+const baseURL = process.env.NODE_ENV === 'production'
+  ? 'https://rvqu4egfwd.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const DeliverySites = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
 
@@ -237,10 +241,7 @@ function useGetDeliverySites() {
   return useQuery<DeliverySite[]>({
     queryKey: [ 'deliverySites' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/delivery-site/`
-        : `/api/delivery-site`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ baseURL }/delivery-site`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -253,10 +254,7 @@ function useCreateDeliverySite() {
   return useMutation({
     mutationFn: async (deliverySite: DeliverySite): Promise<DeliverySite> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/delivery-site/`
-        : `/api/delivery-site`
-      const response = await axios.post(url, deliverySite)
+      const response = await axios.post(`${ baseURL }/delivery-site`, deliverySite)
       return response.data
     },
     // client side optimistic update
@@ -283,10 +281,7 @@ function useUpdateDeliverySite() {
   return useMutation({
     mutationFn: async (deliverySite: DeliverySite): Promise<DeliverySite> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/delivery-site/`
-        : `/api/delivery-site`
-      const response = await axios.put(url, deliverySite)
+      const response = await axios.put(`${ baseURL }/delivery-site`, deliverySite)
       return response.data
     },
     // client side optimistic update
@@ -306,10 +301,7 @@ function useDeleteDeliverySite() {
   return useMutation({
     mutationFn: async (deliverySite: DeliverySite) => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/delivery-site/${ deliverySite.id }`
-        : `/api/delivery-site/${ deliverySite.id }`
-      await axios.delete(url)
+      await axios.delete(`${ baseURL }/delivery-site/${ deliverySite.id }`)
     },
     // client side optimistic update
     onMutate: (newDeliverySite: DeliverySite) => {
