@@ -52,7 +52,6 @@ exports.handler = async (event) => {
         quantity: i.quantity?.N ? Number(i.quantity.N) : null,
         unit: i.unit?.S,
         name: i.name?.S,
-        description: i.description?.S || '',
         fileName: i.fileName?.S || '',
         isValid: i.isValid?.BOOL ?? true,
       })) || [];
@@ -84,7 +83,6 @@ exports.handler = async (event) => {
         quantity: { N: body.quantity?.toString() || '0' },
         unit: { S: body.unit || '' },
         name: { S: body.name || '' },
-        description: { S: body.description || '' },
         fileName: { S: body.fileName || '' },
         isValid: { BOOL: body.isValid !== undefined ? body.isValid : true },
       };
