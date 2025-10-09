@@ -55,6 +55,8 @@ const materialBaseURL = process.env.NODE_ENV === 'production'
   ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
   : '/api'
 
+const idToken = localStorage.getItem('id_token');
+
 const InboundHistories = () => {
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ stocks, setStocks ] = useState<Stock[]>([])
@@ -328,7 +330,14 @@ function useGetInboundHistories() {
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
-      const response = await axios.get(`${ inboundHistoryBaseURL }/inbound-history`)
+      const response = await axios.get(`${ inboundHistoryBaseURL }/inbound-history`,
+        {
+          headers: {
+            Authorization: idToken ? `Bearer ${ idToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -345,7 +354,14 @@ function useUpdateInboundHistory() {
       const payload = {
         ...inbound,
       };
-      const response = await axios.put(`${ inboundHistoryBaseURL }/inbound-history`, payload)
+      const response = await axios.put(`${ inboundHistoryBaseURL }/inbound-history`, payload, 
+        {
+          headers: {
+            Authorization: idToken ? `Bearer ${ idToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -365,12 +381,26 @@ function useUpdateInboundHistory() {
 }
 
 const fetchMaterials: any = async () => {
-  const res = await axios.get(`${ materialBaseURL }/material`)
+  const res = await axios.get(`${ materialBaseURL }/material`,
+    {
+      headers: {
+        Authorization: idToken ? `Bearer ${ idToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 
 const fetchStocks: any = async () => {
-  const res = await axios.get(`${ stockBaseURL }/stock`)
+  const res = await axios.get(`${ stockBaseURL }/stock`,
+    {
+      headers: {
+        Authorization: idToken ? `Bearer ${ idToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 
