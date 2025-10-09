@@ -45,10 +45,16 @@ exports.handler = async (event) => {
       }));
       const items = res.Items?.map((i) => ({
         id: Number(i.PK.S.replace(PREFIX, '')),
-        name: i.name?.S,
-        unit: i.unit?.S,
+        manufacturerId: i.manufacturerId?.N ? Number(i.manufacturerId.N) : null,
         code: i.code?.S,
-        description: i.description?.S,
+        category: i.category?.S,
+        price: i.price?.N ? Number(i.price.N) : null,
+        quantity: i.quantity?.N ? Number(i.quantity.N) : null,
+        unit: i.unit?.S,
+        name: i.name?.S,
+        description: i.description?.S || '',
+        fileName: i.fileName?.S || '',
+        isValid: i.isValid?.BOOL ?? true,
       })) || [];
       return {
         statusCode: 200,
@@ -67,18 +73,23 @@ exports.handler = async (event) => {
       const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.S.replace(PREFIX, ''))));
       const newId = maxId + 1;
 
-      await client.send(new PutItemCommand({
-        TableName: TABLE_NAME,
-        Item: {
-          PK: { S: `${ PREFIX }${ newId }` },
-          SK: { S: 'DETAIL' },
-          id: { N: newId.toString() },
-          name: { S: body.name },
-          unit: { S: body.unit },
-          code: { S: body.code },
-          description: { S: body.description || '' },
-        },
-      }));
+      const newItem = {
+        PK: { S: `${ PREFIX }${ newId }` },
+        SK: { S: 'DETAIL' },
+        id: { N: newId.toString() },
+        manufacturerId: { N: body.manufacturerId?.toString() || '0' },
+        code: { S: body.code || '' },
+        category: { S: body.category || '' },
+        price: { N: body.price?.toString() || '0' },
+        quantity: { N: body.quantity?.toString() || '0' },
+        unit: { S: body.unit || '' },
+        name: { S: body.name || '' },
+        description: { S: body.description || '' },
+        fileName: { S: body.fileName || '' },
+        isValid: { BOOL: body.isValid !== undefined ? body.isValid : true },
+      };
+
+      await client.send(new PutItemCommand({ TableName: TABLE_NAME, Item: newItem }));
 
       return {
         statusCode: 200,
@@ -98,12 +109,16 @@ exports.handler = async (event) => {
 
       const updateExp = [];
       const expAttrValues = {};
-      for (const [key, value] of Object.entries(body)) {
+      for (const [ key, value ] of Object.entries(body)) {
         if (key !== 'id') {
           updateExp.push(`#${ key } = :${ key }`);
-          expAttrValues[`:${ key }`] = typeof value === 'number'
-            ? { N: value.toString() }
-            : { S: value };
+          if (typeof value === 'number') { 
+            expAttrValues[`:${ key }`] = { N: value.toString() };
+          } else if (typeof value === 'boolean') {
+            expAttrValues[`:${ key }`] = { BOOL: value };
+          } else {
+            expAttrValues[`:${ key }`] = { S: value };
+          }
         }
       }
 
