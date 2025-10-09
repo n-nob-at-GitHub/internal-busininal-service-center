@@ -126,7 +126,10 @@ exports.handler = async (event) => {
             TableName: STOCK_TABLE,
             Key: stockKey,
             UpdateExpression:
-              'SET totalQuantity = :q, totalAmount = :a, unit = :u, updatedAt = :ua, updatedBy = :ub',
+              'SET totalQuantity = :q, totalAmount = :a, #u = :u, updatedAt = :ua, updatedBy = :ub',
+            ExpressionAttributeNames: {
+              '#u': 'unit', // unitを予約語から保護
+            },
             ExpressionAttributeValues: {
               ':q': { N: newQuantity.toString() },
               ':a': { N: newAmount.toString() },
