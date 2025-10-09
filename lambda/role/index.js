@@ -28,8 +28,6 @@ const CORS_HEADERS = {
 
 exports.handler = async (event) => {
   console.log('Received event:', event);
-
-  // const method = event.httpMethod;
   const method = event.httpMethod || event.requestContext?.http?.method;
   const pathParams = event.pathParameters || {};
   let body = {};

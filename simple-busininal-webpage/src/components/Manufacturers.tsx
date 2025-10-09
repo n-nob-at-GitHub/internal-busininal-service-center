@@ -28,6 +28,10 @@ import EditIcon from '@mui/icons-material/Edit'
 import { type Manufacturer } from '@/types/dbFunctions'
 import useConfirmDialog  from '@/hooks/useConfirmDialog'
 
+const baseURL = process.env.NODE_ENV === 'production'
+  ? 'https://8whuj514nf.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const Manufacturers = () => {
   const [ validationErrors, setValidationErrors ] = useState<Record<string, string | undefined>>({})
 
@@ -228,10 +232,7 @@ function useGetManufacturers() {
   return useQuery<Manufacturer[]>({
     queryKey: [ 'manufacturers' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/manufacturer/`
-        : `/api/manufacturer`
-      const response = await axios.get(url)
+      const response = await axios.get(`${ baseURL }/manufacturer`)
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -244,10 +245,7 @@ function useCreateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/manufacturer/`
-        : `/api/manufacturer`
-      const response = await axios.post(url, manufacturer)
+      const response = await axios.post(`${ baseURL }/manufacturer`)
       return response.data
     },
     // client side optimistic update
@@ -274,10 +272,7 @@ function useUpdateManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer): Promise<Manufacturer> => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/manufacturer/`
-        : `/api/manufacturer`
-      const response = await axios.put(url, manufacturer)
+      const response = await axios.put(`${ baseURL }/manufacturer`)
       return response.data
     },
     // client side optimistic update
@@ -297,10 +292,7 @@ function useDeleteManufacturer() {
   return useMutation({
     mutationFn: async (manufacturer: Manufacturer) => {
       // send api update request here
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/manufacturer/${ manufacturer.id }`
-        : `/api/manufacturer/${ manufacturer.id }`
-      await axios.delete(url)
+      await axios.delete(`${ baseURL }/manufacturer/${ manufacturer.id }`)
     },
     // client side optimistic update
     onMutate: (newManufacturer: Manufacturer) => {
