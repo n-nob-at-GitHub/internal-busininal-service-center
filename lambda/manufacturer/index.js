@@ -9,15 +9,6 @@ const {
 const client = new DynamoDBClient({ region: process.env.AWS_REGION });
 const TABLE_NAME = process.env.MANUFACTURER_TABLE || 'Manufacturer';
 
-// UUID 生成
-const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
-
 // Common CORS Headers.
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
@@ -49,43 +40,42 @@ exports.handler = async (event) => {
   }
 
   try {
-    if (method === 'GET' && !pathParams.id) {
+    if (method === 'GET') {
       const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
-      const items = res.Items?.map(item => ({
-        id: item.PK.S?.replace('MANUFACTURER#', ''),
+      const manufacturers = res.Items?.map(item => ({
+        id: Number(item.PK.S?.replace('MANUFACTURER#', '')),
         name: item.name.S,
       })) || [];
+
+      manufacturers.sort((a, b) => a.id - b.id);
+
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify(items)
+        body: JSON.stringify(manufacturers)
       };
     }
 
     if (method === 'POST') {
       const { name } = body;
-      if (!name) throw new Error('name 必須');
+      if (!name) throw new Error('製造メーカー名は必須です');
 
-      let newId, inserted = false, attempt = 0;
-      const MAX_RETRY = 5;
+      const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
+      const existingIds = res.Items?.map(item => Number(item.PK.S?.replace('MANUFACTURER#', ''))) || [];
+      const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
 
-      while (!inserted && attempt < MAX_RETRY) {
-        attempt++;
-        newId = generateUUID();
-        const PK = `MANUFACTURER#${newId}`;
-        try {
-          await client.send(new PutItemCommand({
-            TableName: TABLE_NAME,
-            Item: { PK: { S: PK }, name: { S: name } },
-            ConditionExpression: 'attribute_not_exists(PK)',
-          }));
-          inserted = true;
-        } catch (err) {
-          if (err.name === 'ConditionalCheckFailedException') continue;
-          else throw err;
-        }
-      }
-      if (!inserted) throw new Error('Failed to insert unique PK after multiple attempts');
+      const PK = `MANUFACTURER#${ newId }`;
+
+      await client.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          Item: {
+            PK: { S: PK },
+            name: { S: name },
+          },
+          ConditionExpression: 'attribute_not_exists(PK)',
+        })
+      );
 
       return {
         statusCode: 200,
@@ -96,15 +86,18 @@ exports.handler = async (event) => {
 
     if (method === 'PUT') {
       const { id, name } = body;
-      if (!id || !name) throw new Error('id と name が必須です');
+      if (!id) throw new Error('id 必須');
+      if (!name) throw new Error('製造メーカー名は必須です');
 
-      await client.send(new UpdateItemCommand({
-        TableName: TABLE_NAME,
-        Key: { PK: { S: `MANUFACTURER#${id}` } },
-        UpdateExpression: 'SET #name = :name',
-        ExpressionAttributeNames: { '#name': 'name' },
-        ExpressionAttributeValues: { ':name': { S: name } },
-      }));
+      await client.send(
+        new UpdateItemCommand({
+          TableName: TABLE_NAME,
+          Key: { PK: { S: `MANUFACTURER#${ id }` } },
+          UpdateExpression: 'SET #name = :name',
+          ExpressionAttributeNames: { '#name': 'name' },
+          ExpressionAttributeValues: { ':name': { S: name } },
+        })
+      );
 
       return {
         statusCode: 200,
@@ -114,13 +107,15 @@ exports.handler = async (event) => {
     }
 
     if (method === 'DELETE') {
-      const id = pathParams.id || event.path.split('/').pop();
+      const { id } = pathParams;
       if (!id) throw new Error('id 必須');
 
-      await client.send(new DeleteItemCommand({
-        TableName: TABLE_NAME,
-        Key: { PK: { S: `MANUFACTURER#${id}` } },
-      }));
+      await client.send(
+        new DeleteItemCommand({
+          TableName: TABLE_NAME,
+          Key: { PK: { S: `MANUFACTURER#${ id }` } },
+        })
+      );
 
       return {
         statusCode: 200,
