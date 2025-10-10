@@ -327,10 +327,10 @@ const InboundHistories = () => {
 
 // READ hook (get inbound from api)
 function useGetInboundHistories() {
-  const accessToken = getAccessToken()
   return useQuery<Inbound[]>({
     queryKey: [ 'inboundHistories' ],
     queryFn: async () => {
+      const accessToken = getAccessToken()
       const response = await axios.get(`${ inboundHistoryBaseURL }/inbound-history`,
         {
           headers: {
@@ -349,11 +349,11 @@ function useGetInboundHistories() {
 // UPDATE hook (put inbound in api)
 function useUpdateInboundHistory() {
   const queryClient = useQueryClient()
-  const accessToken = getAccessToken()
-  const userInfo = useUser()
   return useMutation({
     mutationFn: async (inbound: Inbound): Promise<Inbound> => {
       // send api update request here
+      const accessToken = getAccessToken()
+      const userInfo = useUser()
       inbound.updatedBy = userInfo?.name ?? 'system'
       inbound.updatedAt = new Date().toISOString()
       const payload = {
