@@ -25,7 +25,8 @@ const CORS_HEADERS = {
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
   let body = {};
-
+  console.log('Event:', JSON.stringify(event, null, 2));
+  console.log('method:', method);
   if (event.body) {
     try {
       body = JSON.parse(event.body);
@@ -133,13 +134,6 @@ exports.handler = async (event) => {
         const newQuantity = currentQuantity + deltaQuantity;
         const newAmount = currentAmount + deltaAmount;
 
-        console.log('Updating Stock:', {
-          TableName: STOCK_TABLE,
-          Key: stockKey,
-          isValid,
-          updatedBy,
-        });
-
         await client.send(
           new UpdateItemCommand({
             TableName: STOCK_TABLE,
@@ -158,13 +152,6 @@ exports.handler = async (event) => {
             },
           })
         );
-
-        console.log('Updating Outbound:', {
-          TableName: OUTBOUND_TABLE,
-          Key: { PK: `${ OUTBOUND_PREFIX }${ id }`, SK: 'DETAIL' },
-          isValid,
-          updatedBy,
-        });
 
         await client.send(
           new UpdateItemCommand({
