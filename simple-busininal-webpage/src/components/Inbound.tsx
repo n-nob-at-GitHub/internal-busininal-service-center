@@ -62,6 +62,7 @@ const inboundStocksBaseURL = process.env.NODE_ENV === 'production'
   : '/api'
 
 const Inbound = () => {
+  const userInfo = useUser()
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ quantities, setQuantities ] = useState<Record<number, number>>({})
   const [ open, setOpen ] = useState(false)
@@ -123,8 +124,8 @@ const Inbound = () => {
           updatedBy: 'system',
         }
       })
-      createInbounds(inboundPayload),
-      queryClient.invalidateQueries({ queryKey: [ 'stocks' ] })
+      await createInbounds(inboundPayload),
+      await queryClient.invalidateQueries({ queryKey: [ 'stocks' ] })
       setOpen(false)
       setQuantities({})
     } catch (error) {
@@ -147,10 +148,12 @@ const Inbound = () => {
 
   const createInbounds: any = async (inboundPayload : any) => {
     const accessToken = getAccessToken()
-    const userInfo = useUser()
-    inboundPayload.updatedBy = userInfo?.name ?? 'system'
-    inboundPayload.updatedAt = new Date().toISOString()
-    const res = await axios.post(`${ inboundsBaseURL }/inbounds`, inboundPayload, 
+    const payload = inboundPayload.map((item: any) => ({
+      ...item,
+      updatedBy: userInfo?.name ?? 'system',
+      updatedAt: new Date().toISOString(),
+    }))
+    const res = await axios.post(`${ inboundsBaseURL }/inbounds`, payload, 
       {
         headers: {
           Authorization: accessToken ? `Bearer ${ accessToken }` : '',
@@ -163,10 +166,12 @@ const Inbound = () => {
 
   const updateStocks: any = async (stockPayload : any) => {
     const accessToken = getAccessToken()
-    const userInfo = useUser()
-    stockPayload.updatedBy = userInfo?.name ?? 'system'
-    stockPayload.updatedAt = new Date().toISOString()
-    const res = await axios.put(`${ inboundStocksBaseURL }/inbound-stocks`, stockPayload, 
+    const payload = stockPayload.map((item: any) => ({
+      ...item,
+      updatedBy: userInfo?.name ?? 'system',
+      updatedAt: new Date().toISOString(),
+    }))
+    const res = await axios.put(`${ inboundStocksBaseURL }/inbound-stocks`, payload, 
       {
         headers: {
           Authorization: accessToken ? `Bearer ${ accessToken }` : '',
