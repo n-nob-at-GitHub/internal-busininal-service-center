@@ -357,11 +357,11 @@ function useGetOutboundHistories() {
 // UPDATE hook (put outbound in api)
 function useUpdateOutboundHistory() {
   const queryClient = useQueryClient()
+  const userInfo = useUser()
   return useMutation({
     mutationFn: async (outbound: Outbound): Promise<Outbound> => {
       // send api update request here
       const accessToken = getAccessToken()
-      const userInfo = useUser()
       outbound.updatedBy = userInfo?.name ?? 'system'
       outbound.updatedAt = new Date().toISOString()
       const payload = {
