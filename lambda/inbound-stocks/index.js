@@ -1,0 +1,202 @@
+const {
+  DynamoDBClient,
+  ScanCommand,
+  GetItemCommand,
+  PutItemCommand,
+  UpdateItemCommand,
+} = require('@aws-sdk/client-dynamodb');
+const {
+  marshall, 
+  unmarshall
+} = require('@aws-sdk/util-dynamodb');
+
+const REGION = process.env.AWS_REGION || 'ap-northeast-1';
+const STOCK_TABLE = process.env.STOCK_TABLE || 'Stock';
+
+const STOCK_PREFIX = 'STOCK#';
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
+  'Access-Control-Allow-Methods': 'PUT,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Credentials': 'true',
+  'Content-Type': 'application/json',
+};
+
+const client = new DynamoDBClient({ region: REGION });
+
+async function getNextStockId() {
+  const scanParams = {
+    TableName: STOCK_TABLE,
+    ProjectionExpression: 'PK',
+    FilterExpression: 'begins_with(PK, :p)',
+    ExpressionAttributeValues: {
+      ':p': { S: STOCK_PREFIX },
+    },
+  };
+
+  const res = await client.send(new ScanCommand(scanParams));
+  const items = res.Items || [];
+  let max = 0;
+  for (const it of items) {
+    const obj = unmarshall(it);
+    if (!obj.PK) continue;
+    const pk = obj.PK;
+    const num = Number(String(pk).replace(STOCK_PREFIX, ''));
+    if (!Number.isNaN(num) && num > max) max = num;
+  }
+  return max + 1;
+}
+
+exports.handler = async (event) => {
+  const method = event.httpMethod || event.requestContext?.http?.method;
+
+    if (event.body) {
+    try {
+      body = JSON.parse(event.body);
+    } catch {
+      console.warn('Invalid JSON:', event.body);
+    }
+  }
+
+  if (method === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: CORS_HEADERS,
+      body: ''
+    };
+  }
+
+  if (method !== 'PUT') {
+    return {
+      statusCode: 405,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Method not allowed' }),
+    };
+  }
+
+  let body = null;
+  try {
+    body = event.body ? JSON.parse(event.body) : null;
+  } catch (err) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Invalid JSON' }),
+    };
+  }
+
+  const items = Array.isArray(body) ? body : (body ? [body] : []);
+  if (items.length === 0) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: '更新データがありません' }),
+    };
+  }
+
+  try {
+    const results = [];
+    let nextStockId = await getNextStockId();
+
+    for (const it of items) {
+      const stockIdFromReq = it.stockId;
+      const materialId = it.materialId;
+      const unit = it.unit ?? '';
+      const quantity = Number(it.quantity ?? 0);
+      const price = Number(it.price ?? it.unitPrice ?? 0);
+      const updatedBy = it.updatedBy ?? 'system';
+      const now = new Date().toISOString();
+
+      if (stockIdFromReq) {
+        const key = { PK: `${STOCK_PREFIX}${stockIdFromReq}`, SK: 'DETAIL' };
+        const getRes = await client.send(new GetItemCommand({
+          TableName: STOCK_TABLE,
+          Key: marshall(key),
+        }));
+
+        if (!getRes.Item) {
+          throw new Error(`Stock ${stockIdFromReq} が存在しません`);
+        }
+
+        const stockObj = unmarshall(getRes.Item);
+        const currentQuantity = Number(stockObj.totalQuantity ?? 0);
+        const currentAmount = Number(stockObj.totalAmount ?? 0);
+
+        const deltaQuantity = quantity;
+        const deltaAmount = quantity * price;
+
+        const newQuantity = currentQuantity + deltaQuantity;
+        const newAmount = currentAmount + deltaAmount;
+
+        const updateParams = {
+          TableName: STOCK_TABLE,
+          Key: marshall(key),
+          UpdateExpression: 'SET totalQuantity = :q, totalAmount = :a, #u = :u, updatedAt = :ua, updatedBy = :ub, materialId = :mid',
+          ExpressionAttributeNames: {
+            '#u': 'unit',
+          },
+          ExpressionAttributeValues: marshall({
+            ':q': newQuantity,
+            ':a': newAmount,
+            ':u': unit,
+            ':ua': now,
+            ':ub': updatedBy,
+            ':mid': materialId,
+          }),
+        };
+
+        await client.send(new UpdateItemCommand(updateParams));
+
+        results.push({
+          id: Number(stockIdFromReq),
+          materialId,
+          totalQuantity: newQuantity,
+          totalAmount: newAmount,
+        });
+      } else {
+        const newId = nextStockId++;
+        const key = { PK: `${ STOCK_PREFIX }${ newId }`, SK: 'DETAIL' };
+        const item = {
+          PK: key.PK,
+          SK: key.SK,
+          id: newId,
+          materialId: materialId,
+          totalQuantity: quantity,
+          totalAmount: quantity * price,
+          unit,
+          note: it.note ?? '',
+          createdAt: it.createdAt ?? now,
+          createdBy: it.createdBy ?? updatedBy,
+          updatedAt: it.updatedAt ?? now,
+          updatedBy,
+        };
+        const putParams = {
+          TableName: STOCK_TABLE,
+          Item: marshall(item, { removeUndefinedValues: true }),
+        };
+        await client.send(new PutItemCommand(putParams));
+
+        results.push({
+          id: newId,
+          materialId,
+          totalQuantity: item.totalQuantity,
+          totalAmount: item.totalAmount,
+        });
+      }
+      
+      return {
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify(results),
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: err.message || 'Internal error' }),
+    };
+  }
+};

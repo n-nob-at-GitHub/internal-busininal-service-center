@@ -27,6 +27,8 @@ import {
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import { getAccessToken } from '@/lib/utils'
+import { useUser } from '@/hooks/useUser'
 
 interface Material {
   id: number
@@ -46,6 +48,18 @@ interface InboundItem {
   price: number
   quantity: number
 }
+
+const materialsBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://tqfywt582f.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const inboundsBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://amftlg2t46.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const inboundStocksBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://pxwmwugy0f.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
 
 const Inbound = () => {
   const [ materials, setMaterials ] = useState<Material[]>([])
@@ -119,26 +133,47 @@ const Inbound = () => {
   }
 
   const fetchMaterials: any = async () => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/materials/`
-      : `/api/materials`
-    const res = await axios.get(url)
+    const accessToken = getAccessToken()
+    const res = await axios.get(`${ materialsBaseURL }/materials`,
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
   const createInbounds: any = async (inboundPayload : any) => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/inbounds/`
-      : `/api/inbounds`
-    const res = await axios.post(url, inboundPayload)
+    const accessToken = getAccessToken()
+    const userInfo = useUser()
+    inboundPayload.updatedBy = userInfo?.name ?? 'system'
+    inboundPayload.updatedAt = new Date().toISOString()
+    const res = await axios.post(`${ inboundsBaseURL }/inbounds`, inboundPayload, 
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
   const updateStocks: any = async (stockPayload : any) => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/inbound-stocks/`
-      : `/api/inbound-stocks`
-    const res = await axios.put(url, stockPayload)
+    const accessToken = getAccessToken()
+    const userInfo = useUser()
+    stockPayload.updatedBy = userInfo?.name ?? 'system'
+    stockPayload.updatedAt = new Date().toISOString()
+    const res = await axios.put(`${ inboundStocksBaseURL }/inbound-stocks`, stockPayload, 
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
