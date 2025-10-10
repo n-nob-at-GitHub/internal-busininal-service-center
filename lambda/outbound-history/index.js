@@ -152,6 +152,13 @@ exports.handler = async (event) => {
           })
         );
 
+        console.log('Updating Outbound:', {
+          TableName: OUTBOUND_TABLE,
+          Key: { PK: `${ OUTBOUND_PREFIX }${ id }`, SK: 'DETAIL' },
+          isValid,
+          updatedBy,
+        });
+
         await client.send(
           new UpdateItemCommand({
             TableName: OUTBOUND_TABLE,
