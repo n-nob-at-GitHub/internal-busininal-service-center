@@ -30,6 +30,8 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import { type Outbound } from '@/types/dbFunctions'
+import { getAccessToken } from '@/lib/utils'
+import { useUser } from '@/hooks/useUser'
 
 interface Material {
   id: number
@@ -47,7 +49,23 @@ interface DeliverySite {
   name: string
 }
 
-const OutboundHistories = () => {
+const outboundHistoryBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://48g6qhh030.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const stockBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://zfa9svhlo5.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const materialBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://jmwav3up55.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const deliverySiteBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://rvqu4egfwd.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+  const OutboundHistories = () => {
   const [ materials, setMaterials ] = useState<Material[]>([])
   const [ stocks, setStocks ] = useState<Stock[]>([])
   const [ deliverySites, setDeliverySites ] = useState<DeliverySite[]>([])
@@ -320,10 +338,15 @@ function useGetOutboundHistories() {
   return useQuery<Outbound[]>({
     queryKey: [ 'outboundHistories' ],
     queryFn: async () => {
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/outbound-history/`
-        : `/api/outbound-history`
-      const response = await axios.get(url)
+      const accessToken = getAccessToken()
+      const response = await axios.get(`${ outboundHistoryBaseURL }/outbound-history`,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     refetchOnWindowFocus: false,
@@ -337,13 +360,21 @@ function useUpdateOutboundHistory() {
   return useMutation({
     mutationFn: async (outbound: Outbound): Promise<Outbound> => {
       // send api update request here
+      const accessToken = getAccessToken()
+      const userInfo = useUser()
+      outbound.updatedBy = userInfo?.name ?? 'system'
+      outbound.updatedAt = new Date().toISOString()
       const payload = {
         ...outbound,
       };
-      const url = process.env.NODE_ENV === 'production'
-        ? `https://your-api-gateway-url/outbound-history/`
-        : `/api/outbound-history`
-      const response = await axios.put(url, payload)
+      const response = await axios.put(`${ outboundHistoryBaseURL }/outbound-history`, payload,
+        {
+          headers: {
+            Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       return response.data
     },
     // client side optimistic update
@@ -363,26 +394,41 @@ function useUpdateOutboundHistory() {
 }
 
 const fetchDeliverySites: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/delivery-site/`
-    : `/api/delivery-site`
-  const res = await axios.get(url)
+  const accessToken = getAccessToken()
+  const res = await axios.get(`${ deliverySiteBaseURL }/delivery-site`,
+    {
+      headers: {
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 
 const fetchMaterials: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/material/`
-    : `/api/material`
-  const res = await axios.get(url)
+  const accessToken = getAccessToken()
+  const res = await axios.get(`${ materialBaseURL }/material`,
+    {
+      headers: {
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 
 const fetchStocks: any = async () => {
-  const url = process.env.NODE_ENV === 'production'
-    ? `https://your-api-gateway-url/stock/`
-    : `/api/stock`
-  const res = await axios.get(url)
+  const accessToken = getAccessToken()
+  const res = await axios.get(`${ stockBaseURL }/stock`,
+    {
+      headers: {
+        Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+        'Content-Type': 'application/json',
+      },
+    }
+  )
   return res.data
 }
 
