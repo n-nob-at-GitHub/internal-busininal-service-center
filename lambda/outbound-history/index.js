@@ -25,8 +25,6 @@ const CORS_HEADERS = {
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
   let body = {};
-  console.log('Event:', JSON.stringify(event, null, 2));
-  console.log('method:', method);
   if (event.body) {
     try {
       body = JSON.parse(event.body);
@@ -115,7 +113,7 @@ exports.handler = async (event) => {
           throw new Error(`Stock ${ stockId } が存在しません`);
         }
 
-        const deliverySiteKey = { PK: { S: `${ DELIVERY_SITE_PREFIX }${ deliverySiteId }` }, SK: { S: 'DETAIL' } };
+        const deliverySiteKey = { PK: { S: `${ DELIVERY_SITE_PREFIX }${ deliverySiteId }` } };
         const deliverySiteData = await client.send(
           new GetItemCommand({
             TableName: DELIVERY_SITE_TABLE,
