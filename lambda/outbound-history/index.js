@@ -6,7 +6,7 @@ const {
 } = require('@aws-sdk/client-dynamodb');
 
 const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-const OUTBOUND_TABLE = process.env.OUTBOUND_TABLE || 'OutBound';
+const OUTBOUND_TABLE = process.env.OUTBOUND_TABLE || 'Outbound';
 const STOCK_TABLE = process.env.STOCK_TABLE || 'Stock';
 const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE || 'DeliverySite';
 
