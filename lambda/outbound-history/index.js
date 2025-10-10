@@ -133,6 +133,13 @@ exports.handler = async (event) => {
         const newQuantity = currentQuantity + deltaQuantity;
         const newAmount = currentAmount + deltaAmount;
 
+        console.log('Updating Stock:', {
+          TableName: STOCK_TABLE,
+          Key: stockKey,
+          isValid,
+          updatedBy,
+        });
+
         await client.send(
           new UpdateItemCommand({
             TableName: STOCK_TABLE,
