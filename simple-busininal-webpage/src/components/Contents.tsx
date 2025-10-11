@@ -34,7 +34,7 @@ interface TabPanelProps {
 
 type StockKey = '在庫一覧' | '入庫' | '出庫' | '入庫履歴' | '出庫履歴'
 type MasterKey = '資材' | '製造メーカー' | '配送先' | 'ユーザー' | 'ロール' 
-type OtherKey = 'ライセンス表示' | 'アプリ機能説明'
+type OtherKey = 'アプリ機能説明' | 'ライセンス表示'
 
 const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -97,8 +97,8 @@ const Contents = () => {
     'ロール': <Roles />,
   }
   const otherComponents: Record<OtherKey, ReactNode> = {
-    'ライセンス表示': <Licenses />,
     'アプリ機能説明': <Overview />,
+    'ライセンス表示': <Licenses />,
   }
 
   const stockMenuItems: StockKey[] = role === 'STAFF'
@@ -111,7 +111,7 @@ const Contents = () => {
       ? [ '資材', '製造メーカー', '配送先'] 
       : []
 
-  const otherMenuItems: OtherKey[] = [ 'ライセンス表示', 'アプリ機能説明' ]
+  const otherMenuItems: OtherKey[] = [ 'アプリ機能説明', 'ライセンス表示' ]
 
   const handleTabChange = (event: SyntheticEvent, newTabIndex: number) => {
     setTabIndex(newTabIndex)
