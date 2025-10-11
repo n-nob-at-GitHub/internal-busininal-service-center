@@ -85,7 +85,6 @@ exports.handler = async (event) => {
   try {
     const created = [];
     let nextId = await getNextInboundId();
-      console.log('inbounds: ', body)
 
     for (const entry of body) {
       const id = nextId++;

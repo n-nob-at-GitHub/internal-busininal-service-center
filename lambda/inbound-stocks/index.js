@@ -84,7 +84,6 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: '更新データがありません' }),
     };
   }
-  console.log('inbound-stocks: ', items)
 
   try {
     const results = [];
