@@ -11,6 +11,11 @@ import {
   Box,
   List,
   ListItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   Typography
 } from '@mui/material';
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
@@ -66,10 +71,73 @@ const StepItem = ({ children, icon }: { children: ReactNode; icon?: ReactNode })
 
 const sections = [
   {
-    key: 'permission',
-    title: '権限',
+    key: 'role',
+    title: 'ロール',
     content: (
-      <Typography>SYSTEM, ADMIN, STAFF の３種類</Typography>
+      <>
+        <Typography>３種類のロール（SYSTEM、ADMIN、STAFF）があります。</Typography>
+        <Typography>ロールごとに操作可能な機能が変わります。</Typography>
+      </>
+    ),
+  },
+  {
+    key: 'master',
+    title: 'マスタ',
+    content: (
+      <>
+        <Typography>
+          マスタは、4つの操作CRUD（Create／Read／Update／Delete）に対応してます。
+        </Typography>
+        <Typography sx={{ color: 'orange' }}>
+          但し、削除は非推奨とします。
+        </Typography>
+        <Typography variant='caption' color='text.secondary'>
+          理由としては、各マスタ間の依存関係を考慮する必要があるためです。
+          例えば、あるロールに紐づくユーザーを作成後、そのロールを削除すると、ロール無しのユーザーとなり、意図しない挙動が生じる可能性があります。
+        </Typography>
+        <Table size='small' sx={{ mt: 2, mb: 2, maxWidth: 600 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>区分</TableCell>
+              <TableCell align='center'>SYSTEM</TableCell>
+              <TableCell align='center'>ADMIN</TableCell>
+              <TableCell align='center'>STAFF</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>資材</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>✕</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>製造メーカー</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>✕</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>配送先</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>✕</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>ユーザー</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>✕</TableCell>
+              <TableCell align='center'>✕</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>ロール</TableCell>
+              <TableCell align='center'>〇</TableCell>
+              <TableCell align='center'>✕</TableCell>
+              <TableCell align='center'>✕</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </>
     ),
   },
   {
@@ -132,7 +200,7 @@ const Overview = () => {
           onChange={ handleChange(key) }
         >
           <AccordionSummary aria-controls={`${ key }-content`} id={`${ key }-header`}>
-            <Typography component="span">{ title }</Typography>
+            <Typography component='span'>{ title }</Typography>
           </AccordionSummary>
           <AccordionDetails>
             { content }
