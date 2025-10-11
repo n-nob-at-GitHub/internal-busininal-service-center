@@ -114,8 +114,12 @@ exports.handler = async (event) => {
         const deltaQuantity = quantity;
         const deltaAmount = quantity * price;
 
-        const newQuantity = currentQuantity + deltaQuantity;
-        const newAmount = currentAmount + deltaAmount;
+        const newQuantity = currentQuantity - deltaQuantity;
+        const newAmount = currentAmount - deltaAmount;
+
+        if (currentQuantity < quantity) {
+          throw new Error(`Stock ${ stockIdFromReq } の在庫が不足しています`);
+        }
 
         const updateParams = {
           TableName: STOCK_TABLE,
@@ -149,8 +153,8 @@ exports.handler = async (event) => {
           PK: key.PK,
           SK: key.SK,
           materialId: materialId,
-          totalQuantity: quantity,
-          totalAmount: quantity * price,
+          totalQuantity: -quantity,
+          totalAmount: -quantity * price,
           unit,
           note: it.note ?? '',
           createdAt: it.createdAt ?? now,

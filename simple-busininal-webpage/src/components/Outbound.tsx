@@ -31,6 +31,8 @@ import {
 import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import { getAccessToken } from '@/lib/utils'
+import { useUser } from '@/hooks/useUser'
 
 interface Material {
   id: number
@@ -52,7 +54,24 @@ interface OutboundItem {
   quantity: number
 }
 
+const materialsBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://tqfywt582f.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const outboundsBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://gsxoixvds9.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const outboundStocksBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://khp821vqq4.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
+const deliverySiteBaseURL = process.env.NODE_ENV === 'production'
+  ? 'https://rvqu4egfwd.execute-api.ap-northeast-1.amazonaws.com'
+  : '/api'
+
 const Outbound = () => {
+  const userInfo = useUser()
   const [ deliverySites, setDeliverySites ] = useState<{ id: number, name: string }[]>([])
   const [ selectedDeliverySite, setSelectedDeliverySite ] = useState<number | null>(null)
   const [ materials, setMaterials ] = useState<Material[]>([])
@@ -129,8 +148,8 @@ const Outbound = () => {
           updatedBy: 'system',
         }
       })
-      createOutbounds(outboundPayload),
-      queryClient.invalidateQueries({ queryKey: [ 'stocks' ] })
+      await createOutbounds(outboundPayload),
+      await queryClient.invalidateQueries({ queryKey: [ 'stocks' ] })
       setOpen(false)
       setQuantities({})
     } catch (error) {
@@ -139,34 +158,64 @@ const Outbound = () => {
   }
 
   const fetchDeliverySites: any = async () => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/delivery-site/`
-      : `/api/delivery-site`
-    const res = await axios.get(url)
+    const accessToken = getAccessToken()
+    const res = await axios.get(`${ deliverySiteBaseURL }/delivery-site`,
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
   const fetchMaterials: any = async () => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/materials/`
-      : `/api/materials`
-    const res = await axios.get(url)
+    const accessToken = getAccessToken()
+    const res = await axios.get(`${ materialsBaseURL }/materials`,
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
   const createOutbounds: any = async (outboundPayload : any) => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/outbounds/`
-      : `/api/outbounds`
-    const res = await axios.post(url, outboundPayload)
+    const accessToken = getAccessToken()
+    const payload = outboundPayload.map((item: any) => ({
+      ...item,
+      updatedBy: userInfo?.name ?? 'system',
+      updatedAt: new Date().toISOString(),
+    }))
+    const res = await axios.post(`${ outboundsBaseURL }/outbounds`, payload, 
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
   const updateStocks: any = async (stockPayload : any) => {
-    const url = process.env.NODE_ENV === 'production'
-      ? `https://your-api-gateway-url/outbound-stocks/`
-      : `/api/outbound-stocks`
-    const res = await axios.put(url, stockPayload)
+    const accessToken = getAccessToken()
+    const payload = stockPayload.map((item: any) => ({
+      ...item,
+      updatedBy: userInfo?.name ?? 'system',
+      updatedAt: new Date().toISOString(),
+    }))
+    const res = await axios.put(`${ outboundStocksBaseURL }/outbound-stocks`, stockPayload, 
+      {
+        headers: {
+          Authorization: accessToken ? `Bearer ${ accessToken }` : '',
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     return res.data
   }
 
