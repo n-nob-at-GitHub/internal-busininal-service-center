@@ -50,6 +50,7 @@ async function getNextStockId() {
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
+  let body = null;
 
     if (event.body) {
     try {
@@ -75,18 +76,7 @@ exports.handler = async (event) => {
     };
   }
 
-  let body = null;
-  try {
-    body = event.body ? JSON.parse(event.body) : null;
-  } catch (err) {
-    return {
-      statusCode: 400,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Invalid JSON' }),
-    };
-  }
-
-  const items = Array.isArray(body) ? body : (body ? [body] : []);
+  const items = Array.isArray(body) ? body : (body ? [ body ] : []);
   if (items.length === 0) {
     return {
       statusCode: 400,
@@ -161,7 +151,6 @@ exports.handler = async (event) => {
         const item = {
           PK: key.PK,
           SK: key.SK,
-          id: newId,
           materialId: materialId,
           totalQuantity: quantity,
           totalAmount: quantity * price,
@@ -185,13 +174,13 @@ exports.handler = async (event) => {
           totalAmount: item.totalAmount,
         });
       }
-      
-      return {
-        statusCode: 200,
-        headers: CORS_HEADERS,
-        body: JSON.stringify(results),
-      };
     }
+    
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify(results),
+    };
   } catch (err) {
     console.error(err);
     return {

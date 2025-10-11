@@ -48,6 +48,7 @@ async function getNextInboundId() {
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
+  let body = null;
 
   if (event.body) {
     try {
@@ -73,18 +74,7 @@ exports.handler = async (event) => {
     };
   }
 
-  let body = null;
-  try {
-    body = event.body ? JSON.parse(event.body) : null;
-  } catch (err) {
-    return {
-      statusCode: 400,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Invalid JSON' }),
-    };
-  }
-
-  if (!Array.isArray(body) || body.length === 0) {
+  if (!body || !Array.isArray(body) || body.length === 0) {
     return {
       statusCode: 400,
       headers: CORS_HEADERS,
@@ -102,9 +92,8 @@ exports.handler = async (event) => {
       const now = new Date().toISOString();
 
       const item = {
-        PK: `INBOUND#${id}`,
+        PK: `INBOUND#${ id }`,
         SK: 'DETAIL',
-        id: id,
         stockId: entry.stockId ?? null,
         quantity: entry.quantity ?? 0,
         unitPrice: entry.unitPrice ?? entry.price ?? 0,
@@ -134,15 +123,15 @@ exports.handler = async (event) => {
         createdAt: item.createdAt,
         createdBy: item.createdBy,
       });
-      
-      return {
-        statusCode: 201,
-        headers: CORS_HEADERS,
-        body: JSON.stringify(created),
-      };
     }
+    
+    return {
+      statusCode: 201,
+      headers: CORS_HEADERS,
+      body: JSON.stringify(created),
+    };
   } catch (err) {
-    console.error(err);
+    console.error('Error inserting inbound item:', err, { entry: body });
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
