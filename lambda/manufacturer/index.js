@@ -5,11 +5,10 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-const TABLE_NAME = process.env.MANUFACTURER_TABLE || 'Manufacturer';
-
-// Common CORS Headers.
+const MANUFACTURER_TABLE = process.env.MANUFACTURER_TABLE;
+const MANUFACTURER_PREFIX = `${ MANUFACTURER_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
@@ -17,6 +16,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
@@ -41,9 +41,9 @@ exports.handler = async (event) => {
 
   try {
     if (method === 'GET') {
-      const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
+      const res = await ddbClient.send(new ScanCommand({ TableName: MANUFACTURER_TABLE }));
       const manufacturers = res.Items?.map(item => ({
-        id: Number(item.PK.S?.replace('MANUFACTURER#', '')),
+        id: Number(item.PK.S?.replace(MANUFACTURER_PREFIX, '')),
         name: item.name.S,
       })) || [];
 
@@ -60,15 +60,15 @@ exports.handler = async (event) => {
       const { name } = body;
       if (!name) throw new Error('製造メーカー名は必須です');
 
-      const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
-      const existingIds = res.Items?.map(item => Number(item.PK.S?.replace('MANUFACTURER#', ''))) || [];
+      const res = await ddbClient.send(new ScanCommand({ TableName: MANUFACTURER_TABLE }));
+      const existingIds = res.Items?.map(item => Number(item.PK.S?.replace(MANUFACTURER_PREFIX, ''))) || [];
       const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
 
-      const PK = `MANUFACTURER#${ newId }`;
+      const PK = `${ MANUFACTURER_PREFIX }${ newId }`;
 
-      await client.send(
+      await ddbClient.send(
         new PutItemCommand({
-          TableName: TABLE_NAME,
+          TableName: MANUFACTURER_TABLE,
           Item: {
             PK: { S: PK },
             name: { S: name },
@@ -89,10 +89,10 @@ exports.handler = async (event) => {
       if (!id) throw new Error('id 必須');
       if (!name) throw new Error('製造メーカー名は必須です');
 
-      await client.send(
+      await ddbClient.send(
         new UpdateItemCommand({
-          TableName: TABLE_NAME,
-          Key: { PK: { S: `MANUFACTURER#${ id }` } },
+          TableName: MANUFACTURER_TABLE,
+          Key: { PK: { S: `${ MANUFACTURER_PREFIX }${ id }` } },
           UpdateExpression: 'SET #name = :name',
           ExpressionAttributeNames: { '#name': 'name' },
           ExpressionAttributeValues: { ':name': { S: name } },
@@ -110,10 +110,10 @@ exports.handler = async (event) => {
       const { id } = pathParams;
       if (!id) throw new Error('id 必須');
 
-      await client.send(
+      await ddbClient.send(
         new DeleteItemCommand({
-          TableName: TABLE_NAME,
-          Key: { PK: { S: `MANUFACTURER#${ id }` } },
+          TableName: MANUFACTURER_TABLE,
+          Key: { PK: { S: `${ MANUFACTURER_PREFIX }${ id }` } },
         })
       );
 
@@ -131,6 +131,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/manufacturerエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

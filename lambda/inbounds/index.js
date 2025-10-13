@@ -7,12 +7,10 @@ const {
   marshall, 
   unmarshall
 } = require('@aws-sdk/util-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const REGION = process.env.AWS_REGION || 'ap-northeast-1';
-const INBOUND_TABLE = process.env.INBOUND_TABLE || 'Inbound';
-
-const INBOUND_PREFIX = 'INBOUND#';
-
+const INBOUND_TABLE = process.env.INBOUND_TABLE;
+const INBOUND_PREFIX = `${ INBOUND_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'POST,OPTIONS',
@@ -20,8 +18,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
-
-const client = new DynamoDBClient({ region: REGION });
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 async function getNextInboundId() {
   const scanParams = {
@@ -33,7 +30,7 @@ async function getNextInboundId() {
     },
   };
 
-  const res = await client.send(new ScanCommand(scanParams));
+  const res = await ddbClient.send(new ScanCommand(scanParams));
   const items = res.Items || [];
   let max = 0;
   for (const it of items) {
@@ -91,7 +88,7 @@ exports.handler = async (event) => {
       const now = new Date().toISOString();
 
       const item = {
-        PK: `INBOUND#${ id }`,
+        PK: `${ INBOUND_PREFIX }${ id }`,
         SK: 'DETAIL',
         stockId: entry.stockId ?? null,
         quantity: entry.quantity ?? 0,
@@ -110,7 +107,7 @@ exports.handler = async (event) => {
         Item: marshall(item, { removeUndefinedValues: true }),
       };
 
-      await client.send(new PutItemCommand(putParams));
+      await ddbClient.send(new PutItemCommand(putParams));
       created.push({
         id,
         stockId: item.stockId,
@@ -131,6 +128,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error('Error inserting inbound item:', err, { entry: body });
+    await sendErrorEmail(
+      '【api/inboundsエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

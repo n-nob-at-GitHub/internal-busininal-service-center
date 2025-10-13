@@ -34,8 +34,6 @@ jobs:
             ["inbound-history"]="api-inbound-history"
             ["inbounds"]="api-inbounds"
             ["inbound-stocks"]="api-inbound-stocks"
-            ["licenses"]="api-licenses"
-            ["mail"]="api-mail"
             ["manufacturer"]="api-manufacturer"
             ["material"]="api-material"
             ["materials"]="api-materials"
@@ -56,16 +54,22 @@ jobs:
 
             # ZIP 作成
             zip_file="${dir}.zip"
-            cd lambda/$dir
-            zip -r ../../$zip_file *
-            cd ../../
-
+            temp_dir="build_$dir"
+            mkdir -p $temp_dir
+            cp -r lambda/$dir/* $temp_dir/
+            mkdir -p $temp_dir/lib
+            cp -r lambda/lib/* $temp_dir/lib/
+            cd $temp_dir
+            zip -r ../$zip_file .
+            cd ..
+            
             # Lambda 更新
             aws lambda update-function-code \
               --function-name ${LAMBDA_MAP[$dir]} \
               --zip-file fileb://$zip_file
 
             # ZIP 削除（オプション）
+            rm -rf $temp_dir
             rm $zip_file
           done
 

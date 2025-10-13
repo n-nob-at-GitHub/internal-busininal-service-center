@@ -2,11 +2,10 @@ const {
   DynamoDBClient,
   ScanCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-const TABLE_NAME = process.env.STOCK_TABLE || 'Stock';
-const PREFIX = 'STOCK#';
-
+const STOCK_TABLE = process.env.STOCK_TABLE;
+const STOCK_PREFIX = `${ STOCK_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
@@ -14,6 +13,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
@@ -38,14 +38,14 @@ exports.handler = async (event) => {
 
   try {
     if (method === 'GET' && !pathParams.id) {
-      const res = await client.send(new ScanCommand({
-        TableName: TABLE_NAME,
+      const res = await ddbClient.send(new ScanCommand({
+        TableName: STOCK_TABLE,
         FilterExpression: 'begins_with(PK, :p)',
-        ExpressionAttributeValues: { ':p': { S: PREFIX } },
+        ExpressionAttributeValues: { ':p': { S: STOCK_PREFIX } },
       }));
 
       const items = res.Items?.map(item => ({
-        id: Number(item.PK.S.replace(PREFIX, '')),
+        id: Number(item.PK.S.replace(STOCK_PREFIX, '')),
         materialId: Number(item.materialId?.N),
         totalQuantity: Number(item.totalQuantity?.N),
         totalAmount: Number(item.totalAmount?.N),
@@ -74,6 +74,10 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/stockエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

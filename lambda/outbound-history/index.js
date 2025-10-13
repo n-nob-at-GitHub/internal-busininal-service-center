@@ -4,16 +4,14 @@ const {
   UpdateItemCommand,
   GetItemCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-const OUTBOUND_TABLE = process.env.OUTBOUND_TABLE || 'Outbound';
-const STOCK_TABLE = process.env.STOCK_TABLE || 'Stock';
-const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE || 'DeliverySite';
-
-const OUTBOUND_PREFIX = 'OUTBOUND#';
-const STOCK_PREFIX = 'STOCK#';
-const DELIVERY_SITE_PREFIX = 'DELIVERYSITE#';
-
+const OUTBOUND_TABLE = process.env.INBOUND_TABLE;
+const STOCK_TABLE = process.env.STOCK_TABLE;
+const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE;
+const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE }#`;
+const STOCK_PREFIX = `${ STOCK_TABLE }#`;
+const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
@@ -21,6 +19,8 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
+
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
@@ -43,7 +43,7 @@ exports.handler = async (event) => {
 
   try {
     if (method === 'GET') {
-      const res = await client.send(new ScanCommand({
+      const res = await ddbClient.send(new ScanCommand({
         TableName: OUTBOUND_TABLE,
         FilterExpression: 'begins_with(PK, :p)',
         ExpressionAttributeValues: { ':p': { S: OUTBOUND_PREFIX } },
@@ -102,7 +102,7 @@ exports.handler = async (event) => {
         }
 
         const stockKey = { PK: { S: `${ STOCK_PREFIX }${ stockId }` }, SK: { S: 'DETAIL' } };
-        const stockData = await client.send(
+        const stockData = await ddbClient.send(
           new GetItemCommand({
             TableName: STOCK_TABLE,
             Key: stockKey
@@ -114,7 +114,7 @@ exports.handler = async (event) => {
         }
 
         const deliverySiteKey = { PK: { S: `${ DELIVERY_SITE_PREFIX }${ deliverySiteId }` } };
-        const deliverySiteData = await client.send(
+        const deliverySiteData = await ddbClient.send(
           new GetItemCommand({
             TableName: DELIVERY_SITE_TABLE,
             Key: deliverySiteKey
@@ -132,7 +132,7 @@ exports.handler = async (event) => {
         const newQuantity = currentQuantity + deltaQuantity;
         const newAmount = currentAmount + deltaAmount;
 
-        await client.send(
+        await ddbClient.send(
           new UpdateItemCommand({
             TableName: STOCK_TABLE,
             Key: stockKey,
@@ -151,7 +151,7 @@ exports.handler = async (event) => {
           })
         );
 
-        await client.send(
+        await ddbClient.send(
           new UpdateItemCommand({
             TableName: OUTBOUND_TABLE,
             Key: { PK: { S: `${ OUTBOUND_PREFIX }${ id }` }, SK: { S: 'DETAIL' } },
@@ -189,6 +189,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/outbound-historyエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

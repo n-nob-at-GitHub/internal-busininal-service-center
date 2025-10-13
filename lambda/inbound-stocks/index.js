@@ -9,12 +9,10 @@ const {
   marshall,
   unmarshall
 } = require('@aws-sdk/util-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const REGION = process.env.AWS_REGION || 'ap-northeast-1';
-const STOCK_TABLE = process.env.STOCK_TABLE || 'Stock';
-
-const STOCK_PREFIX = 'STOCK#';
-
+const STOCK_TABLE = process.env.STOCK_TABLE;
+const STOCK_PREFIX = `${ STOCK_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'PUT,OPTIONS',
@@ -22,8 +20,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
-
-const client = new DynamoDBClient({ region: REGION });
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 async function getNextStockId() {
   const scanParams = {
@@ -35,7 +32,7 @@ async function getNextStockId() {
     },
   };
 
-  const res = await client.send(new ScanCommand(scanParams));
+  const res = await ddbClient.send(new ScanCommand(scanParams));
   const items = res.Items || [];
   let max = 0;
   for (const it of items) {
@@ -98,7 +95,7 @@ exports.handler = async (event) => {
 
       if (stockIdFromReq) {
         const key = { PK: `${ STOCK_PREFIX }${ stockIdFromReq }`, SK: 'DETAIL' };
-        const getRes = await client.send(new GetItemCommand({
+        const getRes = await ddbClient.send(new GetItemCommand({
           TableName: STOCK_TABLE,
           Key: marshall(key),
         }));
@@ -134,7 +131,7 @@ exports.handler = async (event) => {
           }),
         };
 
-        await client.send(new UpdateItemCommand(updateParams));
+        await ddbClient.send(new UpdateItemCommand(updateParams));
 
         results.push({
           id: Number(stockIdFromReq),
@@ -162,7 +159,7 @@ exports.handler = async (event) => {
           TableName: STOCK_TABLE,
           Item: marshall(item, { removeUndefinedValues: true }),
         };
-        await client.send(new PutItemCommand(putParams));
+        await ddbClient.send(new PutItemCommand(putParams));
 
         results.push({
           id: newId,
@@ -180,6 +177,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/inbound-stocksエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

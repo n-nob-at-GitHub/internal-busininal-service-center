@@ -10,14 +10,10 @@ const {
   GetItemCommand,
   ScanCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
-const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
-
-const USER_POOL_ID = process.env.USER_POOL_ID || 'ap-northeast-1_ATjV25DWx';
-const ROLE_TABLE = process.env.ROLE_TABLE || 'Role';
-
-// Common CORS Headers.
+const USER_POOL_ID = process.env.USER_POOL_ID;
+const ROLE_TABLE = process.env.ROLE_TABLE;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
@@ -25,6 +21,9 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
+
+const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
@@ -160,6 +159,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【User登録エラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

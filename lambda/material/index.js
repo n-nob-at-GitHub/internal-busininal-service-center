@@ -5,10 +5,10 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-const TABLE_NAME = process.env.MATERIAL_TABLE || 'Material';
-const PREFIX = 'MATERIAL#';
+const MATERIAL_TABLE = process.env.MATERIAL_TABLE;
+const MATERIAL_PREFIX = `${ MATERIAL_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
@@ -16,6 +16,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
@@ -27,7 +28,6 @@ exports.handler = async (event) => {
     console.warn('Invalid JSON:', event.body);
   }
 
-
   try {
     if (method === 'OPTIONS') {
       return {
@@ -38,13 +38,13 @@ exports.handler = async (event) => {
     }
 
     if (method === 'GET' && !pathParams.id) {
-      const res = await client.send(new ScanCommand({
-        TableName: TABLE_NAME,
+      const res = await ddbClient.send(new ScanCommand({
+        TableName: MATERIAL_TABLE,
         FilterExpression: 'begins_with(PK, :p)',
-        ExpressionAttributeValues: { ':p': { S: PREFIX } },
+        ExpressionAttributeValues: { ':p': { S: MATERIAL_PREFIX } },
       }));
       const items = res.Items?.map((i) => ({
-        id: Number(i.PK.S.replace(PREFIX, '')),
+        id: Number(i.PK.S.replace(MATERIAL_PREFIX, '')),
         manufacturerId: i.manufacturerId?.N ? Number(i.manufacturerId.N) : null,
         code: i.code?.S,
         category: i.category?.S,
@@ -64,17 +64,17 @@ exports.handler = async (event) => {
     }
 
     if (method === 'POST') {
-      const res = await client.send(new ScanCommand({
-        TableName: TABLE_NAME,
+      const res = await ddbClient.send(new ScanCommand({
+        TableName: MATERIAL_TABLE,
         FilterExpression: 'begins_with(PK, :p)',
-        ExpressionAttributeValues: { ':p': { S: PREFIX } },
+        ExpressionAttributeValues: { ':p': { S: MATERIAL_PREFIX } },
         ProjectionExpression: 'PK',
       }));
-      const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.S.replace(PREFIX, ''))));
+      const maxId = Math.max(0, ...res.Items.map(i => Number(i.PK.S.replace(MATERIAL_PREFIX, ''))));
       const newId = maxId + 1;
 
       const newItem = {
-        PK: { S: `${ PREFIX }${ newId }` },
+        PK: { S: `${ MATERIAL_PREFIX }${ newId }` },
         SK: { S: 'DETAIL' },
         manufacturerId: { N: body.manufacturerId?.toString() || '0' },
         code: { S: body.code || '' },
@@ -87,7 +87,7 @@ exports.handler = async (event) => {
         isValid: { BOOL: body.isValid !== undefined ? body.isValid : true },
       };
 
-      await client.send(new PutItemCommand({ TableName: TABLE_NAME, Item: newItem }));
+      await ddbClient.send(new PutItemCommand({ TableName: MATERIAL_TABLE, Item: newItem }));
 
       return {
         statusCode: 200,
@@ -120,9 +120,9 @@ exports.handler = async (event) => {
         }
       }
 
-      await client.send(new UpdateItemCommand({
-        TableName: TABLE_NAME,
-        Key: { PK: { S: `${ PREFIX }${ body.id }` }, SK: { S: 'DETAIL' } },
+      await ddbClient.send(new UpdateItemCommand({
+        TableName: MATERIAL_TABLE,
+        Key: { PK: { S: `${ MATERIAL_PREFIX }${ body.id }` }, SK: { S: 'DETAIL' } },
         UpdateExpression: `SET ${ updateExp.join(', ') }`,
         ExpressionAttributeNames: Object.fromEntries(Object.keys(body).filter(k => k !== 'id').map(k => [`#${ k }`, k])),
         ExpressionAttributeValues: expAttrValues,
@@ -144,9 +144,9 @@ exports.handler = async (event) => {
           body: JSON.stringify({ message: 'id is required in path' })
         };
       }
-      await client.send(new DeleteItemCommand({
-        TableName: TABLE_NAME,
-        Key: { PK: { S: `${ PREFIX }${ id }` }, SK: { S: 'DETAIL' } },
+      await ddbClient.send(new DeleteItemCommand({
+        TableName: MATERIAL_TABLE,
+        Key: { PK: { S: `${ MATERIAL_PREFIX }${ id }` }, SK: { S: 'DETAIL' } },
       }));
       return {
         statusCode: 200,
@@ -162,6 +162,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/materialエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

@@ -5,9 +5,18 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const client = new DynamoDBClient({ region: process.env.REGION });
-const TABLE_NAME = process.env.TABLE_NAME || 'Role';
+const ROLE_TABLE = process.env.ROLE_TABLE;
+const ROLE_PREFIX = `${ ROLE_TABLE }#`;
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Credentials': 'true',
+  'Content-Type': 'application/json',
+};
+const ddbClient = new DynamoDBClient({ region: process.env.REGION });
 
 const generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -16,15 +25,6 @@ const generateUUID = () => {
     return v.toString(16);
   });
 }
-
-// Common CORS Headers.
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Credentials': 'true',
-  'Content-Type': 'application/json',
-};
 
 exports.handler = async (event) => {
   console.log('Received event:', event);
@@ -50,10 +50,10 @@ exports.handler = async (event) => {
   
   try {
     if (method === 'GET') {
-      const res = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
+      const res = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }));
       const roles =
         res.Items?.map((item) => ({
-          id: item.PK.S?.replace('ROLE#', ''),
+          id: item.PK.S?.replace(ROLE_PREFIX, ''),
           name: item.name.S,
           description: item.description.S,
         })) || [];
@@ -80,12 +80,12 @@ exports.handler = async (event) => {
       while (!inserted && attempt < MAX_RETRY) {
         attempt++;
         newId = generateUUID();
-        const PK = `ROLE#${ newId }`;
+        const PK = `${ ROLE_PREFIX }${ newId }`;
 
         try {
-          await client.send(
+          await ddbClient.send(
             new PutItemCommand({
-              TableName: TABLE_NAME,
+              TableName: ROLE_TABLE,
               Item: {
                 PK: { S: PK },
                 name: { S: name },
@@ -118,10 +118,10 @@ exports.handler = async (event) => {
 
     if (method === 'PUT') {
       const { id, name, description } = body;
-      await client.send(
+      await ddbClient.send(
         new UpdateItemCommand({
-          TableName: TABLE_NAME,
-          Key: { PK: { S: `ROLE#${id}` } },
+          TableName: ROLE_TABLE,
+          Key: { PK: { S: `${ ROLE_PREFIX }${id}` } },
           UpdateExpression: 'SET #name = :name, description = :desc',
           ExpressionAttributeNames: { '#name': 'name' },
           ExpressionAttributeValues: {
@@ -139,10 +139,10 @@ exports.handler = async (event) => {
 
     if (method === 'DELETE') {
       const { id } = pathParams;
-      await client.send(
+      await ddbClient.send(
         new DeleteItemCommand({
-          TableName: TABLE_NAME,
-          Key: { PK: { S: `ROLE#${id}` } },
+          TableName: ROLE_TABLE,
+          Key: { PK: { S: `${ ROLE_PREFIX }${id}` } },
         })
       );
       return { 
@@ -159,6 +159,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/roleエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return { 
       statusCode: 500,
       headers: CORS_HEADERS,

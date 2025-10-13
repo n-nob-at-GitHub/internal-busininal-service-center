@@ -3,15 +3,12 @@ const {
   ScanCommand,
   QueryCommand,
 } = require('@aws-sdk/client-dynamodb');
+const { sendErrorEmail } = require('../lib/sesMailer');
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION });
-
-const MATERIAL_TABLE = process.env.MATERIAL_TABLE || 'Material';
-const STOCK_TABLE = process.env.STOCK_TABLE || 'Stock';
-
-const MATERIAL_PREFIX = 'MATERIAL#';
-const STOCK_PREFIX = 'STOCK#';
-
+const MATERIAL_TABLE = process.env.MATERIAL_TABLE;
+const STOCK_TABLE = process.env.STOCK_TABLE;
+const MATERIAL_PREFIX = `${ MATERIAL_TABLE }#`;
+const STOCK_PREFIX = `${ STOCK_TABLE }#`;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,OPTIONS',
@@ -19,6 +16,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
 };
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method;
@@ -40,7 +38,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const materialRes = await client.send(
+    const materialRes = await ddbClient.send(
       new ScanCommand({
         TableName: MATERIAL_TABLE,
         FilterExpression: 'begins_with(PK, :p)',
@@ -54,7 +52,7 @@ exports.handler = async (event) => {
       materials.map(async (m) => {
         const materialId = Number(m.PK.S.replace(MATERIAL_PREFIX, ''));
 
-        const stockRes = await client.send(
+        const stockRes = await ddbClient.send(
           new QueryCommand({
             TableName: STOCK_TABLE,
             KeyConditionExpression: 'PK = :pk',
@@ -87,6 +85,10 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
+    await sendErrorEmail(
+      '【api/materialsエラー通知】',
+      `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
+    );
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

@@ -9,8 +9,12 @@ import {
   AccordionSummaryProps,
   accordionSummaryClasses,
   Box,
+  Card,
+  CardHeader,
+  CardContent,
   List,
   ListItem,
+  ListItemText,
   Table,
   TableBody,
   TableCell,
@@ -71,72 +75,138 @@ const StepItem = ({ children, icon }: { children: ReactNode; icon?: ReactNode })
 
 const sections = [
   {
-    key: 'role',
-    title: 'ロール',
+    key: 'overview',
+    title: '概要',
     content: (
       <>
-        <Typography>３種類のロール（SYSTEM、ADMIN、STAFF）があります。</Typography>
-        <Typography>ロールごとに操作可能な機能が変わります。</Typography>
-      </>
-    ),
-  },
-  {
-    key: 'master',
-    title: 'マスタ',
-    content: (
-      <>
-        <Typography>
-          マスタは、4つの操作CRUD（Create／Read／Update／Delete）に対応してます。
-        </Typography>
-        <Typography sx={{ color: 'orange' }}>
-          但し、削除は非推奨とします。
-        </Typography>
-        <Typography variant='caption' color='text.secondary'>
-          理由としては、各マスタ間の依存関係を考慮する必要があるためです。
-          例えば、あるロールに紐づくユーザーを作成後、そのロールを削除すると、ロール無しのユーザーとなり、意図しない挙動が生じる可能性があります。
-        </Typography>
-        <Table size='small' sx={{ mt: 2, mb: 2, maxWidth: 600 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell>区分</TableCell>
-              <TableCell align='center'>SYSTEM</TableCell>
-              <TableCell align='center'>ADMIN</TableCell>
-              <TableCell align='center'>STAFF</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell>資材</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>✕</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>製造メーカー</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>✕</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>配送先</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>✕</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>ユーザー</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>✕</TableCell>
-              <TableCell align='center'>✕</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>ロール</TableCell>
-              <TableCell align='center'>〇</TableCell>
-              <TableCell align='center'>✕</TableCell>
-              <TableCell align='center'>✕</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <Card sx={{ mt: 0 }}>
+            <CardHeader
+              title='ユーザー'
+              sx={{
+                bgcolor: '#f5f5f5',
+                borderBottom: '1px solid #e0e0e0',
+                py: 1
+              }}
+            />
+            <CardContent>
+              <Typography>アプリで利用可能な機能は、ユーザーの権限（ロール）ごとに異なる。</Typography>
+              <Typography>ユーザーは、ロールで、以下のように分類する。</Typography>
+              <ul>
+                <li>SYSTEM</li>
+                <li>ADMIN</li>
+                <li>STAFF</li>
+              </ul>
+              <Typography>アプリの機能は、大別して、マスタ、在庫管理である。</Typography>
+            </CardContent>
+        </Card>
+        <Card sx={{ mt: 2 }}>
+          <CardHeader
+            title='マスタ'
+            sx={{
+              bgcolor: '#f5f5f5',
+              borderBottom: '1px solid #e0e0e0',
+              py: 1
+            }}
+          />
+          <CardContent sx={{ py: 0 }}>
+            <Table size='small' sx={{ mt: 1, maxWidth: 600 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>区分</TableCell>
+                  <TableCell align='center'>SYSTEM</TableCell>
+                  <TableCell align='center'>ADMIN</TableCell>
+                  <TableCell align='center'>STAFF</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>資材</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>製造メーカー</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>配送先</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>ユーザー</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>ロール</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <Card sx={{ mt: 2 }}>
+          <CardHeader
+            title='在庫管理'
+            sx={{
+              bgcolor: '#f5f5f5',
+              borderBottom: '1px solid #e0e0e0',
+              py: 1
+            }}
+          />
+          <CardContent sx={{ py: 0 }}>
+            <Table size='small' sx={{ mt: 1, maxWidth: 600 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>区分</TableCell>
+                  <TableCell align='center'>SYSTEM</TableCell>
+                  <TableCell align='center'>ADMIN</TableCell>
+                  <TableCell align='center'>STAFF</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>在庫一覧</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>入庫</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>出庫</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>入庫履歴</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>出庫履歴</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>〇</TableCell>
+                  <TableCell align='center'>✕</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </>
     ),
   },
@@ -153,7 +223,7 @@ const sections = [
     ],
   },
   {
-    key: 'inboundCancel',
+    key: 'inbound-cancel',
     title: '入庫取消',
     steps: [
       '在庫管理 → 入庫履歴 から 入庫履歴を表示',
@@ -174,7 +244,7 @@ const sections = [
     ],
   },
   {
-    key: 'outboundCancel',
+    key: 'outbound-cancel',
     title: '出庫取消',
     steps: [
       '在庫管理 → 出庫履歴 から 出庫履歴を表示',
