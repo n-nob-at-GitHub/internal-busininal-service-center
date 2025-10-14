@@ -3,33 +3,33 @@ const {
   ScanCommand,
   UpdateItemCommand,
   GetItemCommand,
-} = require('@aws-sdk/client-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+} = require('@aws-sdk/client-dynamodb')
+const { sendNotification } = require('../lib/snsNotifier')
 
-const OUTBOUND_TABLE = process.env.INBOUND_TABLE;
-const STOCK_TABLE = process.env.STOCK_TABLE;
-const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE;
-const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE }#`;
-const STOCK_PREFIX = `${ STOCK_TABLE }#`;
-const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE }#`;
+const OUTBOUND_TABLE = process.env.INBOUND_TABLE
+const STOCK_TABLE = process.env.STOCK_TABLE
+const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE
+const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE }#`
+const STOCK_PREFIX = `${ STOCK_TABLE }#`
+const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type,Authorization',
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
-};
+}
 
-const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION })
 
 exports.handler = async (event) => {
-  const method = event.httpMethod || event.requestContext?.http?.method;
-  let body = {};
+  const method = event.httpMethod || event.requestContext?.http?.method
+  let body = {}
   if (event.body) {
     try {
-      body = JSON.parse(event.body);
+      body = JSON.parse(event.body)
     } catch {
-      console.warn('Invalid JSON:', event.body);
+      console.warn('Invalid JSON:', event.body)
     }
   }
 
@@ -38,7 +38,7 @@ exports.handler = async (event) => {
       statusCode: 204,
       headers: CORS_HEADERS,
       body: ''
-    };
+    }
   }
 
   try {
@@ -47,7 +47,7 @@ exports.handler = async (event) => {
         TableName: OUTBOUND_TABLE,
         FilterExpression: 'begins_with(PK, :p)',
         ExpressionAttributeValues: { ':p': { S: OUTBOUND_PREFIX } },
-      }));
+      }))
 
       const items = res.Items?.map((item) => ({
         id: Number(item.PK.S.replace(OUTBOUND_PREFIX, '')),
@@ -62,28 +62,28 @@ exports.handler = async (event) => {
         createdBy: item.createdBy?.S || '',
         updatedAt: item.updatedAt?.S || '',
         updatedBy: item.updatedBy?.S || '',
-      })) || [];
+      })) || []
 
-      items.sort((a, b) => a.id - b.id);
+      items.sort((a, b) => a.id - b.id)
 
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify(items),
-      };
+      }
     }
 
     if (method === 'PUT') {
-      const data = Array.isArray(body) ? body : [ body ];
+      const data = Array.isArray(body) ? body : [ body ]
       if (!data.length) {
         return {
           statusCode: 400,
           headers: CORS_HEADERS,
           body: JSON.stringify({ message: '更新データがありません' }),
-        };
+        }
       }
 
-      const results = [];
+      const results = []
 
       for (const item of data) {
         const {
@@ -95,42 +95,42 @@ exports.handler = async (event) => {
           isValid,
           unit,
           updatedBy,
-        } = item;
+        } = item
 
         if (!id || !stockId) {
-          throw new Error('id または stockId が不足しています');
+          throw new Error('id または stockId が不足しています')
         }
 
-        const stockKey = { PK: { S: `${ STOCK_PREFIX }${ stockId }` }, SK: { S: 'DETAIL' } };
+        const stockKey = { PK: { S: `${ STOCK_PREFIX }${ stockId }` }, SK: { S: 'DETAIL' } }
         const stockData = await ddbClient.send(
           new GetItemCommand({
             TableName: STOCK_TABLE,
             Key: stockKey
           })
-        );
+        )
 
         if (!stockData.Item) {
-          throw new Error(`Stock ${ stockId } が存在しません`);
+          throw new Error(`Stock ${ stockId } が存在しません`)
         }
 
-        const deliverySiteKey = { PK: { S: `${ DELIVERY_SITE_PREFIX }${ deliverySiteId }` } };
+        const deliverySiteKey = { PK: { S: `${ DELIVERY_SITE_PREFIX }${ deliverySiteId }` } }
         const deliverySiteData = await ddbClient.send(
           new GetItemCommand({
             TableName: DELIVERY_SITE_TABLE,
             Key: deliverySiteKey
           })
-        );
+        )
 
         if (!deliverySiteData.Item) {
-          throw new Error(`DeliverySite ${ deliverySiteId } が存在しません`);
+          throw new Error(`DeliverySite ${ deliverySiteId } が存在しません`)
         }
 
-        const currentQuantity = Number(stockData.Item.totalQuantity?.N ?? 0);
-        const currentAmount = Number(stockData.Item.totalAmount?.N ?? 0);
-        const deltaQuantity = isValid ? -quantity : quantity;
-        const deltaAmount = isValid ? -quantity * unitPrice : quantity * unitPrice;
-        const newQuantity = currentQuantity + deltaQuantity;
-        const newAmount = currentAmount + deltaAmount;
+        const currentQuantity = Number(stockData.Item.totalQuantity?.N ?? 0)
+        const currentAmount = Number(stockData.Item.totalAmount?.N ?? 0)
+        const deltaQuantity = isValid ? -quantity : quantity
+        const deltaAmount = isValid ? -quantity * unitPrice : quantity * unitPrice
+        const newQuantity = currentQuantity + deltaQuantity
+        const newAmount = currentAmount + deltaAmount
 
         await ddbClient.send(
           new UpdateItemCommand({
@@ -149,7 +149,7 @@ exports.handler = async (event) => {
               ':ub': { S: updatedBy },
             },
           })
-        );
+        )
 
         await ddbClient.send(
           new UpdateItemCommand({
@@ -163,7 +163,7 @@ exports.handler = async (event) => {
               ':ub': { S: updatedBy },
             },
           })
-        );
+        )
 
         results.push({
           id,
@@ -172,31 +172,31 @@ exports.handler = async (event) => {
           newQuantity,
           newAmount,
           isValid,
-        });
+        })
       }
 
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify(results),
-      };
+      }
     }
 
     return {
       statusCode: 405,
       headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Method not allowed' }),
-    };
+    }
   } catch (err) {
-    console.error(err);
-    await sendErrorEmail(
+    console.error(err)
+    await sendNotification(
       '【api/outbound-historyエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
-    );
+    )
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
       body: JSON.stringify({ message: err.message }),
-    };
+    }
   }
-};
+}
