@@ -88,7 +88,7 @@ const Users = () => {
           accessorKey: 'roleId',
           header: 'ロール',
           Cell: ({ cell }) => {
-            const role = roles.find((v: any) => v.id === cell.getValue())
+            const role = roles.find((v: any) => String(v.id) === String(cell.getValue()))
             return role ? role.name : ''
           },
           enableSorting: false,
