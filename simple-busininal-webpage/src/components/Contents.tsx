@@ -26,6 +26,15 @@ import Stocks from '@/components/Stocks'
 import Users from '@/components/Users'
 import { useUser } from '@/hooks/useUser'
 
+/**
+  The current roles are assumed to be as follows:
+  SYSTEM: "1"
+  ADMIN: "2"
+  STAFF: "3"
+  If additional roles are added, modify this file to include the possibility of changing 
+  the scope of user operations, if necessary.
+ */
+
 interface TabPanelProps {
   children?: ReactNode;
   index: number;
@@ -60,9 +69,9 @@ const a11yProps = (index: number) => {
 
 const Contents = () => {
   const user = useUser()
-  const role = process.env.NODE_ENV === 'development'
-    ? 'SYSTEM'
-    : (user as any)?.role || 'SYSTEM'
+  const roleId = process.env.NODE_ENV === 'development'
+    ? '1'
+    : (user as any)?.role || '1'
 
   const [ tabIndex, setTabIndex ] = useState(0);
   const [ stockMenu, setStockMenu ] = useState<StockKey | null>(null)
@@ -101,13 +110,13 @@ const Contents = () => {
     'ライセンス表示': <Licenses />,
   }
 
-  const stockMenuItems: StockKey[] = role === 'STAFF'
+  const stockMenuItems: StockKey[] = roleId === '3'
     ? [ '在庫一覧', '入庫', '出庫' ]
     : [ '在庫一覧', '入庫', '出庫', '入庫履歴', '出庫履歴' ]
 
-  const masterMenuItems: MasterKey[] = role === 'SYSTEM'
+  const masterMenuItems: MasterKey[] = roleId === '1'
     ? [ '資材', '製造メーカー', '配送先', 'ユーザー', 'ロール' ]
-    : role === 'ADMIN'
+    : roleId === '2'
       ? [ '資材', '製造メーカー', '配送先'] 
       : []
 
@@ -141,10 +150,10 @@ const Contents = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' textColor='secondary' indicatorColor='secondary' aria-label='basic tabs example'>
           <Tab label='在庫管理' { ...a11yProps(0) } onClick={ handleStockTabClick } />
-          { role !== 'STAFF' && (
+          { roleId !== '3' && (
             <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
           )}
-          <Tab label='その他' { ...a11yProps(role !== 'STAFF' ? 2 : 1) } onClick={ handleOtherTabClick } />
+          <Tab label='その他' { ...a11yProps(roleId !== '3' ? 2 : 1) } onClick={ handleOtherTabClick } />
         </Tabs>
       </Box>
       <Menu

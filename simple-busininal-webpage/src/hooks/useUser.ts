@@ -22,7 +22,7 @@ export function useUser() {
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      setUser({ name: 'dev-user', role: 'SYSTEM' })
+      setUser({ name: 'dev-user', role: '1' })
       return
     }
 
@@ -36,16 +36,16 @@ export function useUser() {
 
     if (auth.isAuthenticated) {
       let username = 'unknown'
-      let userrole = 'STAFF'
+      let userrole = '3'
 
       if (auth.user?.profile) {
         username = String(auth.user.profile.name || auth.user.profile.email || auth.user.profile['cognito:username'] || 'unknown')
-        userrole = String(auth.user.profile['custom:role'] || 'STAFF')
+        userrole = String(auth.user.profile['custom:role'] || '3')
       } else if (auth.user?.id_token) {
         try {
           const decoded = jwtDecode<DecodedIdToken>(auth.user.id_token)
           username = decoded.name || decoded.email || decoded['cognito:username'] || 'unknown'
-          userrole = decoded['custom:role'] || 'STAFF'
+          userrole = decoded['custom:role'] || '3'
         } catch (err) {
           console.error('Failed to decode id_token:', err)
         }
