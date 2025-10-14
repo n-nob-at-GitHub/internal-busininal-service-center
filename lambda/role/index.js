@@ -18,14 +18,6 @@ const CORS_HEADERS = {
 }
 const ddbClient = new DynamoDBClient({ region: process.env.REGION })
 
-const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
-    return v.toString(16)
-  })
-}
-
 exports.handler = async (event) => {
   console.log('Received event:', event)
   const method = event.httpMethod || event.requestContext?.http?.method
@@ -53,15 +45,11 @@ exports.handler = async (event) => {
       const res = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }))
       const roles =
         res.Items?.map((item) => ({
-          id: item.PK.S?.replace(ROLE_PREFIX, ''),
+          id: Number(item.PK.S?.replace(ROLE_PREFIX, '')),
           name: item.name.S,
           description: item.description.S,
         })) || []
-      roles.sort((a, b) => {
-        if (a.id < b.id) return -1
-        if (a.id > b.id) return 1
-        return 0
-      })
+      roles.sort((a, b) => a.id - b.id)
 
       return { 
         statusCode: 200,
@@ -72,42 +60,26 @@ exports.handler = async (event) => {
 
     if (method === 'POST') {
       const { name, description } = body
-      let newId
-      let inserted = false
-      let attempt = 0
-      const MAX_RETRY = 5
+      if (!name) throw new Error('name 必須')
+      const res = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }))
+      const maxId = Math.max(
+        0,
+        ...(res.Items?.map(i => Number(i.PK.S.replace(ROLE_PREFIX, ''))) || [])
+      );
+      const newId = maxId + 1;
+      const PK = `${ ROLE_PREFIX }${ newId }`
 
-      while (!inserted && attempt < MAX_RETRY) {
-        attempt++
-        newId = generateUUID()
-        const PK = `${ ROLE_PREFIX }${ newId }`
-
-        try {
-          await ddbClient.send(
-            new PutItemCommand({
-              TableName: ROLE_TABLE,
-              Item: {
-                PK: { S: PK },
-                name: { S: name },
-                description: { S: description },
-              },
-              ConditionExpression: 'attribute_not_exists(PK)',
-            })
-          )
-          inserted = true
-        } catch (err) {
-          if (err.name === 'ConditionalCheckFailedException') {
-            console.warn(`PK 重複発生、再試行 ${ attempt }`)
-            continue
-          } else {
-            throw err
-          }
-        }
-      }
-
-      if (!inserted) {
-        throw new Error('Failed to insert unique PK after multiple attempts')
-      }
+      await ddbClient.send(
+        new PutItemCommand({
+          TableName: ROLE_TABLE,
+          Item: {
+            PK: { S: PK },
+            name: { S: name },
+            description: { S: description || '' },
+          },
+          ConditionExpression: 'attribute_not_exists(PK)',
+        })
+      )
 
       return {
         statusCode: 200,

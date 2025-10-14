@@ -14,6 +14,7 @@ const { sendNotification } = require('./lib/snsNotifier')
 
 const USER_POOL_ID = process.env.USER_POOL_ID
 const ROLE_TABLE = process.env.ROLE_TABLE
+const ROLE_PREFIX = `${ ROLE_TABLE }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
@@ -48,13 +49,9 @@ exports.handler = async (event) => {
   try {
     const roleRes = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }))
     const roles = roleRes.Items?.map(item => ({
-      id: item.PK.S.replace('ROLE#', ''),
+      id: Number(item.PK.S.replace(ROLE_PREFIX, '')),
       name: item.name.S
     })) || []
-    await sendNotification(
-      '【api/userテスト通知】',
-      `テスト内容: ${ method }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
-    )
 
     if (method === 'GET') {
       const listUsersRes = await cognitoClient.send(new ListUsersCommand({ UserPoolId: USER_POOL_ID }))
@@ -62,13 +59,13 @@ exports.handler = async (event) => {
         const sub = u.Attributes.find(a => a.Name === 'sub')?.Value || ''
         const email = u.Attributes.find(a => a.Name === 'email')?.Value || ''
         const name = u.Attributes.find(a => a.Name === 'name')?.Value || ''
-        const cognitoRoleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || ''
-        const matchedRole = roles.find(r => r.name === cognitoRoleId)
+        const roleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || ''
+        const matchedRole = roles.find(r => r.name === Number(roleId))
         return {
           id: sub,
           mail: email,
           name,
-          roleId: matchedRole?.id || '',
+          roleId,
           roleName: matchedRole?.name || ''
         }
       })
@@ -86,7 +83,7 @@ exports.handler = async (event) => {
 
       const roleRes = await ddbClient.send(new GetItemCommand({
         TableName: ROLE_TABLE,
-        Key: { PK: { S: `ROLE#${ roleId }` } }
+        Key: { PK: { S: `${ ROLE_PREFIX }${ roleId }` } }
       }))
       const roleName = roleRes.Item?.name?.S
       if (!roleName) throw new Error('無効なロールです')
@@ -99,7 +96,7 @@ exports.handler = async (event) => {
           { Name: 'email', Value: mail },
           { Name: 'email_verified', Value: 'true' },
           { Name: 'name', Value: body.name || '' },
-          { Name: 'custom:role', Value: roleName },
+          { Name: 'custom:role', Value: `${ roleId }` },
         ],
         MessageAction: 'SUPPRESS',
       }))
@@ -113,20 +110,18 @@ exports.handler = async (event) => {
 
     if (method === 'PUT') {
       const { id, mail, roleId } = body
-      if (!id) throw new Error('id 必須')
-
       const attrs = []
       if (mail) attrs.push({ Name: 'email', Value: mail })
       if (roleId) {
         const roleRes = await ddbClient.send(new GetItemCommand({
           TableName: ROLE_TABLE,
-          Key: { PK: { S: `ROLE#${ roleId }` } }
+          Key: { PK: { S: `${ ROLE_PREFIX }${ roleId }` } }
         }))
         const roleName = roleRes.Item?.name?.S
         if (!roleName) throw new Error('無効なロールです')
         attrs.push({
           Name: 'custom:role',
-          Value: roleName
+          Value: `${ roleId }`
         })
       }
       if (body.name) {
@@ -147,7 +142,6 @@ exports.handler = async (event) => {
 
     if (method === 'DELETE') {
       const { id } = pathParams
-      if (!id) throw new Error('id 必須')
       await cognitoClient.send(new AdminDeleteUserCommand({ UserPoolId: USER_POOL_ID, Username: id }))
       return {
         statusCode: 200,
