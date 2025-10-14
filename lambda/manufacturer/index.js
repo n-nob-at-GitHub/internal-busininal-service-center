@@ -5,7 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const MANUFACTURER_TABLE = process.env.MANUFACTURER_TABLE;
 const MANUFACTURER_PREFIX = `${ MANUFACTURER_TABLE }#`;
@@ -131,7 +131,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/manufacturerエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

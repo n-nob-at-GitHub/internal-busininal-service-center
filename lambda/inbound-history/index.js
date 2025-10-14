@@ -4,7 +4,7 @@ const {
   UpdateItemCommand,
   GetItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const INBOUND_TABLE = process.env.INBOUND_TABLE;
 const STOCK_TABLE = process.env.STOCK_TABLE;
@@ -172,7 +172,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/inbound-historyエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

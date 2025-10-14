@@ -7,7 +7,7 @@ const {
   marshall,
   unmarshall
 } = require('@aws-sdk/util-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const OUTBOUND_TABLE = process.env.OUTBOUND_TABLEs;
 const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE }#`;
@@ -133,7 +133,7 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/outboundsエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

@@ -9,7 +9,7 @@ const {
   marshall,
   unmarshall
 } = require('@aws-sdk/util-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const STOCK_TABLE = process.env.STOCK_TABLE;
 const STOCK_PREFIX = `${ STOCK_TABLE }#`;
@@ -181,7 +181,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/outbound-stocksエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

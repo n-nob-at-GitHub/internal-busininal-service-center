@@ -5,7 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const MATERIAL_TABLE = process.env.MATERIAL_TABLE;
 const MATERIAL_PREFIX = `${ MATERIAL_TABLE }#`;
@@ -162,7 +162,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/materialエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

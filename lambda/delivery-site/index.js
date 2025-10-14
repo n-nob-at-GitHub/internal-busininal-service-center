@@ -5,7 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE;
 const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE }#`;
@@ -119,7 +119,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/delivery-siteエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

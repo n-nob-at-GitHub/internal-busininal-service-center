@@ -7,7 +7,7 @@ const {
   marshall, 
   unmarshall
 } = require('@aws-sdk/util-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const INBOUND_TABLE = process.env.INBOUND_TABLE;
 const INBOUND_PREFIX = `${ INBOUND_TABLE }#`;
@@ -128,7 +128,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error('Error inserting inbound item:', err, { entry: body });
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【api/inboundsエラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );

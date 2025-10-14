@@ -10,7 +10,7 @@ const {
   GetItemCommand,
   ScanCommand,
 } = require('@aws-sdk/client-dynamodb');
-const { sendErrorEmail } = require('../lib/sesMailer');
+const { sendErrorNotification } = require('../lib/snsNotifier');
 
 const USER_POOL_ID = process.env.USER_POOL_ID;
 const ROLE_TABLE = process.env.ROLE_TABLE;
@@ -159,7 +159,7 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    await sendErrorEmail(
+    await sendErrorNotification(
       '【User登録エラー通知】',
       `エラー内容: ${ err.message }\n\nスタックトレース:\n${ err.stack }\n\n入力データ:\n${ JSON.stringify(body, null, 2) }`
     );
