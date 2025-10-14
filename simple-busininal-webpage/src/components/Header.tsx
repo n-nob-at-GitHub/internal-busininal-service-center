@@ -61,7 +61,7 @@ const Header = () => {
       <div
         style={{ fontSize: '30px' }}
       >
-        { user ? `${ user.name }@${ user.role }` : 'loading...' }
+        { user ? `${ user.name }@${ user.role.name }` : 'loading...' }
       </div>
       <ConfirmDialog
         isOpen={ isDialogOpen }

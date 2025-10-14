@@ -5,7 +5,10 @@ import { jwtDecode } from 'jwt-decode'
 
 interface UserInfo {
   name: string
-  role: string
+  role: {
+    id: string,
+    name: string,
+  }
 }
 
 interface DecodedIdToken {
@@ -22,7 +25,7 @@ export function useUser() {
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      setUser({ name: 'dev-user', role: '1' })
+      setUser({ name: 'dev-user', role: {id: '1', name: 'SYSTEM'} })
       return
     }
 
@@ -36,21 +39,34 @@ export function useUser() {
 
     if (auth.isAuthenticated) {
       let username = 'unknown'
-      let userrole = '3'
+      let userrole = { id: '3', name: 'STAFF' }
 
       if (auth.user?.profile) {
         username = String(auth.user.profile.name || auth.user.profile.email || auth.user.profile['cognito:username'] || 'unknown')
-        userrole = String(auth.user.profile['custom:role'] || '3')
+        if (auth.user.profile['custom:role']) {
+          try {
+            userrole = JSON.parse(auth.user.profile['custom:role'] as string)
+          } catch {
+            userrole = { id: '3', name: 'STAFF' }
+          }
+        }
       } else if (auth.user?.id_token) {
         try {
           const decoded = jwtDecode<DecodedIdToken>(auth.user.id_token)
           username = decoded.name || decoded.email || decoded['cognito:username'] || 'unknown'
-          userrole = decoded['custom:role'] || '3'
+
+          if (decoded['custom:role']) {
+            try {
+              userrole = JSON.parse(decoded['custom:role'])
+            } catch {
+              userrole = { id: '3', name: 'STAFF' }
+            }
+          }
         } catch (err) {
           console.error('Failed to decode id_token:', err)
         }
       }
-      setUser({ name: username, role: userrole })
+      setUser({ name: username, role: { id: userrole.id, name: userrole.name } })
     } else {
       setUser(null)
     }
