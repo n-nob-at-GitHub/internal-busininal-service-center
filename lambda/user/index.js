@@ -60,7 +60,7 @@ exports.handler = async (event) => {
         const email = u.Attributes.find(a => a.Name === 'email')?.Value || ''
         const name = u.Attributes.find(a => a.Name === 'name')?.Value || ''
         const roleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || ''
-        const matchedRole = roles.find(r => r.name === Number(roleId))
+        const matchedRole = roles.find(r => String(r.id) === String(roleId))
         return {
           id: sub,
           mail: email,
