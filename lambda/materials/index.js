@@ -7,8 +7,8 @@ const { sendNotification } = require('./lib/snsNotifier')
 
 const MATERIAL_TABLE = process.env.MATERIAL_TABLE
 const STOCK_TABLE = process.env.STOCK_TABLE
-const MATERIAL_PREFIX = `${ MATERIAL_TABLE }#`
-const STOCK_PREFIX = `${ STOCK_TABLE }#`
+const MATERIAL_PREFIX = `${ MATERIAL_TABLE.toUpperCase() }#`
+const STOCK_PREFIX = `${ STOCK_TABLE.toUpperCase() }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,OPTIONS',

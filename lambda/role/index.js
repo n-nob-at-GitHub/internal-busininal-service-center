@@ -8,7 +8,7 @@ const {
 const { sendNotification } = require('./lib/snsNotifier')
 
 const ROLE_TABLE = process.env.ROLE_TABLE
-const ROLE_PREFIX = `${ ROLE_TABLE }#`
+const ROLE_PREFIX = `${ ROLE_TABLE.toUpperCase() }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',

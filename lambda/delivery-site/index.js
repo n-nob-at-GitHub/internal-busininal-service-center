@@ -8,7 +8,7 @@ const {
 const { sendNotification } = require('./lib/snsNotifier')
 
 const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE
-const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE }#`
+const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE.toUpperCase() }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',

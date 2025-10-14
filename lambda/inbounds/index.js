@@ -10,7 +10,7 @@ const {
 const { sendNotification } = require('./lib/snsNotifier')
 
 const INBOUND_TABLE = process.env.INBOUND_TABLE
-const INBOUND_PREFIX = `${ INBOUND_TABLE }#`
+const INBOUND_PREFIX = `${ INBOUND_TABLE.toUpperCase() }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'POST,OPTIONS',

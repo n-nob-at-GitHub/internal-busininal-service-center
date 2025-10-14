@@ -9,9 +9,9 @@ const { sendNotification } = require('./lib/snsNotifier')
 const OUTBOUND_TABLE = process.env.INBOUND_TABLE
 const STOCK_TABLE = process.env.STOCK_TABLE
 const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE
-const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE }#`
-const STOCK_PREFIX = `${ STOCK_TABLE }#`
-const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE }#`
+const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE.toUpperCase() }#`
+const STOCK_PREFIX = `${ STOCK_TABLE.toUpperCase() }#`
+const DELIVERY_SITE_PREFIX = `${ DELIVERY_SITE_TABLE.toUpperCase() }#`
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://d2slubzovll4xp.cloudfront.net',
   'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
