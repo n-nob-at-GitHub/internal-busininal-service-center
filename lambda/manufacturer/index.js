@@ -5,7 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const MANUFACTURER_TABLE = process.env.MANUFACTURER_TABLE
 const MANUFACTURER_PREFIX = `${ MANUFACTURER_TABLE }#`

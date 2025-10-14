@@ -2,7 +2,7 @@ const {
   DynamoDBClient,
   ScanCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const STOCK_TABLE = process.env.STOCK_TABLE
 const STOCK_PREFIX = `${ STOCK_TABLE }#`

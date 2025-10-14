@@ -5,7 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const MATERIAL_TABLE = process.env.MATERIAL_TABLE
 const MATERIAL_PREFIX = `${ MATERIAL_TABLE }#`

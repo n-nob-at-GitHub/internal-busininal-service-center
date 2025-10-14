@@ -10,7 +10,7 @@ const {
   GetItemCommand,
   ScanCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const USER_POOL_ID = process.env.USER_POOL_ID
 const ROLE_TABLE = process.env.ROLE_TABLE

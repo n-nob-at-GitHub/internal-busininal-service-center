@@ -3,7 +3,7 @@ const {
   ScanCommand,
   QueryCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const MATERIAL_TABLE = process.env.MATERIAL_TABLE
 const STOCK_TABLE = process.env.STOCK_TABLE

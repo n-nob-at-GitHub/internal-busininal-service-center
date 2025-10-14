@@ -7,7 +7,7 @@ const {
   marshall,
   unmarshall
 } = require('@aws-sdk/util-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const OUTBOUND_TABLE = process.env.OUTBOUND_TABLE
 const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE }#`

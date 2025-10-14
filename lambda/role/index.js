@@ -5,7 +5,7 @@ const {
   UpdateItemCommand,
   DeleteItemCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const ROLE_TABLE = process.env.ROLE_TABLE
 const ROLE_PREFIX = `${ ROLE_TABLE }#`

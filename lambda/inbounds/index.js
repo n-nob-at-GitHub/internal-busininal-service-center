@@ -7,7 +7,7 @@ const {
   marshall, 
   unmarshall
 } = require('@aws-sdk/util-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const INBOUND_TABLE = process.env.INBOUND_TABLE
 const INBOUND_PREFIX = `${ INBOUND_TABLE }#`

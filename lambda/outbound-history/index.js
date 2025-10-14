@@ -4,7 +4,7 @@ const {
   UpdateItemCommand,
   GetItemCommand,
 } = require('@aws-sdk/client-dynamodb')
-const { sendNotification } = require('../lib/snsNotifier')
+const { sendNotification } = require('./lib/snsNotifier')
 
 const OUTBOUND_TABLE = process.env.INBOUND_TABLE
 const STOCK_TABLE = process.env.STOCK_TABLE
