@@ -100,8 +100,14 @@ exports.handler = async (event) => {
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ id: sub, mail, roleId })
+        body: JSON.stringify({ 
+          id: sub, 
+          mail, 
+          role: JSON.stringify({ id: roleId, name: roleName }),
+          roleId
+        })
       }
+      
     }
 
     if (method === 'PUT') {
@@ -135,7 +141,12 @@ exports.handler = async (event) => {
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ id, mail, roleId })
+        body: JSON.stringify({
+          id,
+          mail,
+          role: JSON.stringify({ id: roleId, name: roleName }),
+          roleId
+        })
       }
     }
 
