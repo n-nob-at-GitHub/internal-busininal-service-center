@@ -60,6 +60,7 @@ exports.handler = async (event) => {
           mail: email,
           name,
           role: jsonRole,
+          // Although it's quite awkward, I added it to display the role name at the front end, based on the roleId.
           roleId: jsonRole.id,
         }
       })

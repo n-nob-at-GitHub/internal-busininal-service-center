@@ -90,7 +90,6 @@ const Users = () => {
           Cell: ({ cell }) => {
             const roleId = cell.getValue<string>()
             const role = roles.find((r: any) => String(r.id) === String(roleId))
-            console.log('roleId: ', roleId, ' role: ', role)
             return role?.name ?? ''
           },
           enableSorting: false,
@@ -129,8 +128,6 @@ const Users = () => {
     table,
   }) => {
     const selectedRole = roles.find((r: any) => String(r.id) === String(values.roleId))
-    console.log('handleCreateUser values: ', values)
-    console.log('handleCreateUser selectedRole: ', selectedRole)
     if (!selectedRole) {
       setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
       return;
@@ -144,7 +141,6 @@ const Users = () => {
         name: selectedRole.name,
       }
     }
-    console.log('handleCreateUser payload: ', payload)
     const newValidationErrors = validateUser(payload)
     if (Object.values(newValidationErrors).some(e => e)) {
       setValidationErrors(newValidationErrors)
@@ -319,7 +315,6 @@ function useCreateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
-      console.log('useCreateUser is called.')
       const accessToken = getAccessToken()
       const response = await axios.post(`${ userBaseURL }/user`, user,
         {
