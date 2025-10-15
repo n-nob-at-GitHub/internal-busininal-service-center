@@ -176,17 +176,6 @@ const Materials = () => {
           accessorKey: 'fileName',
           header: '画像ファイル',
         },
-        {
-          accessorKey: 'isValid',
-          header: '有効／無効',
-          Cell: ({ row }) => (
-            <Switch
-              checked={ row.original.isValid }
-              onChange={ async (e) => { await updateMaterial({ ...row.original, isValid: e.target.checked, })}}
-              color='primary'
-            />
-          ),
-        },
       ],
     [ manufacturers, validationErrors ],
   )
