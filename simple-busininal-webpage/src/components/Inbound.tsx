@@ -35,6 +35,7 @@ interface Material {
   name: string
   unit: string
   price: number
+  quantity: number
   fileName?: string
   isValid: boolean
   stockId: number
@@ -47,6 +48,7 @@ interface InboundItem {
   unit: string
   price: number
   quantity: number
+  unitPrice: number
 }
 
 const materialsBaseURL = process.env.NODE_ENV === 'production'
@@ -82,6 +84,7 @@ const Inbound = () => {
   }
 
   const handleConfirm = () => {
+    console.log(materials)
     const items = materials
       .filter((m) => quantities[m.id] && quantities[m.id] > 0)
       .map((m) => ({
@@ -91,7 +94,9 @@ const Inbound = () => {
         unit: m.unit,
         price: m.price,
         quantity: quantities[m.id],
+        unitPrice: Math.ceil(m.price / m.quantity),
       }))
+    console.log(items)
     if (items.length === 0) {
       setAlertOpen(true)
       return
@@ -109,6 +114,7 @@ const Inbound = () => {
         quantity: item.quantity,
         price: item.price,
         unit: item.unit,
+        unitPrice: item.unitPrice,
         updatedBy: 'system',
       }))
       const updatedStocks = await updateStocks(stockPayload)
@@ -117,10 +123,10 @@ const Inbound = () => {
         return {
           stockId: stockInfo?.id, // Here, stockId must exist.
           quantity: item.quantity,
-          amount: item.quantity * item.price,
+          amount: item.quantity * item.unitPrice,
           unit: item.unit,
-          createdBy: 'system',
-          updatedBy: 'system',
+          createdBy: userInfo?.name ?? 'system',
+          updatedBy: userInfo?.name ?? 'system',
         }
       })
       await createInbounds(inboundPayload),

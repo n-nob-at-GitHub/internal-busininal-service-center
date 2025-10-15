@@ -69,6 +69,7 @@ exports.handler = async (event) => {
           name: m.name.S,
           unit: m.unit.S,
           price: Number(m.price.N),
+          quantity: Number(m.quantity.N),
           fileName: m.fileName?.S || '',
           isValid: m.isValid?.BOOL ?? true,
           stockId: stock ? Number(stock.PK.S.replace(STOCK_PREFIX, '')) : null,

@@ -39,6 +39,7 @@ interface Material {
   name: string
   unit: string
   price: number
+  quantity: number
   fileName?: string
   isValid: boolean
   stockId: number
@@ -52,6 +53,7 @@ interface OutboundItem {
   unit: string
   price: number
   quantity: number
+  unitPrice: number
 }
 
 const materialsBaseURL = process.env.NODE_ENV === 'production'
@@ -101,6 +103,7 @@ const Outbound = () => {
       setAlertOpen(true)
       return
     }
+    console.log(materials)
     const items = materials
       .filter((m) => quantities[m.id] && quantities[m.id] > 0)
       .map((m) => ({
@@ -111,6 +114,7 @@ const Outbound = () => {
         unit: m.unit,
         price: m.price,
         quantity: quantities[m.id],
+        unitPrice: Math.ceil(m.price / m.quantity),
       }))
     if (items.length === 0) {
       setAlertOpen(true)
@@ -130,7 +134,8 @@ const Outbound = () => {
         quantity: item.quantity,
         price: item.price,
         unit: item.unit,
-        updatedBy: 'system',
+        unitPrice: item.unitPrice,
+        updatedBy: userInfo?.name ?? 'system',
       }))
       const updatedStocks = await updateStocks(stockPayload)
       const outboundPayload = selectedItems.map(item => {
@@ -139,10 +144,10 @@ const Outbound = () => {
           stockId: stockInfo?.id, // Here, stockId must exist.
           deliverySiteId: selectedDeliverySite,
           quantity: item.quantity,
-          amount: item.quantity * item.price,
+          amount: item.quantity * item.unitPrice,
           unit: item.unit,
-          createdBy: 'system',
-          updatedBy: 'system',
+          createdBy: userInfo?.name ?? 'system',
+          updatedBy: userInfo?.name ?? 'system',
         }
       })
       await createOutbounds(outboundPayload),
