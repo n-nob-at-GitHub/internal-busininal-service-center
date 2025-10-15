@@ -290,17 +290,7 @@ const Outbound = () => {
         ))}
       </Grid>
 
-      <Dialog open={ open } 
-        onClose={ () => setOpen(false) } 
-        maxWidth='sm' 
-        fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              backgroundColor: '#E3F2FD',
-            },
-          },
-        }}>
+      <Dialog open={ open } onClose={ () => setOpen(false) } maxWidth='sm' fullWidth>
         <DialogTitle>
           <Box display='flex' alignItems='center' gap={ 1 }>
             <InfoOutlinedIcon color='primary' />
