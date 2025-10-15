@@ -85,19 +85,19 @@ const Users = () => {
           header: '名前',
         },
         {
-          accessorKey: 'roleId',
+          accessorKey: 'role',
           header: 'ロール',
           Cell: ({ cell }) => {
-            const role = roles.find((v: any) => String(v.id) === String(cell.getValue()))
-            return role ? role.name : ''
+            const role = cell.getValue() as { id: string; name: string } | undefined
+            return role?.name ?? ''
           },
           enableSorting: false,
           editVariant: 'select',
-          editSelectOptions: roles.map((v: any) => { return { label: v.name, value: v.id } }),
+          editSelectOptions: roles.map((v: any) => ({ label: v.name, value: v.id })),
           muiEditTextFieldProps: {
             select: true,
-            error: !!validationErrors?.roleId,
-            helperText: validationErrors?.roleId,
+            error: !!validationErrors?.role,
+            helperText: validationErrors?.role,
           },
         },
     ],
@@ -132,7 +132,21 @@ const Users = () => {
       return
     }
     setValidationErrors({})
-    await createUser(values)
+    const selectedRole = roles.find((r: any) => String(r.id) === String(values.role?.id));
+    if (!selectedRole) {
+      setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
+      return;
+    }
+    const payload: User = {
+      id: values.id,
+      name: values.name,
+      mail: values.mail,
+      role: {
+        id: String(selectedRole.id),
+        name: selectedRole.name,
+      }
+    }
+    await createUser(payload)
     table.setCreatingRow(null) // exit creating mode
   }
   
@@ -147,7 +161,21 @@ const Users = () => {
       return
     }
     setValidationErrors({})
-    await updateUser(values)
+    const selectedRole = roles.find((r: any) => String(r.id) === String(values.role?.id));
+    if (!selectedRole) {
+      setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
+      return;
+    }
+    const payload: User = {
+      id: values.id,
+      name: values.name,
+      mail: values.mail,
+      role: {
+        id: String(selectedRole.id),
+        name: selectedRole.name,
+      }
+    }
+    await updateUser(payload)
     table.setEditingRow(null) // exit editing mode
   }
 
@@ -386,7 +414,7 @@ const validateRequired = (value: string | number) => value !== undefined && valu
 function validateUser(user: User) {
   return {
     mail: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
-    roleId: !validateRequired(user.roleId) ? 'ロールは必須です。' : '',
+    role: !user.role || !validateRequired(user.role.id) ? 'ロールは必須です。' : '',
   }
 }
 

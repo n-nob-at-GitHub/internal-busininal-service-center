@@ -6,9 +6,12 @@ export type Role = {
 
 export type User = { 
   id: number;
-  roleId: number;
   name: string?;
   mail: string;
+  role: {
+    id: string
+    name: string
+  }
 };
 
 export type MaterialIds = number[];
