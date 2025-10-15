@@ -89,7 +89,7 @@ exports.handler = async (event) => {
       const materialId = it.materialId
       const unit = it.unit ?? ''
       const quantity = Number(it.quantity ?? 0)
-      const price = Number(it.price ?? it.unitPrice ?? 0)
+      const price = Number(it.price ?? 0)
       const updatedBy = it.updatedBy ?? 'system'
       const now = new Date().toISOString()
 

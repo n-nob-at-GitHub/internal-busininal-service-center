@@ -54,7 +54,6 @@ exports.handler = async (event) => {
         stockId: Number(item.stockId?.N),
         deliverySiteId: Number(item.deliverySiteId?.N),
         quantity: Number(item.quantity?.N),
-        unitPrice: Number(item.unitPrice?.N),
         amount: Number(item.amount?.N),
         unit: item.unit?.S || '',
         isValid: item.isValid?.BOOL ?? true,
@@ -91,7 +90,6 @@ exports.handler = async (event) => {
           stockId,
           deliverySiteId,
           quantity,
-          unitPrice,
           isValid,
           unit,
           updatedBy,
@@ -128,7 +126,7 @@ exports.handler = async (event) => {
         const currentQuantity = Number(stockData.Item.totalQuantity?.N ?? 0)
         const currentAmount = Number(stockData.Item.totalAmount?.N ?? 0)
         const deltaQuantity = isValid ? -quantity : quantity
-        const deltaAmount = isValid ? -quantity * unitPrice : quantity * unitPrice
+        const deltaAmount = isValid ? -quantity : quantity
         const newQuantity = currentQuantity + deltaQuantity
         const newAmount = currentAmount + deltaAmount
 
