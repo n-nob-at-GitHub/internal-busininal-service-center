@@ -60,6 +60,7 @@ exports.handler = async (event) => {
           mail: email,
           name,
           role: jsonRole,
+          roleId: jsonRole.id,
         }
       })
       return {
