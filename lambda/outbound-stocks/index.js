@@ -107,9 +107,10 @@ exports.handler = async (event) => {
         const stockObj = unmarshall(getRes.Item)
         const currentQuantity = Number(stockObj.totalQuantity ?? 0)
         const currentAmount = Number(stockObj.totalAmount ?? 0)
+        const perItemPrice = price / Number(it.unitQuantity ?? 1)
 
         const deltaQuantity = quantity
-        const deltaAmount = quantity * price
+        const deltaAmount = quantity * perItemPrice
 
         const newQuantity = currentQuantity - deltaQuantity
         const newAmount = currentAmount - deltaAmount
@@ -151,7 +152,7 @@ exports.handler = async (event) => {
           SK: key.SK,
           materialId: materialId,
           totalQuantity: -quantity,
-          totalAmount: -quantity * price,
+          totalAmount: -quantity * (price / Number(it.unitQuantity ?? 1)),
           unit,
           note: it.note ?? '',
           createdAt: it.createdAt ?? now,
