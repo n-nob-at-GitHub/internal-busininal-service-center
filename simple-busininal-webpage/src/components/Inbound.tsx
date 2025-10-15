@@ -118,7 +118,6 @@ const Inbound = () => {
           stockId: stockInfo?.id, // Here, stockId must exist.
           quantity: item.quantity,
           amount: item.quantity * item.price,
-          unitPrice: item.price,
           unit: item.unit,
           createdBy: 'system',
           updatedBy: 'system',
