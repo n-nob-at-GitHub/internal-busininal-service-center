@@ -90,7 +90,6 @@ exports.handler = async (event) => {
       const unit = it.unit ?? ''
       const quantity = Number(it.quantity ?? 0)
       const price = Number(it.price ?? 0)
-      const unitPrice = Number(it.unitPrice ?? 0)
       const updatedBy = it.updatedBy ?? 'system'
       const now = new Date().toISOString()
 
@@ -108,10 +107,9 @@ exports.handler = async (event) => {
         const stockObj = unmarshall(getRes.Item)
         const currentQuantity = Number(stockObj.totalQuantity ?? 0)
         const currentAmount = Number(stockObj.totalAmount ?? 0)
-        const currentUnitPrice = Number(stockObj.unitPrice ?? 0)
 
         const deltaQuantity = quantity
-        const deltaAmount = quantity * currentUnitPrice
+        const deltaAmount = quantity * price
 
         const newQuantity = currentQuantity - deltaQuantity
         const newAmount = currentAmount - deltaAmount
@@ -153,7 +151,7 @@ exports.handler = async (event) => {
           SK: key.SK,
           materialId: materialId,
           totalQuantity: -quantity,
-          totalAmount: -quantity * unitPrice,
+          totalAmount: -quantity * price,
           unit,
           note: it.note ?? '',
           createdAt: it.createdAt ?? now,
