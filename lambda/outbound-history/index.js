@@ -6,7 +6,7 @@ const {
 } = require('@aws-sdk/client-dynamodb')
 const { sendNotification } = require('./lib/snsNotifier')
 
-const OUTBOUND_TABLE = process.env.INBOUND_TABLE
+const OUTBOUND_TABLE = process.env.OUTBOUND_TABLE
 const STOCK_TABLE = process.env.STOCK_TABLE
 const DELIVERY_SITE_TABLE = process.env.DELIVERY_SITE_TABLE
 const OUTBOUND_PREFIX = `${ OUTBOUND_TABLE.toUpperCase() }#`
