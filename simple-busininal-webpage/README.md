@@ -183,7 +183,17 @@
     ```
     > npm i jwt-decode
     ```
-  
+    
+  - [oidc-client-ts](https://www.npmjs.com/package/oidc-client-ts)
+    ```
+    > npm i oidc-client-ts
+    ```
+    
+  - [react-oidc-context](https://www.npmjs.com/package/react-oidc-context?activeTab=versions)
+    ```
+    > npm i react-oidc-context
+    ```
+    
   - [NPM License Checker](https://www.npmjs.com/package/license-checker)
     ```
     > npm i -D license-checker
@@ -259,15 +269,16 @@
     | S3              |     〇     | 2025/09/27, S3 Hosting |
     | CloudFront      |     〇     | 2025/09/28 |
     | Cognito         |     〇     | 2025/10/03 |
-    | API Gateway     |     ―     |  |
-    | DynamoDB        |     ―     |  |
-    | Log             |     ―     |  |
+    | API Gateway     |     〇     | 2025/10/09 |
+    | DynamoDB        |     〇     | 2025/10/09 |
+    | Log             |     〇     | 2025/10/10（課金防止のため, AWSLambdaBasicExecutionRole権限は外している） |
     | Error mail      |     〇     | ライブラリ（[Nodemailer](https://www.npmjs.com/package/nodemailer) Weekly Downloads 6,535,895）を利用（2025/09/19, クライアントからのAPI呼び出しでなく, サーバーの各API内で, エラーメール送信するように対応（2025/09/19）|
+    | SNS             |     〇     | 2025/10/15（本番環境エラーメール, SESでなく, SNS採用, 但し, 課金防止のため, sns:Publish権限は外している） |
     | Restore         |     △     | データ削除後の復元パターンを想定, なお, $${\color{yellow}運用}$$で, カバーする方針（2025/09/19） |
     | License         |     〇     | ライブラリ（[NPM License Checker](https://www.npmjs.com/package/license-checker) Weekly Downloads Weekly Downloads 691,433）を利用（2025/09/19）|
     
 - 課題
-  - 本番環境のAPIの動作（API Gateway + Lambda）
-  - F5リロード後も, 認証を継続
-  - S3上保存された画像ファイルの読み込み, 表示
-  - CSV仕訳データの仕様, フォーマット, ロジック
+  - 本番環境のAPIの動作（API Gateway + Cognito Authorizer + Lambda + DynamoDB）（済）
+  - F5リロード後も, 認証を継続（済）
+  - S3上保存された画像ファイルの読み込み, 表示（済）
+  - CSV仕訳データの仕様, フォーマット, ロジック（保留）
