@@ -126,12 +126,6 @@ const Users = () => {
     values,
     table,
   }) => {
-    const newValidationErrors = validateUser(values)
-    if (Object.values(newValidationErrors).some(error => error)) {
-      setValidationErrors(newValidationErrors)
-      return
-    }
-    setValidationErrors({})
     const selectedRole = roles.find((r: any) => String(r.id) === String(values.role?.id));
     if (!selectedRole) {
       setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
@@ -146,6 +140,12 @@ const Users = () => {
         name: selectedRole.name,
       }
     }
+    const newValidationErrors = validateUser(payload)
+    if (Object.values(newValidationErrors).some(e => e)) {
+      setValidationErrors(newValidationErrors)
+      return
+    }
+    setValidationErrors({})
     await createUser(payload)
     table.setCreatingRow(null) // exit creating mode
   }
@@ -155,12 +155,6 @@ const Users = () => {
     values,
     table,
   }) => {
-    const newValidationErrors = validateUser(values)
-    if (Object.values(newValidationErrors).some(error => error)) {
-      setValidationErrors(newValidationErrors)
-      return
-    }
-    setValidationErrors({})
     const selectedRole = roles.find((r: any) => String(r.id) === String(values.role?.id));
     if (!selectedRole) {
       setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
@@ -175,6 +169,12 @@ const Users = () => {
         name: selectedRole.name,
       }
     }
+    const newValidationErrors = validateUser(payload)
+    if (Object.values(newValidationErrors).some(error => error)) {
+      setValidationErrors(newValidationErrors)
+      return
+    }
+    setValidationErrors({})
     await updateUser(payload)
     table.setEditingRow(null) // exit editing mode
   }
