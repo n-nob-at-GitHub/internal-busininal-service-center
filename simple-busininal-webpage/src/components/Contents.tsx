@@ -69,10 +69,7 @@ const a11yProps = (index: number) => {
 
 const Contents = () => {
   const user = useUser()
-  console.log('useUser result:', user)
   const roleId = Number(user?.role?.id)
-  console.log('roleId:', roleId)
-  console.log('typeof roleId:', typeof user?.role?.id, 'value:', user?.role?.id)
 
   const [ tabIndex, setTabIndex ] = useState(0);
   const [ stockMenu, setStockMenu ] = useState<StockKey | null>(null)
@@ -88,8 +85,6 @@ const Contents = () => {
     setStockAnchorElement(event.currentTarget)
   }
   const handleMasterTabClick = (event: MouseEvent<HTMLElement>) => {
-    console.log('Master tab clicked, event.currentTarget:', event.currentTarget)
-    console.log('Master menu items:', masterMenuItems)
     setMasterAnchorElement(event.currentTarget)
   }
   const handleOtherTabClick = (event: MouseEvent<HTMLElement>) => {
@@ -140,7 +135,6 @@ const Contents = () => {
     setStockAnchorElement(null)
   }
   const handleMasterMenuSelect = (menu: MasterKey) => {
-    console.log('Master menu selected:', menu)
     setMasterMenu(menu)
     setTabIndex(1)
     setMasterAnchorElement(null)

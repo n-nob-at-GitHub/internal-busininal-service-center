@@ -132,11 +132,9 @@ const Outbound = () => {
         unit: item.unit,
         updatedBy: 'system',
       }))
-      console.log(stockPayload)
       const updatedStocks = await updateStocks(stockPayload)
       const outboundPayload = selectedItems.map(item => {
         const stockInfo = updatedStocks.find((s : any) => s.materialId === item.materialId)
-        console.log(stockInfo)
         return {
           stockId: stockInfo?.id, // Here, stockId must exist.
           deliverySiteId: selectedDeliverySite,
