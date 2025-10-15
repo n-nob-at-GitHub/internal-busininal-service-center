@@ -88,6 +88,7 @@ const Contents = () => {
   }
   const handleMasterTabClick = (event: MouseEvent<HTMLElement>) => {
     console.log('Master tab clicked, event.currentTarget:', event.currentTarget)
+    console.log('Master menu items:', masterMenuItems)
     setMasterAnchorElement(event.currentTarget)
   }
   const handleOtherTabClick = (event: MouseEvent<HTMLElement>) => {
