@@ -69,9 +69,7 @@ const a11yProps = (index: number) => {
 
 const Contents = () => {
   const user = useUser()
-  const roleId = process.env.NODE_ENV === 'development'
-    ? '1'
-    : user ? user.role.id : '1'
+  const roleId = user?.role.id
 
   const [ tabIndex, setTabIndex ] = useState(0);
   const [ stockMenu, setStockMenu ] = useState<StockKey | null>(null)
@@ -81,6 +79,8 @@ const Contents = () => {
   const [ otherMenu, setOtherMenu ] = useState<OtherKey | null>(null)
   const [ otherAnchorElement, setOtherAnchorElement ] = useState<null | HTMLElement>(null)
 
+  if (!roleId) return <div>Loading...</div>
+  
   const handleStockTabClick = (event: MouseEvent<HTMLElement>) => {
     setStockAnchorElement(event.currentTarget)
   }
