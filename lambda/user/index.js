@@ -103,7 +103,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({ 
           id: sub, 
           mail, 
-          role: JSON.stringify({ id: roleId, name: roleName }),
+          role: { id: roleId, name: roleName },
           roleId
         })
       }
@@ -144,7 +144,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           id,
           mail,
-          role: JSON.stringify({ id: roleId, name: roleName }),
+          role: { id: roleId, name: roleName },
           roleId
         })
       }
