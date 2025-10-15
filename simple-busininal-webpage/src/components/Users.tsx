@@ -97,7 +97,9 @@ const Users = () => {
           editVariant: 'select',
           editSelectOptions: roles.map((r: any) => ({ label: r.name, value: r.id })),
           muiEditTextFieldProps: {
-            select: true
+            select: true,
+            error: !!validationErrors?.roleId,
+            helperText: validationErrors?.roleId,
           }
         },
     ],
@@ -418,7 +420,7 @@ const validateRequired = (value: string | number) => value !== undefined && valu
 function validateUser(user: User) {
   return {
     mail: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
-    role: !user.role || !validateRequired(user.role.id) ? 'ロールは必須です。' : '',
+    roleId: !user.role || !validateRequired(user.role.id) ? 'ロールは必須です。' : '',
   }
 }
 
