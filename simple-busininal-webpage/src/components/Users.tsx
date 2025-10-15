@@ -85,15 +85,19 @@ const Users = () => {
           header: '名前',
         },
         {
-          accessorFn: (row) => row.role,
+          accessorKey: 'roleId',
           header: 'ロール',
-          Cell: ({ cell }) => cell.getValue<{ id: string; name: string }>()?.name ?? '',
+          Cell: ({ cell }) => {
+            const roleId = cell.getValue<string>()
+            const role = roles.find((r: any) => String(r.id) === String(roleId))
+            return role?.name ?? ''
+          },
           enableSorting: false,
           editVariant: 'select',
-          editSelectOptions: roles.map((v: any) => ({ label: v.name, value: v.id })),
+          editSelectOptions: roles.map((r: any) => ({ label: r.name, value: r.id })),
           muiEditTextFieldProps: {
-            select: true,
-          },  
+            select: true
+          }
         },
     ],
     [ roles, validationErrors ],
@@ -121,7 +125,9 @@ const Users = () => {
     values,
     table,
   }) => {
-    const selectedRole = roles.find((r: any) => String(r.id) === String(values.role?.id));
+    const selectedRole = roles.find((r: any) => String(r.id) === String(values.roleId))
+    console.log('handleCreateUser values: ', values)
+    console.log('handleCreateUser selectedRole: ', selectedRole)
     if (!selectedRole) {
       setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
       return;
@@ -151,7 +157,7 @@ const Users = () => {
     values,
     table,
   }) => {
-    const selectedRole = roles.find((r: any) => String(r.id) === String(values.role?.id));
+    const selectedRole = roles.find((r: any) => String(r.id) === String(values.roleId));
     if (!selectedRole) {
       setValidationErrors({ ...validationErrors, role: 'ロールは必須です。' });
       return;
@@ -310,6 +316,7 @@ function useCreateUser() {
   return useMutation({
     mutationFn: async (user: User): Promise<User> => {
       // send api update request here
+      console.log('useCreateUser is called.')
       const accessToken = getAccessToken()
       const response = await axios.post(`${ userBaseURL }/user`, user,
         {
@@ -410,6 +417,7 @@ const validateRequired = (value: string | number) => value !== undefined && valu
 function validateUser(user: User) {
   return {
     mail: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
+    role: !user.role || !validateRequired(user.role.id) ? 'ロールは必須です。' : '',
   }
 }
 
