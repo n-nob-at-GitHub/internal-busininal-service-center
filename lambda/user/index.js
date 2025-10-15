@@ -47,8 +47,6 @@ exports.handler = async (event) => {
   }
 
   try {
-    const roleRes = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }))
-
     if (method === 'GET') {
       const listUsersRes = await cognitoClient.send(new ListUsersCommand({ UserPoolId: USER_POOL_ID }))
       const users = listUsersRes.Users.map(u => {
