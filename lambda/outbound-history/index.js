@@ -91,6 +91,7 @@ exports.handler = async (event) => {
           deliverySiteId,
           quantity,
           isValid,
+          amount,
           unit,
           updatedBy,
         } = item
@@ -126,7 +127,7 @@ exports.handler = async (event) => {
         const currentQuantity = Number(stockData.Item.totalQuantity?.N ?? 0)
         const currentAmount = Number(stockData.Item.totalAmount?.N ?? 0)
         const deltaQuantity = isValid ? -quantity : quantity
-        const deltaAmount = isValid ? -quantity : quantity
+        const deltaAmount = isValid ? -amount : amount
         const newQuantity = currentQuantity + deltaQuantity
         const newAmount = currentAmount + deltaAmount
 
