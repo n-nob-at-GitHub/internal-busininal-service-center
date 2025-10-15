@@ -94,11 +94,6 @@ const Users = () => {
           enableSorting: false,
           editVariant: 'select',
           editSelectOptions: roles.map((v: any) => ({ label: v.name, value: v.id })),
-          muiEditTextFieldProps: {
-            select: true,
-            error: !!validationErrors?.role,
-            helperText: validationErrors?.role,
-          },
         },
     ],
     [ roles, validationErrors ],
@@ -140,6 +135,7 @@ const Users = () => {
         name: selectedRole.name,
       }
     }
+    console.log('handleCreateUser payload: ', payload)
     const newValidationErrors = validateUser(payload)
     if (Object.values(newValidationErrors).some(e => e)) {
       setValidationErrors(newValidationErrors)
@@ -414,7 +410,6 @@ const validateRequired = (value: string | number) => value !== undefined && valu
 function validateUser(user: User) {
   return {
     mail: !validateRequired(user.mail) ? 'メールアドレスは必須です。' : '',
-    role: !user.role || !validateRequired(user.role.id) ? 'ロールは必須です。' : '',
   }
 }
 
