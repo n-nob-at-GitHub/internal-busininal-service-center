@@ -316,11 +316,6 @@ const Materials = () => {
     onEditingRowSave: handleEditMaterial,
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-        <IconButton onClick={ () => {
-            table.setEditingRow(row)
-          }}>
-          <EditIcon />
-        </IconButton>
         <IconButton color='warning' onClick={ () => openDeleteConfirmModal(row) }>
           <DeleteIcon />
         </IconButton>
