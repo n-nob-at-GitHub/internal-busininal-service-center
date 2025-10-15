@@ -70,8 +70,9 @@ const a11yProps = (index: number) => {
 const Contents = () => {
   const user = useUser()
   console.log('useUser result:', user)
-  const roleId = user?.role.id
+  const roleId = Number(user?.role?.id)
   console.log('roleId:', roleId)
+  console.log('typeof roleId:', typeof user?.role?.id, 'value:', user?.role?.id)
 
   const [ tabIndex, setTabIndex ] = useState(0);
   const [ stockMenu, setStockMenu ] = useState<StockKey | null>(null)
@@ -114,13 +115,13 @@ const Contents = () => {
     'ライセンス表示': <Licenses />,
   }
 
-  const stockMenuItems: StockKey[] = roleId === '3'
+  const stockMenuItems: StockKey[] = roleId === 3
     ? [ '在庫一覧', '入庫', '出庫' ]
     : [ '在庫一覧', '入庫', '出庫', '入庫履歴', '出庫履歴' ]
 
-  const masterMenuItems: MasterKey[] = roleId === '1'
+  const masterMenuItems: MasterKey[] = roleId === 1
     ? [ '資材', '製造メーカー', '配送先', 'ユーザー', 'ロール' ]
-    : roleId === '2'
+    : roleId === 2
       ? [ '資材', '製造メーカー', '配送先'] 
       : []
 
@@ -155,10 +156,10 @@ const Contents = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={ tabIndex } onChange={ handleTabChange } variant='scrollable' scrollButtons='auto' textColor='secondary' indicatorColor='secondary' aria-label='basic tabs example'>
           <Tab label='在庫管理' { ...a11yProps(0) } onClick={ handleStockTabClick } />
-          { roleId !== '3' && (
+          { roleId !== 3 && (
             <Tab label='マスタ' { ...a11yProps(1) } onClick={ handleMasterTabClick } />
           )}
-          <Tab label='その他' { ...a11yProps(roleId !== '3' ? 2 : 1) } onClick={ handleOtherTabClick } />
+          <Tab label='その他' { ...a11yProps(roleId !== 3 ? 2 : 1) } onClick={ handleOtherTabClick } />
         </Tabs>
       </Box>
       <Menu
