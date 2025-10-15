@@ -10,6 +10,7 @@ interface StockItem {
   materialId: number
   unit: string
   quantity: number
+  unitPrice: number
   price: number
   updatedBy: string
 }
@@ -26,7 +27,7 @@ const putStock = async (req: NextRequest) => {
           data: {
             materialId: item.materialId,
             totalQuantity: item.quantity,
-            totalAmount: item.quantity * item.price,
+            totalAmount: item.quantity * item.unitPrice,
             unit: item.unit,
             createdBy: item.updatedBy,
             updatedBy: item.updatedBy,
@@ -37,7 +38,7 @@ const putStock = async (req: NextRequest) => {
           where: { id: item.stockId },
           data: {
             totalQuantity: { increment: item.quantity },
-            totalAmount: { increment: item.quantity * item.price },
+            totalAmount: { increment: item.quantity * item.unitPrice },
             unit: item.unit,
             updatedBy: item.updatedBy,
           },

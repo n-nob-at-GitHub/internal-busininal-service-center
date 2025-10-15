@@ -16,6 +16,7 @@ const getMaterials = async (req: NextRequest) => {
     name: m.name,
     unit: m.unit,
     price: m.price,
+    quantity: m.quantity,
     fileName: m.fileName,
     isValid: m.isValid,
     stockId: m.stocks[0]?.id,

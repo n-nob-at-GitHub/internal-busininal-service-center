@@ -11,6 +11,7 @@ interface StockItem {
   unit: string
   quantity: number
   price: number
+  unitPrice: number
   updatedBy: string
 }
 
@@ -25,8 +26,8 @@ const putStock = async (req: NextRequest) => {
         return prisma.stock.create({
           data: {
             materialId: item.materialId,
-            totalQuantity: item.quantity,
-            totalAmount: item.quantity * item.price,
+            totalQuantity: -item.quantity,
+            totalAmount: -item.quantity * item.unitPrice,
             unit: item.unit,
             createdBy: item.updatedBy,
             updatedBy: item.updatedBy,
@@ -37,7 +38,7 @@ const putStock = async (req: NextRequest) => {
           where: { id: item.stockId },
           data: {
             totalQuantity: { decrement: item.quantity },
-            totalAmount: { decrement: item.quantity * item.price },
+            totalAmount: { decrement: item.quantity * item.unitPrice },
             unit: item.unit,
             updatedBy: item.updatedBy,
           },

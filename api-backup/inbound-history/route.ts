@@ -9,9 +9,9 @@ interface StockItem {
   id: number
   stockId?: number
   materialId: number
+  amount: number
   unit: string
   quantity: number
-  unitPrice: number
   isValid: boolean
   updatedBy: string
 }
@@ -29,8 +29,9 @@ const putInbound = async (req: NextRequest) => {
   }
   const res = await prisma.$transaction(
     items.map((item) => {
+      console.log(item.amount)
       const updateQuantity = item.isValid ? item.quantity : -item.quantity
-      const updateAmount = item.isValid ? item.quantity * item.unitPrice : -item.quantity * item.unitPrice
+      const updateAmount = item.isValid ? item.amount : -item.amount
       return [
         prisma.stock.update({
           where: { id: item.stockId },
