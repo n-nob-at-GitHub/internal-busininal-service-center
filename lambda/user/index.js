@@ -48,10 +48,6 @@ exports.handler = async (event) => {
 
   try {
     const roleRes = await ddbClient.send(new ScanCommand({ TableName: ROLE_TABLE }))
-    const roles = roleRes.Items?.map(item => ({
-      id: Number(item.PK.S.replace(ROLE_PREFIX, '')),
-      name: item.name.S
-    })) || []
 
     if (method === 'GET') {
       const listUsersRes = await cognitoClient.send(new ListUsersCommand({ UserPoolId: USER_POOL_ID }))
@@ -59,14 +55,13 @@ exports.handler = async (event) => {
         const sub = u.Attributes.find(a => a.Name === 'sub')?.Value || ''
         const email = u.Attributes.find(a => a.Name === 'email')?.Value || ''
         const name = u.Attributes.find(a => a.Name === 'name')?.Value || ''
-        const roleId = u.Attributes.find(a => a.Name === 'custom:role')?.Value || ''
-        const matchedRole = roles.find(r => String(r.id) === String(roleId))
+        const role = u.Attributes.find(a => a.Name === 'custom:role')?.Value || ''
+        let jsonRole = JSON.parse(role)
         return {
           id: sub,
           mail: email,
           name,
-          roleId,
-          roleName: matchedRole?.name || ''
+          role: jsonRole,
         }
       })
       return {
@@ -96,7 +91,7 @@ exports.handler = async (event) => {
           { Name: 'email', Value: mail },
           { Name: 'email_verified', Value: 'true' },
           { Name: 'name', Value: body.name || '' },
-          { Name: 'custom:role', Value: `${ roleId }` },
+          { Name: 'custom:role', Value: JSON.stringify({ id: roleId, name: roleName })  },
         ],
         MessageAction: 'SUPPRESS',
       }))
@@ -121,7 +116,7 @@ exports.handler = async (event) => {
         if (!roleName) throw new Error('無効なロールです')
         attrs.push({
           Name: 'custom:role',
-          Value: `${ roleId }`
+          Value: JSON.stringify({ id: roleId, name: roleName }) 
         })
       }
       if (body.name) {
