@@ -90,6 +90,7 @@ const Users = () => {
           Cell: ({ cell }) => {
             const roleId = cell.getValue<string>()
             const role = roles.find((r: any) => String(r.id) === String(roleId))
+            console.log('roleId: ', roleId, ' role: ', role)
             return role?.name ?? ''
           },
           enableSorting: false,
