@@ -65,7 +65,6 @@ export type Inbound = {
   stockId: number;
   quantity: number;
   amount: number;
-  unitPrice: number;
   unit: string;
   isValid: boolean;
   createdBy: string;
@@ -80,7 +79,6 @@ export type Outbound = {
   deliverySiteId: number;
   quantity: number;
   amount: number;
-  unitPrice: number;
   unit: string;
   isValid: boolean;
   createdBy: string;

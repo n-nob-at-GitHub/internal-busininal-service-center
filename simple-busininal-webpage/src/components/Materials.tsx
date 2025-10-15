@@ -115,7 +115,7 @@ const Materials = () => {
         },
         {
           accessorKey: 'price',
-          header: '単価',
+          header: '価格',
           maxSize: 50,
           muiEditTextFieldProps: {
             required: true,
@@ -513,7 +513,7 @@ function validateMaterial(material: Material) {
     manufacturerId: !validateRequired(material.manufacturerId) ? 'メーカーは必須です。' : '',
     code: !validateRequired(material.code) ? '資材コードは必須です。' : '',
     category: !validateRequired(material.category) ? 'カテゴリーは必須です。' : '',
-    price: !validatePrice(material.price.toString()) ? '０円以上の単価を入力してください。' : '',
+    price: !validatePrice(material.price.toString()) ? '０円以上の価格を入力してください。' : '',
     quantity: !validateQuantity(material.quantity.toString()) ? '１以上の数量を入力してください。' : '',
     unit: !validateRequired(material.unit) ? '単位は必須です。' : '',
     name: !validateRequired(material.name) ? '名前は必須です。' : '',
