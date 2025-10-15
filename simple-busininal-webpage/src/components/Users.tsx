@@ -362,18 +362,18 @@ function useUpdateUser() {
       return response.data
     },
     // client side optimistic update
-    onSuccess: (newUser: User) => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-      queryClient.setQueryData(
-        [ 'users' ],
-        (prevUser: any) => 
-          [
-            ...prevUser,
-            {
-              ...newUser, 
-              id: newUser.id,
-            },
-          ] as User[],
+    onMutate: (newUser: User) => {
+      queryClient.setQueryData([ 'users' ], (prevUsers: any) =>
+        prevUsers?.map((prevUser: any) =>
+        prevUser.id === newUser.id
+          ? {
+              ...prevUser,
+              name: newUser.name,
+              mail: newUser.mail,
+              roleId: newUser.role?.id,
+            }
+          : prevUser,
+        ),
       )
     },
   })
