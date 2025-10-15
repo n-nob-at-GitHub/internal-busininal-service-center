@@ -248,8 +248,12 @@ const Outbound = () => {
             <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', boxShadow: 5 }}>
               <CardContent>
                 <img
-                  src={ m.fileName ? `/images/${ m.fileName }` : '/images/icons8-no-image-250.png' }
+                  src={ m.fileName ? `/images/${ m.fileName }` : '/images/icons8-no-image-250.webp' }
                   alt={ m.name }
+                  onError={(e) => {
+                    e.currentTarget.onerror = null // 無限ループ防止
+                    e.currentTarget.src = '/images/icons8-no-image-250.webp'
+                  }}
                   style={{ 
                     width: '250px', 
                     height: '250px', 
