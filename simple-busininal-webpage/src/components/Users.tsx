@@ -91,6 +91,9 @@ const Users = () => {
           enableSorting: false,
           editVariant: 'select',
           editSelectOptions: roles.map((v: any) => ({ label: v.name, value: v.id })),
+          muiEditTextFieldProps: {
+            select: true,
+          },  
         },
     ],
     [ roles, validationErrors ],
