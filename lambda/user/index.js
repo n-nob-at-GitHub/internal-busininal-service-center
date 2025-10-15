@@ -72,7 +72,8 @@ exports.handler = async (event) => {
     }
 
     if (method === 'POST') {
-      const { mail, roleId } = body
+      const { mail, role } = body
+      const roleId = role?.id
       if (!mail) throw new Error('メール必須')
       if (!roleId) throw new Error('roleId 必須')
 
@@ -104,21 +105,24 @@ exports.handler = async (event) => {
     }
 
     if (method === 'PUT') {
-      const { id, mail, roleId } = body
+      const { id, mail, role } = body
+      const roleId = role?.id
+      if (!mail) throw new Error('メール必須')
+      if (!roleId) throw new Error('roleId 必須')
       const attrs = []
-      if (mail) attrs.push({ Name: 'email', Value: mail })
-      if (roleId) {
-        const roleRes = await ddbClient.send(new GetItemCommand({
-          TableName: ROLE_TABLE,
-          Key: { PK: { S: `${ ROLE_PREFIX }${ roleId }` } }
-        }))
-        const roleName = roleRes.Item?.name?.S
-        if (!roleName) throw new Error('無効なロールです')
-        attrs.push({
-          Name: 'custom:role',
-          Value: JSON.stringify({ id: roleId, name: roleName }) 
-        })
+      if (mail) {
+        attrs.push({ Name: 'email', Value: mail })
       }
+      const roleRes = await ddbClient.send(new GetItemCommand({
+        TableName: ROLE_TABLE,
+        Key: { PK: { S: `${ ROLE_PREFIX }${ roleId }` } }
+      }))
+      const roleName = roleRes.Item?.name?.S
+      if (!roleName) throw new Error('無効なロールです')
+      attrs.push({
+        Name: 'custom:role',
+        Value: JSON.stringify({ id: roleId, name: roleName }) 
+      })
       if (body.name) {
         attrs.push({ Name: 'name', Value: body.name })
       }
