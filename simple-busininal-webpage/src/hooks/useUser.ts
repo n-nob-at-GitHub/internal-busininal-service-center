@@ -25,7 +25,7 @@ export function useUser() {
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      setUser({ name: 'dev-user', role: {id: '1', name: 'SYSTEM'} })
+      setUser({ name: 'dev-user', role: { id: '1', name: 'SYSTEM' } })
       return
     }
 

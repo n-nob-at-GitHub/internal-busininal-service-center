@@ -71,7 +71,7 @@ const Contents = () => {
   const user = useUser()
   const roleId = process.env.NODE_ENV === 'development'
     ? '1'
-    : (user as any)?.role || '1'
+    : user ? user.role.id : '1'
 
   const [ tabIndex, setTabIndex ] = useState(0);
   const [ stockMenu, setStockMenu ] = useState<StockKey | null>(null)
