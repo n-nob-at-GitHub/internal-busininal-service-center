@@ -85,12 +85,9 @@ const Users = () => {
           header: '名前',
         },
         {
-          accessorKey: 'role',
+          accessorFn: (row) => row.role,
           header: 'ロール',
-          Cell: ({ cell }) => {
-            const role = cell.getValue() as { id: string; name: string } | undefined
-            return role?.name ?? ''
-          },
+          Cell: ({ cell }) => cell.getValue<{ id: string; name: string }>()?.name ?? '',
           enableSorting: false,
           editVariant: 'select',
           editSelectOptions: roles.map((v: any) => ({ label: v.name, value: v.id })),
