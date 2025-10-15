@@ -7,7 +7,7 @@ export const generateRandomString = (length: number = 32) => {
   return result
 }
 
-const oidcKey = 'oidc.user:https://ap-northeast-1atjv25dwx.auth.ap-northeast-1.amazoncognito.com:4hpif7u4ej7a8vep45hsdklvae'
+const oidcKey = 'oidc.user:https://ap-northeast-1b01cpprgs.auth.ap-northeast-1.amazoncognito.com:2v9crk5htm82i6s6894iq746ht'
 
 export const getAccessToken = () => {
   const stored = localStorage.getItem(oidcKey);
