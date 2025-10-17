@@ -43,6 +43,17 @@ async function getNextStockId() {
   return max + 1
 }
 
+const findExistingStock = async (materialId) => {
+  const scanParams = {
+    TableName: STOCK_TABLE,
+    FilterExpression: 'materialId = :m',
+    ExpressionAttributeValues: { ':m': { S: materialId } },
+  }
+  const res = await ddbClient.send(new ScanCommand(scanParams))
+  const items = res.Items || []
+  return items.length > 0 ? unmarshall(items[0]) : null
+}
+
 exports.handler = async (event) => {
   const method = event.httpMethod || event.requestContext?.http?.method
   let body = null
@@ -85,35 +96,31 @@ exports.handler = async (event) => {
     let nextStockId = await getNextStockId()
 
     for (const it of items) {
-      const stockIdFromReq = it.stockId
       const materialId = it.materialId
+      const existingStock = await findExistingStock(materialId)
       const unit = it.unit ?? ''
       const quantity = Number(it.quantity ?? 0)
-      const price = Number(it.price ?? 0)
       const unitPrice = Number(it.unitPrice ?? 0)
       const updatedBy = it.updatedBy ?? 'system'
       const now = new Date().toISOString()
 
-      if (stockIdFromReq) {
-        const key = { PK: `${ STOCK_PREFIX }${ stockIdFromReq }`, SK: 'DETAIL' }
+      if (existingStock) {
+        const key = { PK: existingStock.PK, SK: existingStock.SK }
         const getRes = await ddbClient.send(new GetItemCommand({
           TableName: STOCK_TABLE,
           Key: marshall(key),
         }))
 
         if (!getRes.Item) {
-          throw new Error(`Stock ${ stockIdFromReq } が存在しません`)
+          throw new Error(`materialId ${ materialId } の在庫が存在しません`)
         }
 
         const stockObj = unmarshall(getRes.Item)
         const currentQuantity = Number(stockObj.totalQuantity ?? 0)
         const currentAmount = Number(stockObj.totalAmount ?? 0)
 
-        const deltaQuantity = quantity
-        const deltaAmount = quantity * unitPrice
-
-        const newQuantity = currentQuantity + deltaQuantity
-        const newAmount = currentAmount + deltaAmount
+        const newQuantity = currentQuantity + quantity
+        const newAmount = currentAmount + quantity * unitPrice
 
         const updateParams = {
           TableName: STOCK_TABLE,
@@ -135,7 +142,7 @@ exports.handler = async (event) => {
         await ddbClient.send(new UpdateItemCommand(updateParams))
 
         results.push({
-          id: Number(stockIdFromReq),
+          id: Number(existingStock.PK.replace(STOCK_PREFIX, '')),
           materialId,
           totalQuantity: newQuantity,
           totalAmount: newAmount,
