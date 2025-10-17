@@ -129,14 +129,14 @@ exports.handler = async (event) => {
           ExpressionAttributeNames: {
             '#u': 'unit',
           },
-          ExpressionAttributeValues: marshall({
+          ExpressionAttributeValues: {
             ':q': newQuantity,
             ':a': newAmount,
             ':u': unit,
             ':ua': now,
             ':ub': updatedBy,
             ':mid': materialId,
-          }),
+          },
         }
 
         await ddbClient.send(new UpdateItemCommand(updateParams))

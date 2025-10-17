@@ -1,8 +1,6 @@
 const {
   DynamoDBClient,
   ScanCommand,
-  GetItemCommand,
-  PutItemCommand,
   UpdateItemCommand,
 } = require('@aws-sdk/client-dynamodb')
 const {
@@ -103,14 +101,14 @@ exports.handler = async (event) => {
         ExpressionAttributeNames: {
           '#u': 'unit',
         },
-        ExpressionAttributeValues: marshall({
+        ExpressionAttributeValues: {
           ':q': newQuantity,
           ':a': newAmount,
           ':u': unit,
           ':ua': now,
           ':ub': updatedBy,
           ':mid': materialId,
-        }),
+        },
       }
 
       await ddbClient.send(new UpdateItemCommand(updateParams))
