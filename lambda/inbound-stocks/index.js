@@ -47,7 +47,7 @@ const findExistingStock = async (materialId) => {
   const scanParams = {
     TableName: STOCK_TABLE,
     FilterExpression: 'materialId = :m',
-    ExpressionAttributeValues: { ':m': { S: materialId } },
+    ExpressionAttributeValues: { ':m': { N: String(materialId) } },
   }
   const res = await ddbClient.send(new ScanCommand(scanParams))
   const items = res.Items || []
