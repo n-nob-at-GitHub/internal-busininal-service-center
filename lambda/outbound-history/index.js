@@ -140,13 +140,13 @@ exports.handler = async (event) => {
             ExpressionAttributeNames: {
               '#u': 'unit', // unitを予約語から保護
             },
-            ExpressionAttributeValues: marshall({
+            ExpressionAttributeValues: {
               ':q': { N: newQuantity.toString() },
               ':a': { N: newAmount.toString() },
               ':u': { S: unit || '' },
               ':ua': { S: new Date().toISOString() },
               ':ub': { S: updatedBy },
-            }),
+            },
           })
         )
 
@@ -156,11 +156,11 @@ exports.handler = async (event) => {
             Key: { PK: { S: `${ OUTBOUND_PREFIX }${ id }` }, SK: { S: 'DETAIL' } },
             UpdateExpression:
               'SET isValid = :v, updatedAt = :ua, updatedBy = :ub',
-            ExpressionAttributeValues: marshall({
+            ExpressionAttributeValues: {
               ':v': { BOOL: isValid },
               ':ua': { S: new Date().toISOString() },
               ':ub': { S: updatedBy },
-            }),
+            },
           })
         )
 

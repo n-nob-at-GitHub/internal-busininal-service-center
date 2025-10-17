@@ -102,13 +102,13 @@ exports.handler = async (event) => {
           '#u': 'unit',
         },
         ExpressionAttributeValues: {
-          ':q': newQuantity,
-          ':a': newAmount,
-          ':u': unit,
-          ':ua': now,
-          ':ub': updatedBy,
-          ':mid': materialId,
-        },
+            ':q': { N: String(newQuantity) },
+            ':a': { N: String(newAmount) },
+            ':u': { S: unit },
+            ':ua': { S: now },
+            ':ub': { S: updatedBy },
+            ':mid': { N: String(materialId) },
+          }
       }
 
       await ddbClient.send(new UpdateItemCommand(updateParams))
