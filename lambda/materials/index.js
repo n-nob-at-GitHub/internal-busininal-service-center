@@ -53,12 +53,10 @@ exports.handler = async (event) => {
         const materialId = Number(m.PK.S.replace(MATERIAL_PREFIX, ''))
 
         const stockRes = await ddbClient.send(
-          new QueryCommand({
+          new ScanCommand({
             TableName: STOCK_TABLE,
-            KeyConditionExpression: 'PK = :pk',
-            ExpressionAttributeValues: { ':pk': { S: `${ STOCK_PREFIX }${ materialId }` } },
-            ScanIndexForward: false, // updatedAt 降順
-            Limit: 1,
+            FilterExpression: 'materialId = :mid',
+            ExpressionAttributeValues: { ':mid': { N: String(materialId) } },
           })
         )
 
