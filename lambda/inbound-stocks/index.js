@@ -124,7 +124,10 @@ exports.handler = async (event) => {
 
         const updateParams = {
           TableName: STOCK_TABLE,
-          Key: marshall(key),
+          Key: {
+            PK: { S: existingStock.PK },
+            SK: { S: existingStock.SK },
+          },
           UpdateExpression: 'SET totalQuantity = :q, totalAmount = :a, #u = :u, updatedAt = :ua, updatedBy = :ub, materialId = :mid',
           ExpressionAttributeNames: {
             '#u': 'unit',

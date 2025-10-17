@@ -93,10 +93,9 @@ exports.handler = async (event) => {
         throw new Error(`在庫不足です（materialId: ${ materialId }）`)
       }
 
-      const key = { PK: existingStock.PK, SK: existingStock.SK }
       const updateParams = {
         TableName: STOCK_TABLE,
-        Key: marshall(key),
+        Key: { PK: existingStock.PK, SK: existingStock.SK },
         UpdateExpression: 'SET totalQuantity = :q, totalAmount = :a, #u = :u, updatedAt = :ua, updatedBy = :ub, materialId = :mid',
         ExpressionAttributeNames: {
           '#u': 'unit',
