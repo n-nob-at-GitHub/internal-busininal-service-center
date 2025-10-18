@@ -86,13 +86,16 @@ exports.handler = async (event) => {
     for (const entry of body) {
       const id = nextId++
       const now = new Date().toISOString()
+      const stockId = entry.stockId === null || entry.stockId === undefined
+        ? null
+        : Number(entry.stockId)
 
       const item = {
         PK: `${ INBOUND_PREFIX }${ id }`,
         SK: 'DETAIL',
-        stockId: entry.stockId ?? null,
-        quantity: entry.quantity ?? 0,
-        amount: entry.amount ?? ( (entry.quantity ?? 0) * (entry.price ?? 0) ),
+        stockId: stockId,
+        quantity: Number(entry.quantity ?? 0),
+        amount: entry.amount ?? ((Number(entry.quantity ?? 0)) * (Number(entry.price ?? 0))),
         unit: entry.unit ?? '',
         isValid: entry.isValid === undefined ? true : !!entry.isValid,
         createdAt: entry.createdAt ?? now,
